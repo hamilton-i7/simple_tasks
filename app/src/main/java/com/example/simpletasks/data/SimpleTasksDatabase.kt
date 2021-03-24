@@ -7,18 +7,17 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.simpletasks.R
-import com.example.simpletasks.data.preference.Preference
+import com.example.simpletasks.data.settings.Settings
+import com.example.simpletasks.data.settings.SettingsDao
 import com.example.simpletasks.data.task.Task
 import com.example.simpletasks.data.todo.Todo
 import com.example.simpletasks.data.todo.TodoDao
-import com.example.simpletasks.data.user.User
-import com.example.simpletasks.data.user.UserDao
 import com.example.simpletasks.util.Converters
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Database(
-    entities = [Todo::class, User::class],
+    entities = [Todo::class, Settings::class],
     version = 1,
     exportSchema = false
 )
@@ -27,7 +26,7 @@ abstract class SimpleTasksDatabase : RoomDatabase() {
 
     abstract fun todoDao(): TodoDao
 
-    abstract fun userDao(): UserDao
+    abstract fun settingsDao(): SettingsDao
 
     private class SimpleTasksDatabaseCallback(private val scope: CoroutineScope) :
         RoomDatabase.Callback() {
@@ -37,20 +36,20 @@ abstract class SimpleTasksDatabase : RoomDatabase() {
                 scope.launch {
                     populateDatabase(
                         database.todoDao(),
-                        database.userDao()
+                        database.settingsDao()
                     )
                 }
             }
         }
 
-        suspend fun populateDatabase(todoDao: TodoDao, userDao: UserDao) {
+        suspend fun populateDatabase(todoDao: TodoDao, preferencesDao: SettingsDao) {
             todoDao.deleteAllTodos()
-            userDao.deleteAllUsers()
+            preferencesDao.deleteAllSettings()
 
-            val sampleUser = User(
-                preferences = Preference()
+            val sampleSettings = Settings(
+                completedTasksExpanded = true
             )
-            userDao.addUser(sampleUser)
+            preferencesDao.addSettings(sampleSettings)
 
             var sampleTasks = listOf(
                 Task(name = "Replay email"),

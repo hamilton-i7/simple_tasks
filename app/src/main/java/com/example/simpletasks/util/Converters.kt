@@ -1,7 +1,7 @@
 package com.example.simpletasks.util
 
 import androidx.room.TypeConverter
-import com.example.simpletasks.data.preference.Preference
+import com.example.simpletasks.data.settings.Settings
 import com.example.simpletasks.data.task.Task
 import com.google.gson.Gson
 
@@ -18,11 +18,11 @@ class Converters {
 
         @TypeConverter
         @JvmStatic
-        fun toPreference(value: String): Preference =
-            Gson().fromJson(value, Preference::class.java)
+        fun toPreference(value: String): Settings =
+            Gson().fromJson(value, Settings::class.java)
 
         @TypeConverter
         @JvmStatic
-        fun fromPreference(value: Preference): String = Gson().toJson(value)
+        fun fromPreference(value: Settings): String = Gson().toJson(value)
     }
 }
