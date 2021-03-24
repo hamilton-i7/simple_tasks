@@ -70,19 +70,21 @@ class HomeFragment : Fragment() {
                                 }
                             }, modifier = Modifier.fillMaxSize())
 
-                            NewListDialog(
-                                todoViewModel = todoViewModel,
-                                labels = labels,
-                                isExpanded = isExpanded,
-                                onExpandChange = { isExpanded = !isExpanded },
-                                onDismissRequest = {
-                                    todoViewModel.onDialogStatusChange(false)
-                                },
-                                selectedOption = todoViewModel.newTodoColor,
-                                onOptionsSelected = todoViewModel::onNewColorChange,
-                                onCancel = { todoViewModel.onCancelDialog() },
-                                onDone = { todoViewModel.onDone(todos) }
-                            )
+                            if (todoViewModel.isDialogVisible) {
+                                NewListDialog(
+                                    todoViewModel = todoViewModel,
+                                    labels = labels,
+                                    isExpanded = isExpanded,
+                                    onExpandChange = { isExpanded = !isExpanded },
+                                    onDismissRequest = {
+                                        todoViewModel.onDialogStatusChange(false)
+                                    },
+                                    selectedOption = todoViewModel.newTodoColor,
+                                    onOptionsSelected = todoViewModel::onNewColorChange,
+                                    onCancel = { todoViewModel.onCancelDialog() },
+                                    onDone = { todoViewModel.onDone(todos) }
+                                )
+                            }
                         }
                     }
                 }

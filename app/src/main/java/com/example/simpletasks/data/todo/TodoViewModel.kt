@@ -11,6 +11,7 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.simpletasks.R
 import com.example.simpletasks.data.SimpleTasksDatabase
+import com.example.simpletasks.data.task.Task
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -102,6 +103,16 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
     fun onCancelDialog() {
         clearNameField()
         isDialogVisible = false
+    }
+
+    fun onTasksSwap(todo: Todo, tasks: List<Task>) {
+        val updatedTodo = Todo(
+            id = todo.id,
+            name = todo.name,
+            colorResource = todo.colorResource,
+            tasks = tasks + todo.tasks.filter { it.completed }
+        )
+        updateTodo(updatedTodo)
     }
 
     fun onCancel() {
