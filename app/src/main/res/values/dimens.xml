@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="splash_column_width">40dp</dimen>
+    <dimen name="space_between_70">70dp</dimen>
+    <dimen name="space_between_10">10dp</dimen>
+    <dimen name="space_between_2">2dp</dimen>
+    <dimen name="space_between_8">8dp</dimen>
+    <dimen name="space_between_16">16dp</dimen>
+    <dimen name="space_between_4">4dp</dimen>
+    <dimen name="space_between_6">6dp</dimen>
+</resources>

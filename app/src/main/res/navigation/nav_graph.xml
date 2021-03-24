@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.simpletasks.ui.home.HomeFragment"
+        android:label="@string/lists">
+        <action
+            android:id="@+id/action_homeFragment_to_todoFragment"
+            app:destination="@id/todoFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/todoFragment"
+        android:name="com.example.simpletasks.ui.todo.TodoFragment"
+        tools:layout="@layout/fragment_todo">
+        <argument
+            android:name="todo"
+            app:argType="com.example.simpletasks.data.todo.Todo" />
+    </fragment>
+</navigation>
