@@ -11,10 +11,14 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 @ExperimentalCoroutinesApi
 class TaskViewModel(private val todoViewModel: TodoViewModel, todo: Todo) : ViewModel() {
 
+    private var _uncompletedTasks = MutableLiveData<List<Task>>()
+    val uncompletedTasks: LiveData<List<Task>> get() = _uncompletedTasks
+
     private var _completedTasks = MutableLiveData<List<Task>>()
     val completedTasks: LiveData<List<Task>> get() = _completedTasks
 
     init {
+        _uncompletedTasks.value = todo.tasks.filter { !it.completed }
         _completedTasks.value = todo.tasks.filter { it.completed }
     }
 

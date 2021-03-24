@@ -13,11 +13,14 @@ import com.example.simpletasks.R
 import com.example.simpletasks.data.SimpleTasksDatabase
 import com.example.simpletasks.data.task.Task
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 
+@ExperimentalCoroutinesApi
 class TodoViewModel(application: Application) : AndroidViewModel(application) {
 
     private val applicationScope = CoroutineScope(SupervisorJob())
@@ -46,7 +49,8 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
     init {
         val todoDao = SimpleTasksDatabase.getDatabase(application, applicationScope).todoDao()
         repo = TodoRepo(todoDao)
-        todos = repo.readAllTodos().asLiveData()
+        val todosFLow = _searchQuery.flatMapLatest { repo.readTodosByQuery(it) }
+        todos = todosFLow.asLiveData()
     }
 
     @Composable

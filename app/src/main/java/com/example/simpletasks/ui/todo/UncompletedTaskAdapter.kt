@@ -50,7 +50,7 @@ class UncompletedTaskAdapter(
         notifyItemMoved(startPosition, endPosition)
     }
 
-    fun updatedList(tasks: List<Task>) {
+    fun updateList(tasks: List<Task>) {
         this.tasks = tasks as MutableList<Task>
     }
 
