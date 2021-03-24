@@ -6,10 +6,12 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.simpletasks.data.task.Task
-import com.example.simpletasks.data.todo.Todo
+import com.example.simpletasks.data.todo.TodoScreenViewModel
 import com.example.simpletasks.ui.theme.SimpleTasksTheme
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
-class CompletedTaskAdapter(private val todo: Todo) :
+@ExperimentalCoroutinesApi
+class CompletedTaskAdapter(private val todoScreenViewModel: TodoScreenViewModel) :
 ListAdapter<Task, CompletedTaskAdapter.CompletedTaskViewHolder>(DiffCallback()) {
 
     inner class CompletedTaskViewHolder(private val view: ComposeView) :
@@ -20,7 +22,7 @@ ListAdapter<Task, CompletedTaskAdapter.CompletedTaskViewHolder>(DiffCallback()) 
                 SimpleTasksTheme {
                     CompletedTaskRow(
                         name = task.name,
-                        iconColor = todo.colorResource
+                        iconColor = todoScreenViewModel.labelColor
                     ) {}
                 }
             }

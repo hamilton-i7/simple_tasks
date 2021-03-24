@@ -9,7 +9,10 @@ import com.example.simpletasks.data.todo.TodoViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
-class TaskViewModel(private val todoViewModel: TodoViewModel, todo: Todo) : ViewModel() {
+class TaskViewModel(
+    todo: Todo,
+    private val todoViewModel: TodoViewModel
+) : ViewModel() {
 
     private var _uncompletedTasks = MutableLiveData<List<Task>>()
     val uncompletedTasks: LiveData<List<Task>> get() = _uncompletedTasks
@@ -99,9 +102,9 @@ class TaskViewModel(private val todoViewModel: TodoViewModel, todo: Todo) : View
 @ExperimentalCoroutinesApi
 @Suppress("UNCHECKED_CAST")
 class TaskViewModelFactory(
-    private val todoViewModel: TodoViewModel,
-    private val todo: Todo
+    private val todo: Todo,
+    private val todoViewModel: TodoViewModel
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T =
-        TaskViewModel(todoViewModel, todo) as T
+        TaskViewModel(todo, todoViewModel) as T
 }

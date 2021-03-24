@@ -45,6 +45,8 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
 
     var isDialogVisible by mutableStateOf(false)
         private set
+    var isLabelDialogVisible by mutableStateOf(false)
+        private set
 
     init {
         val todoDao = SimpleTasksDatabase.getDatabase(application, applicationScope).todoDao()
@@ -82,6 +84,10 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
         if (!showDialog) resetValidationState()
     }
 
+    fun onLabelDialogStatusChange(showDialog: Boolean) {
+        isLabelDialogVisible = showDialog
+    }
+
     fun onNewNameChange(name: String) {
         newTodoName = name
     }
@@ -92,16 +98,6 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
 
     fun onNameChange(name: String) {
         todoName = name
-    }
-
-    fun onLabelChange(todo: Todo, @ColorRes newColor: Int) {
-        val updatedTodo = Todo(
-            id = todo.id,
-            name = todo.name,
-            colorResource = newColor,
-            tasks = todo.tasks
-        )
-        updateTodo(updatedTodo)
     }
 
     fun onCancelDialog() {

@@ -1,11 +1,9 @@
 package com.example.simpletasks.ui.todo
 
 import androidx.annotation.ColorRes
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Circle
@@ -17,11 +15,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import com.example.simpletasks.R
-import com.example.simpletasks.data.todo.Todo
+import com.example.simpletasks.data.label.Label
+import com.example.simpletasks.ui.components.LabelOptions
 
 @Composable
 fun UncompletedTaskRow(
@@ -71,11 +72,11 @@ fun CompletedTaskRow(
 
 @Composable
 fun TodoFAB(
-    todo: Todo,
+    @ColorRes backgroundColor: Int,
     onClick: () -> Unit
 ) {
     FloatingActionButton(
-        backgroundColor = colorResource(id = todo.colorResource),
+        backgroundColor = colorResource(id = backgroundColor),
         onClick = onClick
     ) {
         Icon(
@@ -118,6 +119,32 @@ fun CompletedIndicator(
                     imageVector = Icons.Rounded.ExpandMore,
                     contentDescription = stringResource(id = R.string.show_labels),
                     modifier = Modifier.padding(12.dp)
+                )
+            }
+        }
+    }
+}
+
+@ExperimentalFoundationApi
+@Composable
+fun LabelDialog(
+    labels: List<Label>,
+    onDismissRequest: () -> Unit,
+    @ColorRes selectedOption: Int,
+    onOptionsSelected: (Int) -> Unit
+) {
+    Dialog(onDismissRequest = onDismissRequest) {
+        Surface(shape = MaterialTheme.shapes.medium) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.padding(
+                    dimensionResource(id = R.dimen.space_between_16)
+                )
+            ) {
+                LabelOptions(
+                    labels = labels,
+                    selectedOption = selectedOption,
+                    onOptionsSelected = onOptionsSelected
                 )
             }
         }

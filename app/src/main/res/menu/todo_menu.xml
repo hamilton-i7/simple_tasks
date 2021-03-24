@@ -7,7 +7,7 @@
         android:title="@string/rename_list"
         app:showAsAction="never"/>
     <item
-        android:id="@+id/action_change_label"
+        android:id="@+id/action_change_label_color"
         android:title="@string/change_label_color"
         app:showAsAction="never"/>
     <item
