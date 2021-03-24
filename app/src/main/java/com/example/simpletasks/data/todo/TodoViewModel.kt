@@ -75,10 +75,6 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
         _searchQuery.value = query
     }
 
-    fun clearNameField() {
-        newTodoName = ""
-    }
-
     fun onDialogStatusChange(showDialog: Boolean) {
         isDialogVisible = showDialog
         if (!showDialog) resetValidationState()
@@ -101,8 +97,8 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun onCancelDialog() {
-        clearNameField()
         isDialogVisible = false
+        clearNameField()
     }
 
     fun onTasksSwap(todo: Todo, tasks: List<Task>) {
@@ -161,6 +157,10 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun addTodo(todo: Todo) = viewModelScope.launch {
         repo.addTodo(todo)
+    }
+
+    private fun clearNameField() {
+        newTodoName = ""
     }
 
     private fun onValidName(todo: Todo) {

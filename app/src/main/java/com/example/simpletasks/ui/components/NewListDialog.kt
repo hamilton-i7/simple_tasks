@@ -116,7 +116,6 @@ private fun DialogTextField(
     modifier: Modifier = Modifier
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
-
     TextField(
         value = listName,
         onValueChange = onNameChange,
