@@ -6,6 +6,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -14,6 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -59,7 +61,11 @@ class HomeFragment : Fragment() {
                             HomeFAB { todoViewModel.onDialogStatusChange(true) }
                         }
                     ) {
-                        Box {
+                        Box(
+                            modifier = Modifier.padding(
+                                dimensionResource(id = R.dimen.space_between_8)
+                            )
+                        ) {
                             AndroidView({ context ->
                                 RecyclerView(context).apply {
                                     id = R.id.todo_card_recyclerview
