@@ -35,11 +35,13 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion '1.0.0-beta01'
-    }
     kotlinOptions {
         jvmTarget = '1.8'
+        useIR = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion compose_version
+        kotlinCompilerVersion '1.4.30'
     }
 }
 
@@ -47,24 +49,24 @@ dependencies {
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'androidx.core:core-ktx:1.3.2'
-    implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation "androidx.appcompat:appcompat:$appCompatVersion"
-    implementation "androidx.activity:activity-ktx:$activityVersion"
-    implementation "androidx.core:core-ktx:$kotlinCoreVersion"
+    implementation "androidx.appcompat:appcompat:$app_compat_version"
+    implementation "androidx.activity:activity-ktx:$activity_version"
+    implementation "androidx.fragment:fragment-ktx:$fragment_version"
+    implementation "androidx.core:core-ktx:$kotlin_core_version"
 
     // Room components
-    implementation "androidx.room:room-ktx:$roomVersion"
+    implementation "androidx.room:room-ktx:$room_version"
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    kapt "androidx.room:room-compiler:$roomVersion"
-    androidTestImplementation "androidx.room:room-testing:$roomVersion"
+    kapt "androidx.room:room-compiler:$room_version"
+    androidTestImplementation "androidx.room:room-testing:$room_version"
 
     //Gson
     implementation 'com.google.code.gson:gson:2.8.6'
 
     // Lifecycle components
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion"
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion"
-    implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycleVersion"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
 
     // Kotlin components
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
@@ -72,10 +74,10 @@ dependencies {
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines"
 
     // UI
-    implementation "androidx.constraintlayout:constraintlayout:$constraintLayoutVersion"
-    implementation "com.google.android.material:material:$materialVersion"
-    implementation "androidx.drawerlayout:drawerlayout:$drawerLayoutVersion"
-    implementation "it.xabaras.android:recyclerview-swipedecorator:$xabarasVersion"
+    implementation "androidx.constraintlayout:constraintlayout:$constraint_layout_version"
+    implementation "com.google.android.material:material:$material_version"
+    implementation "androidx.drawerlayout:drawerlayout:$drawer_layout_version"
+    implementation "it.xabaras.android:recyclerview-swipedecorator:$xabaras_version"
     implementation "androidx.recyclerview:recyclerview:1.1.0"
     implementation "androidx.recyclerview:recyclerview-selection:1.1.0"
 
@@ -84,31 +86,31 @@ dependencies {
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
 
     // Testing
-    testImplementation "junit:junit:$junitVersion"
-    androidTestImplementation "androidx.arch.core:core-testing:$coreTestingVersion"
-    androidTestImplementation ("androidx.test.espresso:espresso-core:$espressoVersion", {
+    testImplementation "junit:junit:$junit_version"
+    androidTestImplementation "androidx.arch.core:core-testing:$core_testing_version"
+    androidTestImplementation ("androidx.test.espresso:espresso-core:$espresso_version", {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
+    androidTestImplementation "androidx.test.ext:junit:$androidx_junit_version"
 
-    implementation 'androidx.compose.ui:ui:1.0.0-beta01'
+    implementation "androidx.compose.ui:ui:$compose_version"
     // Tooling support (Previews, etc.)
-    implementation 'androidx.compose.ui:ui-tooling:1.0.0-beta01'
+    implementation "androidx.compose.ui:ui-tooling:$compose_version"
     // Foundation (Border, Background, Box, Image, Scroll, shapes, animations, etc.)
-    implementation 'androidx.compose.foundation:foundation:1.0.0-beta01'
+    implementation "androidx.compose.foundation:foundation:$compose_version"
     // Material Design
-    implementation 'androidx.compose.material:material:1.0.0-beta01'
+    implementation "androidx.compose.material:material:$compose_version"
     // Material design icons
-    implementation 'androidx.compose.material:material-icons-core:1.0.0-beta01'
-    implementation 'androidx.compose.material:material-icons-extended:1.0.0-beta01'
+    implementation "androidx.compose.material:material-icons-core:$compose_version"
+    implementation "androidx.compose.material:material-icons-extended:$compose_version"
     // Integration with activities
-    implementation 'androidx.activity:activity-compose:1.3.0-alpha03'
+    implementation 'androidx.activity:activity-compose:1.3.0-alpha04'
     // Integration with ViewModels
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha02'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha03'
     // Integration with observables
-    implementation 'androidx.compose.runtime:runtime-livedata:1.0.0-beta01'
-    implementation 'androidx.compose.runtime:runtime-rxjava2:1.0.0-beta01'
+    implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
+    implementation "androidx.compose.runtime:runtime-rxjava2:$compose_version"
 
     // UI Tests
-    androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.0.0-beta01'
+    androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
 }

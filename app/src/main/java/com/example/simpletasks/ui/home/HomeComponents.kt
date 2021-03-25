@@ -54,7 +54,7 @@ fun TodoCard(todo: Todo, modifier: Modifier = Modifier, onClick: () -> Unit = {}
                 dimensionResource(id = R.dimen.space_between_6)
             ))
             todo.tasks.forEach { task ->
-                TaskRow(task = task)
+                TaskRow(todo, task)
                 Spacer(modifier = Modifier.padding(4.dp))
             }
         }
@@ -62,7 +62,7 @@ fun TodoCard(todo: Todo, modifier: Modifier = Modifier, onClick: () -> Unit = {}
 }
 
 @Composable
-fun TaskRow(task: Task, modifier: Modifier = Modifier) {
+fun TaskRow(todo: Todo, task: Task, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
@@ -88,7 +88,7 @@ fun TaskRow(task: Task, modifier: Modifier = Modifier) {
             Icon(
                 imageVector = Icons.Rounded.Check,
                 contentDescription = null,
-                tint = MaterialTheme.colors.primary,
+                tint = colorResource(id = todo.colorResource),
                 modifier = Modifier.size(16.dp)
             )
             Spacer(

@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.simpletasks.data.task.Task
+import com.example.simpletasks.data.task.TaskViewModel
 import com.example.simpletasks.data.todo.Todo
 import com.example.simpletasks.data.todo.TodoViewModel
 import com.example.simpletasks.ui.theme.SimpleTasksTheme
@@ -16,20 +17,23 @@ import java.util.*
 @ExperimentalCoroutinesApi
 class UncompletedTaskAdapter(
     private val todoViewModel: TodoViewModel,
+    private val taskViewModel: TaskViewModel,
     private val todo: Todo
 ):
     ListAdapter<Task, UncompletedTaskAdapter.UncompletedTaskViewHolder>(DiffCallback()) {
 
     private var tasks = mutableListOf<Task>()
 
-    class UncompletedTaskViewHolder(private val view: ComposeView) :
+    inner class UncompletedTaskViewHolder(private val view: ComposeView) :
         RecyclerView.ViewHolder(view) {
 
         fun bind(task: Task) {
             view.setContent {
                 SimpleTasksTheme {
                     Surface {
-                        UncompletedTaskRow(name = task.name) {}
+                        UncompletedTaskRow(name = task.name) {
+                            taskViewModel.onTaskStateChange(completed = true, task, todo)
+                        }
                     }
                 }
             }
@@ -46,8 +50,8 @@ class UncompletedTaskAdapter(
 
     fun swapItems(startPosition: Int, endPosition: Int) {
         Collections.swap(tasks, startPosition, endPosition)
-        todoViewModel.onTasksSwap(todo, tasks)
         notifyItemMoved(startPosition, endPosition)
+        todoViewModel.onTasksSwap(todo, tasks)
     }
 
     fun updateList(tasks: List<Task>) {

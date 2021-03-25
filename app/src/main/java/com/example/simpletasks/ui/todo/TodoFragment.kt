@@ -30,6 +30,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.simpletasks.R
 import com.example.simpletasks.data.label.LabelSource
+import com.example.simpletasks.data.settings.Settings
 import com.example.simpletasks.data.settings.SettingsViewModel
 import com.example.simpletasks.data.task.TaskViewModel
 import com.example.simpletasks.data.task.TaskViewModelFactory
@@ -72,22 +73,21 @@ class TodoFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        uncompletedTaskAdapter = UncompletedTaskAdapter(todoViewModel, args.todo)
-        completedTaskAdapter = CompletedTaskAdapter(todoScreenViewModel)
+        uncompletedTaskAdapter = UncompletedTaskAdapter(todoViewModel, taskViewModel, args.todo)
+        completedTaskAdapter = CompletedTaskAdapter(todoScreenViewModel, taskViewModel, args.todo)
 
         (requireActivity() as AppCompatActivity).supportActionBar?.title = args.todo.name
         setHasOptionsMenu(true)
 
         return ComposeView(requireContext()).apply {
             setContent {
-                val settings by settingsViewModel.readSettings()
+                val settings by settingsViewModel.readSettings().observeAsState(
+                    initial = Settings()
+                )
+                val tasks by taskViewModel.tasks.observeAsState(
+                    initial = listOf()
+                )
                 val scrollState = rememberScrollState()
-                val uncompletedTasks by taskViewModel.uncompletedTasks.observeAsState(
-                    initial = listOf()
-                )
-                val completedTasks by taskViewModel.completedTasks.observeAsState(
-                    initial = listOf()
-                )
                 val (labelColor, setLabelColor) =
                     rememberSaveable { mutableStateOf(args.todo.colorResource) }
 
@@ -134,8 +134,8 @@ class TodoFragment : Fragment() {
                                 }
                             }, modifier = Modifier.fillMaxWidth())
 
-                            if (completedTasks.isNotEmpty()) {
-                                if (uncompletedTasks.isNotEmpty()) {
+                            if (tasks.any { it.completed }) {
+                                if (tasks.any { !it.completed }) {
                                     Divider(
                                         modifier = Modifier.padding(
                                             horizontal = 0.dp,
@@ -144,9 +144,9 @@ class TodoFragment : Fragment() {
                                     )
                                 }
                                 CompletedIndicator(
-                                    isExpanded = settingsViewModel.isExpanded,
+                                    isExpanded = settings.completedTasksExpanded,
                                     onExpandChange = { settingsViewModel.onExpandChange(settings) },
-                                    completedAmount = completedTasks.size
+                                    completedAmount = tasks.filter { it.completed }.size
                                 )
 
                                 if (settings.completedTasksExpanded) {
@@ -169,15 +169,15 @@ class TodoFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        taskViewModel.uncompletedTasks.observe(viewLifecycleOwner) {
-            uncompletedTaskAdapter.apply {
-                submitList(it)
-                updateList(it)
-            }
+        taskViewModel.tasks.observe(viewLifecycleOwner) {
+            val uncompleted = it.filter { task -> !task.completed }
+            val completed = it.filter { task -> task.completed }
 
-        }
-        taskViewModel.completedTasks.observe(viewLifecycleOwner) {
-            completedTaskAdapter.submitList(it)
+            uncompletedTaskAdapter.apply {
+                submitList(uncompleted)
+                updateList(uncompleted)
+            }
+            completedTaskAdapter.submitList(completed)
         }
     }
 

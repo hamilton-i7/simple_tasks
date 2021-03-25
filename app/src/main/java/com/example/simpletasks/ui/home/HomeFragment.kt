@@ -87,8 +87,11 @@ class HomeFragment : Fragment() {
                                     },
                                     selectedOption = todoViewModel.newTodoColor,
                                     onOptionsSelected = todoViewModel::onNewColorChange,
-                                    onCancel = { todoViewModel.onCancelDialog() },
-                                    onDone = { todoViewModel.onDone(todos) }
+                                    onCancel = {
+                                        todoViewModel.onCancelDialog()
+                                        isExpanded = false
+                                    },
+                                    onDone = { todoViewModel.onDone(todos, findNavController()) }
                                 )
                             }
                         }

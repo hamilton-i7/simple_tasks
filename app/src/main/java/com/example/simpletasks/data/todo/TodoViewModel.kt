@@ -9,9 +9,11 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import com.example.simpletasks.R
 import com.example.simpletasks.data.SimpleTasksDatabase
 import com.example.simpletasks.data.task.Task
+import com.example.simpletasks.ui.home.HomeFragmentDirections
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
@@ -103,6 +105,7 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
     fun onCancelDialog() {
         clearNameField()
         isDialogVisible = false
+        newTodoColor = R.color.default_color
     }
 
     fun onTasksSwap(todo: Todo, tasks: List<Task>) {
@@ -136,13 +139,15 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun onDone(todos: List<Todo>) {
+    fun onDone(todos: List<Todo>, navController: NavController) {
         if (
             isValidName(newTodoName) &&
             !isNameRepeated(newTodoName, todos)
         ) {
             val newTodo = createTodo()
+            val action = HomeFragmentDirections.actionHomeFragmentToTodoFragment(newTodo)
             onValidName(newTodo)
+            navController.navigate(action)
         } else if (!isValidName(newTodoName)) {
             onInvalidName()
         } else if (isNameRepeated(newTodoName, todos)) {

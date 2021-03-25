@@ -14,15 +14,11 @@ class TaskViewModel(
     private val todoViewModel: TodoViewModel
 ) : ViewModel() {
 
-    private var _uncompletedTasks = MutableLiveData<List<Task>>()
-    val uncompletedTasks: LiveData<List<Task>> get() = _uncompletedTasks
-
-    private var _completedTasks = MutableLiveData<List<Task>>()
-    val completedTasks: LiveData<List<Task>> get() = _completedTasks
+    private var _tasks = MutableLiveData<List<Task>>()
+    val tasks: LiveData<List<Task>> get() = _tasks
 
     init {
-        _uncompletedTasks.value = todo.tasks.filter { !it.completed }
-        _completedTasks.value = todo.tasks.filter { it.completed }
+        _tasks.value = todo.tasks
     }
 
     fun onTaskStateChange(
@@ -30,7 +26,7 @@ class TaskViewModel(
         task: Task,
         todo: Todo,
     ) {
-        val newList = todo.tasks.toMutableList().also { it.remove(task) }
+        val newList = _tasks.value!!.toMutableList().also { it.remove(task) }
         val updatedTask = Task(
             id = task.id,
             name = task.name,
@@ -46,6 +42,7 @@ class TaskViewModel(
             colorResource = todo.colorResource,
             tasks = newList
         )
+        _tasks.value = newList
         todoViewModel.updateTodo(updatedTodo)
     }
 
@@ -66,7 +63,7 @@ class TaskViewModel(
     fun onCompletedTasksDelete(todo: Todo) {
         val remainingTasks = todo.tasks.filter { !it.completed }
         val updatedTodo = Todo(todo.id!!, todo.name, todo.colorResource, remainingTasks)
-        _completedTasks.value = listOf()
+        _tasks.value = remainingTasks
         todoViewModel.updateTodo(updatedTodo)
     }
 
