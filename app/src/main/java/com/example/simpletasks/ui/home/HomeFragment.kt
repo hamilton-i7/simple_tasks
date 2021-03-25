@@ -19,6 +19,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.asLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
@@ -103,9 +104,14 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        todoViewModel.todos.observe(viewLifecycleOwner) { todos ->
+        todoViewModel.todos.asLiveData().observe(viewLifecycleOwner) { todos ->
             todoCardAdapter.submitList(todos)
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        todoViewModel.onQueryChange("")
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

@@ -15,8 +15,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -67,13 +69,19 @@ class TodoFragment : Fragment() {
     private lateinit var uncompletedTaskAdapter: UncompletedTaskAdapter
     private lateinit var completedTaskAdapter: CompletedTaskAdapter
 
+    @ExperimentalComposeUiApi
     @ExperimentalFoundationApi
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        uncompletedTaskAdapter = UncompletedTaskAdapter(todoViewModel, taskViewModel, args.todo)
+        uncompletedTaskAdapter = UncompletedTaskAdapter(
+            todoViewModel,
+            taskViewModel,
+            args.todo,
+            findNavController()
+        )
         completedTaskAdapter = CompletedTaskAdapter(todoScreenViewModel, taskViewModel, args.todo)
 
         (requireActivity() as AppCompatActivity).supportActionBar?.title = args.todo.name
@@ -81,6 +89,7 @@ class TodoFragment : Fragment() {
 
         return ComposeView(requireContext()).apply {
             setContent {
+                LocalSoftwareKeyboardController.current?.hideSoftwareKeyboard()
                 val settings by settingsViewModel.readSettings().observeAsState(
                     initial = Settings()
                 )
@@ -169,6 +178,7 @@ class TodoFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        todoViewModel.onNameChange(args.todo.name)
         taskViewModel.tasks.observe(viewLifecycleOwner) {
             val uncompleted = it.filter { task -> !task.completed }
             val completed = it.filter { task -> task.completed }
@@ -188,6 +198,7 @@ class TodoFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_rename_list -> {
+                goToEditingScreen()
                 true
             }
             R.id.action_change_label_color -> {
@@ -209,5 +220,10 @@ class TodoFragment : Fragment() {
 
     private fun goToHomeScreen() {
         findNavController().navigateUp()
+    }
+
+    private fun goToEditingScreen() {
+        val action = TodoFragmentDirections.actionTodoFragmentToTodoEditFragment(args.todo)
+        findNavController().navigate(action)
     }
 }

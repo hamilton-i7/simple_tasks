@@ -3,6 +3,7 @@ package com.example.simpletasks.ui.todo
 import androidx.annotation.ColorRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -12,6 +13,7 @@ import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
@@ -28,7 +30,8 @@ import com.example.simpletasks.ui.components.LabelOptions
 fun UncompletedTaskRow(
     name: String,
     modifier: Modifier = Modifier,
-    onTaskComplete: () -> Unit
+    onTaskComplete: () -> Unit,
+    onNameClick: () -> Unit
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         IconButton(onClick = onTaskComplete) {
@@ -40,7 +43,13 @@ fun UncompletedTaskRow(
         Text(
             text = name,
             maxLines = 1,
-            modifier = modifier.fillMaxWidth()
+            modifier = modifier
+                .fillMaxWidth()
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = onNameClick
+                )
         )
     }
 }

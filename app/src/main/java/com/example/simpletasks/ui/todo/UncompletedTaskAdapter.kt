@@ -3,6 +3,7 @@ package com.example.simpletasks.ui.todo
 import android.view.ViewGroup
 import androidx.compose.material.Surface
 import androidx.compose.ui.platform.ComposeView
+import androidx.navigation.NavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -18,7 +19,8 @@ import java.util.*
 class UncompletedTaskAdapter(
     private val todoViewModel: TodoViewModel,
     private val taskViewModel: TaskViewModel,
-    private val todo: Todo
+    private val todo: Todo,
+    private val navController: NavController
 ):
     ListAdapter<Task, UncompletedTaskAdapter.UncompletedTaskViewHolder>(DiffCallback()) {
 
@@ -31,9 +33,13 @@ class UncompletedTaskAdapter(
             view.setContent {
                 SimpleTasksTheme {
                     Surface {
-                        UncompletedTaskRow(name = task.name) {
-                            taskViewModel.onTaskStateChange(completed = true, task, todo)
-                        }
+                        UncompletedTaskRow(
+                            name = task.name,
+                            onTaskComplete = {
+                                taskViewModel.onTaskStateChange(completed = true, task, todo)
+                            },
+                            onNameClick =  { todoViewModel.onTaskClick(todo, task, navController) }
+                        )
                     }
                 }
             }

@@ -61,7 +61,7 @@ class TaskViewModel(
     }
 
     fun onCompletedTasksDelete(todo: Todo) {
-        val remainingTasks = todo.tasks.filter { !it.completed }
+        val remainingTasks = _tasks.value!!.filter { !it.completed }
         val updatedTodo = Todo(todo.id!!, todo.name, todo.colorResource, remainingTasks)
         _tasks.value = remainingTasks
         todoViewModel.updateTodo(updatedTodo)

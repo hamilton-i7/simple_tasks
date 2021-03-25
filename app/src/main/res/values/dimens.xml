@@ -8,4 +8,5 @@
     <dimen name="space_between_16">16dp</dimen>
     <dimen name="space_between_4">4dp</dimen>
     <dimen name="space_between_6">6dp</dimen>
+    <dimen name="space_between_20">20dp</dimen>
 </resources>

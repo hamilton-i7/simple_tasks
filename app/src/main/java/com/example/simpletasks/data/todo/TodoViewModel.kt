@@ -6,20 +6,18 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.toLowerCase
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.simpletasks.R
 import com.example.simpletasks.data.SimpleTasksDatabase
 import com.example.simpletasks.data.task.Task
 import com.example.simpletasks.ui.home.HomeFragmentDirections
+import com.example.simpletasks.ui.todo.TodoFragmentDirections
+import com.example.simpletasks.ui.todo.edit.TodoEditFragmentDirections
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 @ExperimentalCoroutinesApi
@@ -30,7 +28,7 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> get() = _searchQuery
-    val todos: LiveData<List<Todo>>
+    val todos: Flow<List<Todo>>
 
     var newTodoName by mutableStateOf("")
         private set
@@ -53,8 +51,7 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
     init {
         val todoDao = SimpleTasksDatabase.getDatabase(application, applicationScope).todoDao()
         repo = TodoRepo(todoDao)
-        val todosFLow = _searchQuery.flatMapLatest { repo.readTodosByQuery(it) }
-        todos = todosFLow.asLiveData()
+        todos = _searchQuery.flatMapLatest { repo.readTodosByQuery(it) }
     }
 
     @Composable
@@ -118,24 +115,35 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
         updateTodo(updatedTodo)
     }
 
+    fun onTaskClick(todo: Todo, task: Task, navController: NavController) {
+        val action = TodoFragmentDirections.actionTodoFragmentToTaskEditFragment(todo, task)
+        navController.navigate(action)
+    }
+
     fun onCancel() {
         resetValidationState()
     }
 
-    fun onDone(todo: Todo, todos: List<Todo>) {
-        if (todoName == todo.name || (isValidName(todoName) && !isNameRepeated(todoName, todos))) {
-            val updatedTodo = Todo(
-                id = todo.id,
-                name = todoName,
-                colorResource = todo.colorResource,
-                tasks = todo.tasks
-            )
-            updateTodo(updatedTodo)
-            resetValidationState()
-        } else if (!isValidName(todoName)) {
-            onInvalidName()
-        } else if (isNameRepeated(todoName, todos)) {
-            onNameRepeated()
+    fun onDone(todo: Todo, navController: NavController) {
+        viewModelScope.launch {
+            val test = todos.stateIn(applicationScope)
+            if (todoName == todo.name || (isValidName(todoName) && !isNameRepeated(todoName, test.value))) {
+                val updatedTodo = Todo(
+                    id = todo.id,
+                    name = todoName,
+                    colorResource = todo.colorResource,
+                    tasks = todo.tasks
+                )
+                updateTodo(updatedTodo)
+                resetValidationState()
+                val action =
+                    TodoEditFragmentDirections.actionTodoEditFragmentToTodoFragment(updatedTodo)
+                navController.navigate(action)
+            } else if (!isValidName(todoName)) {
+                onInvalidName()
+            } else if (isNameRepeated(todoName, test.value)) {
+                onNameRepeated()
+            }
         }
     }
 

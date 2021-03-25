@@ -16,10 +16,38 @@
 
     <fragment
         android:id="@+id/todoFragment"
-        android:name="com.example.simpletasks.ui.todo.TodoFragment"
-        tools:layout="@layout/fragment_todo">
+        android:name="com.example.simpletasks.ui.todo.TodoFragment">
         <argument
             android:name="todo"
             app:argType="com.example.simpletasks.data.todo.Todo" />
+        <action
+            android:id="@+id/action_todoFragment_to_todoEditFragment"
+            app:destination="@id/todoEditFragment" />
+        <action
+            android:id="@+id/action_todoFragment_to_taskEditFragment"
+            app:destination="@id/taskEditFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/todoEditFragment"
+        android:name="com.example.simpletasks.ui.todo.edit.TodoEditFragment"
+        android:label="@string/rename_list" >
+        <argument
+            android:name="todo"
+            app:argType="com.example.simpletasks.data.todo.Todo" />
+        <action
+            android:id="@+id/action_todoEditFragment_to_todoFragment"
+            app:destination="@id/todoFragment"
+            app:popUpTo="@id/todoFragment"
+            app:popUpToInclusive="true"/>
+    </fragment>
+    <fragment
+        android:id="@+id/taskEditFragment"
+        android:name="com.example.simpletasks.ui.todo.edit.TaskEditFragment">
+        <argument
+            android:name="todo"
+            app:argType="com.example.simpletasks.data.todo.Todo" />
+        <argument
+            android:name="task"
+            app:argType="com.example.simpletasks.data.task.Task" />
     </fragment>
 </navigation>
