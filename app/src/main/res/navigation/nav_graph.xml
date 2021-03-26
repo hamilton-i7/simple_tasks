@@ -25,7 +25,7 @@
             app:destination="@id/todoEditFragment" />
         <action
             android:id="@+id/action_todoFragment_to_taskEditFragment"
-            app:destination="@id/taskEditFragment" />
+            app:destination="@id/editTaskFragment" />
     </fragment>
     <fragment
         android:id="@+id/todoEditFragment"
@@ -41,8 +41,8 @@
             app:popUpToInclusive="true"/>
     </fragment>
     <fragment
-        android:id="@+id/taskEditFragment"
-        android:name="com.example.simpletasks.ui.todo.edit.TaskEditFragment">
+        android:id="@+id/editTaskFragment"
+        android:name="com.example.simpletasks.ui.task.edit.EditTaskFragment">
         <argument
             android:name="todo"
             app:argType="com.example.simpletasks.data.todo.Todo" />

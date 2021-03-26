@@ -1,4 +1,4 @@
-package com.example.simpletasks.ui.todo.edit
+package com.example.simpletasks.ui.task.edit
 
 import android.os.Bundle
 import android.view.*
@@ -17,8 +17,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import com.example.simpletasks.R
-import com.example.simpletasks.data.task.TaskEditViewModel
-import com.example.simpletasks.data.task.TaskEditViewModelFactory
 import com.example.simpletasks.data.task.TaskViewModel
 import com.example.simpletasks.data.task.TaskViewModelFactory
 import com.example.simpletasks.data.todo.TodoViewModel
@@ -26,9 +24,9 @@ import com.example.simpletasks.ui.theme.SimpleTasksTheme
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
-class TaskEditFragment : Fragment() {
+class EditTaskFragment : Fragment() {
 
-    private val args by navArgs<TaskEditFragmentArgs>()
+    private val args by navArgs<EditTaskFragmentArgs>()
 
     private val todoViewModel by activityViewModels<TodoViewModel>()
 
@@ -37,12 +35,6 @@ class TaskEditFragment : Fragment() {
             this,
             TaskViewModelFactory(args.todo, todoViewModel)
         ).get(TaskViewModel::class.java)
-    }
-    private val taskEdiViewModel: TaskEditViewModel by lazy {
-        ViewModelProvider(
-            this,
-            TaskEditViewModelFactory(args.task, taskViewModel)
-        ).get(TaskEditViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -72,8 +64,8 @@ class TaskEditFragment : Fragment() {
                                 dimensionResource(id = R.dimen.space_between_10)
                             ))
                             TaskTextField(
-                                name = taskEdiViewModel.taskName,
-                                onNameChange = taskEdiViewModel::onTaskNameChange,
+                                name = taskViewModel.taskName,
+                                onNameChange = taskViewModel::onTaskNameChange,
                                 isCompleted = false,
                                 modifier = Modifier
                                     .fillMaxWidth()

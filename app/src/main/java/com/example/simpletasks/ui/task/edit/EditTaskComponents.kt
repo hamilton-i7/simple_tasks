@@ -1,4 +1,4 @@
-package com.example.simpletasks.ui.todo.edit
+package com.example.simpletasks.ui.task.edit
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer

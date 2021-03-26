@@ -36,8 +36,6 @@ import com.example.simpletasks.data.settings.Settings
 import com.example.simpletasks.data.settings.SettingsViewModel
 import com.example.simpletasks.data.task.TaskViewModel
 import com.example.simpletasks.data.task.TaskViewModelFactory
-import com.example.simpletasks.data.todo.TodoScreenViewModel
-import com.example.simpletasks.data.todo.TodoScreenViewModelFactory
 import com.example.simpletasks.data.todo.TodoViewModel
 import com.example.simpletasks.ui.theme.SimpleTasksTheme
 import com.example.simpletasks.util.DragManager
@@ -51,12 +49,6 @@ class TodoFragment : Fragment() {
     private val todoViewModel by activityViewModels<TodoViewModel>()
     private val settingsViewModel by activityViewModels<SettingsViewModel>()
 
-    private val todoScreenViewModel: TodoScreenViewModel by lazy {
-        ViewModelProvider(
-            this,
-            TodoScreenViewModelFactory(args.todo, todoViewModel)
-        ).get(TodoScreenViewModel::class.java)
-    }
     private val taskViewModel: TaskViewModel by lazy {
         ViewModelProvider(
             this,
@@ -75,98 +67,96 @@ class TodoFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ) = ComposeView(requireContext()).apply {
+        setHasOptionsMenu(true)
+        (requireActivity() as AppCompatActivity).supportActionBar?.title = args.todo.name
+
         uncompletedTaskAdapter = UncompletedTaskAdapter(
             todoViewModel,
             taskViewModel,
             args.todo,
             findNavController()
         )
-        completedTaskAdapter = CompletedTaskAdapter(todoScreenViewModel, taskViewModel, args.todo)
+        completedTaskAdapter = CompletedTaskAdapter(todoViewModel, taskViewModel, args.todo)
 
-        (requireActivity() as AppCompatActivity).supportActionBar?.title = args.todo.name
-        setHasOptionsMenu(true)
+        setContent {
+            LocalSoftwareKeyboardController.current?.hideSoftwareKeyboard()
+            val settings by settingsViewModel.readSettings().observeAsState(
+                initial = Settings()
+            )
+            val tasks by taskViewModel.tasks.observeAsState(
+                initial = listOf()
+            )
+            val scrollState = rememberScrollState()
+            val (labelColor, setLabelColor) =
+                rememberSaveable { mutableStateOf(args.todo.colorResource) }
 
-        return ComposeView(requireContext()).apply {
-            setContent {
-                LocalSoftwareKeyboardController.current?.hideSoftwareKeyboard()
-                val settings by settingsViewModel.readSettings().observeAsState(
-                    initial = Settings()
-                )
-                val tasks by taskViewModel.tasks.observeAsState(
-                    initial = listOf()
-                )
-                val scrollState = rememberScrollState()
-                val (labelColor, setLabelColor) =
-                    rememberSaveable { mutableStateOf(args.todo.colorResource) }
-
-                SimpleTasksTheme {
-                    Scaffold(
-                        floatingActionButton = {
-                            TodoFAB(todoScreenViewModel.labelColor) { }
-                        }
+            SimpleTasksTheme {
+                Scaffold(
+                    floatingActionButton = {
+                        TodoFAB(todoViewModel.labelColor) { }
+                    }
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .verticalScroll(scrollState)
+                            .padding(
+                                dimensionResource(id = R.dimen.space_between_8)
+                            )
                     ) {
-                        Column(
-                            modifier = Modifier
-                                .verticalScroll(scrollState)
-                                .padding(
-                                    dimensionResource(id = R.dimen.space_between_8)
+                        if (todoViewModel.isLabelDialogVisible) {
+                            LabelDialog(
+                                labels = labels,
+                                onDismissRequest = {
+                                    todoViewModel.onLabelDialogStatusChange(false)
+                                    setLabelColor(args.todo.colorResource)
+                                },
+                                selectedOption = labelColor,
+                                onOptionsSelected = {
+                                    setLabelColor(it)
+                                    todoViewModel.onLabelChange(args.todo, it)
+                                    todoViewModel.onLabelDialogStatusChange(false)
+                                }
+                            )
+                        }
+
+                        AndroidView({ context ->
+                            RecyclerView(context).apply {
+                                val dragManager = DragManager(
+                                    dragDirs = ItemTouchHelper.UP or ItemTouchHelper.DOWN,
+                                    swipeDirs = 0
                                 )
-                        ) {
-                            if (todoViewModel.isLabelDialogVisible) {
-                                LabelDialog(
-                                    labels = labels,
-                                    onDismissRequest = {
-                                        todoViewModel.onLabelDialogStatusChange(false)
-                                        setLabelColor(args.todo.colorResource)
-                                    },
-                                    selectedOption = labelColor,
-                                    onOptionsSelected = {
-                                        setLabelColor(it)
-                                        todoScreenViewModel.onLabelChange(it)
-                                        todoViewModel.onLabelDialogStatusChange(false)
-                                    }
+                                val helper = ItemTouchHelper(dragManager)
+                                helper.attachToRecyclerView(this)
+                                layoutManager = LinearLayoutManager(context)
+                                adapter = uncompletedTaskAdapter
+                                overScrollMode = View.OVER_SCROLL_NEVER
+                            }
+                        }, modifier = Modifier.fillMaxWidth())
+
+                        if (tasks.any { it.completed }) {
+                            if (tasks.any { !it.completed }) {
+                                Divider(
+                                    modifier = Modifier.padding(
+                                        horizontal = 0.dp,
+                                        vertical = dimensionResource(id = R.dimen.space_between_8)
+                                    )
                                 )
                             }
+                            CompletedIndicator(
+                                isExpanded = settings.completedTasksExpanded,
+                                onExpandChange = { settingsViewModel.onExpandChange(settings) },
+                                completedAmount = tasks.filter { it.completed }.size
+                            )
 
-                            AndroidView({ context ->
-                                RecyclerView(context).apply {
-                                    val dragManager = DragManager(
-                                        dragDirs = ItemTouchHelper.UP or ItemTouchHelper.DOWN,
-                                        swipeDirs = 0
-                                    )
-                                    val helper = ItemTouchHelper(dragManager)
-                                    helper.attachToRecyclerView(this)
-                                    layoutManager = LinearLayoutManager(context)
-                                    adapter = uncompletedTaskAdapter
-                                    overScrollMode = View.OVER_SCROLL_NEVER
-                                }
-                            }, modifier = Modifier.fillMaxWidth())
-
-                            if (tasks.any { it.completed }) {
-                                if (tasks.any { !it.completed }) {
-                                    Divider(
-                                        modifier = Modifier.padding(
-                                            horizontal = 0.dp,
-                                            vertical = dimensionResource(id = R.dimen.space_between_8)
-                                        )
-                                    )
-                                }
-                                CompletedIndicator(
-                                    isExpanded = settings.completedTasksExpanded,
-                                    onExpandChange = { settingsViewModel.onExpandChange(settings) },
-                                    completedAmount = tasks.filter { it.completed }.size
-                                )
-
-                                if (settings.completedTasksExpanded) {
-                                    AndroidView({ context ->
-                                        RecyclerView(context).apply {
-                                            layoutManager = LinearLayoutManager(context)
-                                            adapter = completedTaskAdapter
-                                            overScrollMode = View.OVER_SCROLL_NEVER
-                                        }
-                                    }, modifier = Modifier.fillMaxWidth())
-                                }
+                            if (settings.completedTasksExpanded) {
+                                AndroidView({ context ->
+                                    RecyclerView(context).apply {
+                                        layoutManager = LinearLayoutManager(context)
+                                        adapter = completedTaskAdapter
+                                        overScrollMode = View.OVER_SCROLL_NEVER
+                                    }
+                                }, modifier = Modifier.fillMaxWidth())
                             }
                         }
                     }

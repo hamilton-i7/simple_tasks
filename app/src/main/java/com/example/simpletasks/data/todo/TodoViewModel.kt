@@ -37,6 +37,8 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
 
     var todoName by mutableStateOf("")
         private set
+    var labelColor by mutableStateOf(R.color.default_color)
+        private set
 
     var isInvalidName by mutableStateOf(false)
         private set
@@ -85,6 +87,17 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
 
     fun onLabelDialogStatusChange(showDialog: Boolean) {
         isLabelDialogVisible = showDialog
+    }
+
+    fun onLabelChange(todo: Todo, @ColorRes newColor: Int) {
+        labelColor = newColor
+        val updatedTodo = Todo(
+            id = todo.id,
+            name = todo.name,
+            colorResource = labelColor,
+            tasks = todo.tasks
+        )
+        updateTodo(updatedTodo)
     }
 
     fun onNewNameChange(name: String) {

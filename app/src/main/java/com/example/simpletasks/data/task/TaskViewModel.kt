@@ -1,5 +1,8 @@
 package com.example.simpletasks.data.task
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -17,8 +20,15 @@ class TaskViewModel(
     private var _tasks = MutableLiveData<List<Task>>()
     val tasks: LiveData<List<Task>> get() = _tasks
 
+    var taskName by mutableStateOf("")
+        private set
+
     init {
         _tasks.value = todo.tasks
+    }
+
+    fun onTaskNameChange(name: String) {
+        taskName = name
     }
 
     fun onTaskStateChange(
