@@ -8,11 +8,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.*
 import com.example.simpletasks.R
 import com.example.simpletasks.data.SimpleTasksDatabase
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 
 @ExperimentalCoroutinesApi
 class TodoViewModel(application: Application) : AndroidViewModel(application) {
@@ -59,7 +56,7 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
 
     fun searchTodo(id: String) = viewModelScope.launch {
         loading = true
-//        delay(800)
+        delay(800)
         todo = repo.readTodoById(id).stateIn(this).value
         loading = false
     }

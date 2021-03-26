@@ -10,10 +10,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Divider
 import androidx.compose.material.Scaffold
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -26,7 +25,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -69,123 +67,122 @@ class TodoFragment : Fragment() {
         savedInstanceState: Bundle?
     ) = ComposeView(requireContext()).apply {
         setHasOptionsMenu(true)
-        todoViewModel.searchTodo(args.todoId)
 
-        lifecycleScope.launchWhenStarted {
-            setContent {
-                val todo = todoViewModel.todo
-                todoViewModel.setInitialLabel(todo.colorResource)
+        setContent {
+            val todo by todoViewModel.readTodoById(args.todoId).collectAsState(
+                initial = Todo.Default
+            )
+            todoViewModel.setInitialLabel(todo.colorResource)
 
-                LocalSoftwareKeyboardController.current?.hideSoftwareKeyboard()
-                val settings by settingsViewModel.readSettings().observeAsState(
-                    initial = Settings()
-                )
-                val scrollState = rememberScrollState()
+            LocalSoftwareKeyboardController.current?.hideSoftwareKeyboard()
+            val settings by settingsViewModel.readSettings().observeAsState(
+                initial = Settings()
+            )
+            val scrollState = rememberScrollState()
 
-                todoViewModel.onNameChange(todo.name)
-                (requireActivity() as AppCompatActivity).supportActionBar?.title = todo.name
+            todoViewModel.onNameChange(todo.name)
+            (requireActivity() as AppCompatActivity).supportActionBar?.title = todo.name
 
-                SimpleTasksTheme {
-                    Scaffold(
-                        floatingActionButton = {
-                            if (!todoViewModel.loading)
-                                TodoFAB(todoViewModel.labelColor) { }
-                        }
-                    ) {
-                        Box(modifier = Modifier.fillMaxSize()) {
-                            Column(
-                                modifier = Modifier
-                                    .verticalScroll(scrollState)
-                                    .padding(
-                                        dimensionResource(id = R.dimen.space_between_8)
-                                    )
-                            ) {
-                                taskViewModel.setTasks(todo.tasks)
-                                val uncompletedTaskAdapter = UncompletedTaskAdapter(
-                                    taskViewModel,
-                                    todo,
-                                    findNavController()
+            SimpleTasksTheme {
+                Scaffold(
+                    floatingActionButton = {
+                        if (!todoViewModel.loading)
+                            TodoFAB(todoViewModel.labelColor) { }
+                    }
+                ) {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        Column(
+                            modifier = Modifier
+                                .verticalScroll(scrollState)
+                                .padding(
+                                    dimensionResource(id = R.dimen.space_between_8)
                                 )
-                                val completedTaskAdapter =
-                                    CompletedTaskAdapter(todo, todoViewModel, taskViewModel)
+                        ) {
+                            taskViewModel.setTasks(todo.tasks)
+                            val uncompletedTaskAdapter = UncompletedTaskAdapter(
+                                taskViewModel,
+                                todo,
+                                findNavController()
+                            )
+                            val completedTaskAdapter =
+                                CompletedTaskAdapter(todo, todoViewModel, taskViewModel)
 
-                                taskViewModel.tasks.observe(viewLifecycleOwner) {
-                                    val uncompletedTasks = it.filter { task -> !task.completed }
-                                    uncompletedTaskAdapter.apply {
-                                        submitList(uncompletedTasks)
-                                        updateList(uncompletedTasks)
+                            taskViewModel.tasks.observe(viewLifecycleOwner) {
+                                val uncompletedTasks = it.filter { task -> !task.completed }
+                                uncompletedTaskAdapter.apply {
+                                    submitList(uncompletedTasks)
+                                    updateList(uncompletedTasks)
+                                }
+
+                                val completedTasks = it.filter { task -> task.completed }
+                                completedTaskAdapter.submitList(completedTasks)
+                            }
+
+                            if (todoViewModel.isLabelDialogVisible) {
+                                LabelDialog(
+                                    labels = labels,
+                                    onDismissRequest = {
+                                        todoViewModel.onLabelDialogStatusChange(false)
+                                    },
+                                    selectedOption = todoViewModel.labelColor,
+                                    onOptionsSelected = {
+                                        todoViewModel.onLabelChange(todo, it)
+                                        todoViewModel.onLabelDialogStatusChange(false)
                                     }
+                                )
+                            }
 
-                                    val completedTasks = it.filter { task -> task.completed }
-                                    completedTaskAdapter.submitList(completedTasks)
-                                }
-
-                                if (todoViewModel.isLabelDialogVisible) {
-                                    LabelDialog(
-                                        labels = labels,
-                                        onDismissRequest = {
-                                            todoViewModel.onLabelDialogStatusChange(false)
-                                        },
-                                        selectedOption = todoViewModel.labelColor,
-                                        onOptionsSelected = {
-                                            todoViewModel.onLabelChange(todo, it)
-                                            todoViewModel.onLabelDialogStatusChange(false)
-                                        }
-                                    )
-                                }
-
-                                if (!todoViewModel.loading) {
-                                    AndroidView({ context ->
-                                        RecyclerView(context).apply {
-                                            val dragManager = DragManager(
-                                                dragDirs = ItemTouchHelper.UP or ItemTouchHelper.DOWN,
-                                                swipeDirs = 0
-                                            )
-                                            val helper = ItemTouchHelper(dragManager)
-                                            helper.attachToRecyclerView(this)
-                                            layoutManager = LinearLayoutManager(context)
-                                            adapter = uncompletedTaskAdapter
-                                            overScrollMode = View.OVER_SCROLL_NEVER
-                                        }
-                                    }, modifier = Modifier.fillMaxWidth())
-                                    if (todo.tasks.any { it.completed }) {
-                                        if (todo.tasks.any { !it.completed }) {
-                                            Divider(
-                                                modifier = Modifier.padding(
-                                                    horizontal = 0.dp,
-                                                    vertical = dimensionResource(
-                                                        id = R.dimen.space_between_8
-                                                    )
+                            if (!todoViewModel.loading) {
+                                AndroidView({ context ->
+                                    RecyclerView(context).apply {
+                                        val dragManager = DragManager(
+                                            dragDirs = ItemTouchHelper.UP or ItemTouchHelper.DOWN,
+                                            swipeDirs = 0
+                                        )
+                                        val helper = ItemTouchHelper(dragManager)
+                                        helper.attachToRecyclerView(this)
+                                        layoutManager = LinearLayoutManager(context)
+                                        adapter = uncompletedTaskAdapter
+                                        overScrollMode = View.OVER_SCROLL_NEVER
+                                    }
+                                }, modifier = Modifier.fillMaxWidth())
+                                if (todo.tasks.any { it.completed }) {
+                                    if (todo.tasks.any { !it.completed }) {
+                                        Divider(
+                                            modifier = Modifier.padding(
+                                                horizontal = 0.dp,
+                                                vertical = dimensionResource(
+                                                    id = R.dimen.space_between_8
                                                 )
                                             )
-                                        }
-                                        CompletedIndicator(
-                                            isExpanded = settings.completedTasksExpanded,
-                                            onExpandChange = {
-                                                settingsViewModel.onExpandChange(settings)
-                                            },
-                                            completedAmount =
-                                            todo.tasks.filter { it.completed }.size
                                         )
+                                    }
+                                    CompletedIndicator(
+                                        isExpanded = settings.completedTasksExpanded,
+                                        onExpandChange = {
+                                            settingsViewModel.onExpandChange(settings)
+                                        },
+                                        completedAmount =
+                                        todo.tasks.filter { it.completed }.size
+                                    )
 
-                                        if (settings.completedTasksExpanded) {
-                                            AndroidView({ context ->
-                                                RecyclerView(context).apply {
-                                                    layoutManager = LinearLayoutManager(context)
-                                                    adapter = completedTaskAdapter
-                                                    overScrollMode = View.OVER_SCROLL_NEVER
-                                                }
-                                            }, modifier = Modifier.fillMaxWidth())
-                                        }
+                                    if (settings.completedTasksExpanded) {
+                                        AndroidView({ context ->
+                                            RecyclerView(context).apply {
+                                                layoutManager = LinearLayoutManager(context)
+                                                adapter = completedTaskAdapter
+                                                overScrollMode = View.OVER_SCROLL_NEVER
+                                            }
+                                        }, modifier = Modifier.fillMaxWidth())
                                     }
                                 }
                             }
+                        }
 
-                            if (todoViewModel.loading) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.align(Alignment.Center)
-                                )
-                            }
+                        if (todoViewModel.loading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.align(Alignment.Center)
+                            )
                         }
                     }
                 }
