@@ -6,6 +6,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.toLowerCase
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.simpletasks.R
@@ -13,7 +15,7 @@ import com.example.simpletasks.data.SimpleTasksDatabase
 import com.example.simpletasks.data.task.Task
 import com.example.simpletasks.ui.home.HomeFragmentDirections
 import com.example.simpletasks.ui.todo.TodoFragmentDirections
-import com.example.simpletasks.ui.todo.edit.TodoEditFragmentDirections
+import com.example.simpletasks.ui.todo.edit.EditTodoFragmentDirections
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
@@ -63,6 +65,8 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
     @Composable
     fun readTodosByQuery(searchQuery: String): State<List<Todo>> =
         repo.readTodosByQuery(searchQuery).collectAsState(initial = listOf())
+
+    fun readTodoById(id: Int): LiveData<Todo> = repo.readTodoById(id).asLiveData()
 
     fun updateTodo(todo: Todo) = viewModelScope.launch {
         repo.updateTodo(todo)
@@ -150,7 +154,7 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
                 updateTodo(updatedTodo)
                 resetValidationState()
                 val action =
-                    TodoEditFragmentDirections.actionTodoEditFragmentToTodoFragment(updatedTodo)
+                    EditTodoFragmentDirections.actionTodoEditFragmentToTodoFragment(updatedTodo)
                 navController.navigate(action)
             } else if (!isValidName(todoName)) {
                 onInvalidName()

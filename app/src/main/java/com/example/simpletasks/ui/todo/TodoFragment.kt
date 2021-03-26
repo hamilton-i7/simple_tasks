@@ -58,9 +58,6 @@ class TodoFragment : Fragment() {
 
     private val labels = LabelSource.readLabels()
 
-    private lateinit var uncompletedTaskAdapter: UncompletedTaskAdapter
-    private lateinit var completedTaskAdapter: CompletedTaskAdapter
-
     @ExperimentalComposeUiApi
     @ExperimentalFoundationApi
     override fun onCreateView(
@@ -69,115 +66,110 @@ class TodoFragment : Fragment() {
         savedInstanceState: Bundle?
     ) = ComposeView(requireContext()).apply {
         setHasOptionsMenu(true)
-        (requireActivity() as AppCompatActivity).supportActionBar?.title = args.todo.name
+        todoViewModel.readTodoById(args.todoId).observe(viewLifecycleOwner) { todo ->
+            (requireActivity() as AppCompatActivity).supportActionBar?.title = todo.name
+            todoViewModel.onNameChange(todo.name)
 
-        uncompletedTaskAdapter = UncompletedTaskAdapter(
-            todoViewModel,
-            taskViewModel,
-            args.todo,
-            findNavController()
-        )
-        completedTaskAdapter = CompletedTaskAdapter(todoViewModel, taskViewModel, args.todo)
-
-        setContent {
-            LocalSoftwareKeyboardController.current?.hideSoftwareKeyboard()
-            val settings by settingsViewModel.readSettings().observeAsState(
-                initial = Settings()
+            val uncompletedTaskAdapter = UncompletedTaskAdapter(
+                todoViewModel,
+                taskViewModel,
+                todo,
+                findNavController()
             )
-            val tasks by taskViewModel.tasks.observeAsState(
-                initial = listOf()
-            )
-            val scrollState = rememberScrollState()
-            val (labelColor, setLabelColor) =
-                rememberSaveable { mutableStateOf(args.todo.colorResource) }
+            val uncompletedTasks = todo.tasks.filter { task -> !task.completed }
+            uncompletedTaskAdapter.apply {
+                submitList(uncompletedTasks)
+                updateList(uncompletedTasks)
+            }
 
-            SimpleTasksTheme {
-                Scaffold(
-                    floatingActionButton = {
-                        TodoFAB(todoViewModel.labelColor) { }
-                    }
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .verticalScroll(scrollState)
-                            .padding(
-                                dimensionResource(id = R.dimen.space_between_8)
-                            )
-                    ) {
-                        if (todoViewModel.isLabelDialogVisible) {
-                            LabelDialog(
-                                labels = labels,
-                                onDismissRequest = {
-                                    todoViewModel.onLabelDialogStatusChange(false)
-                                    setLabelColor(args.todo.colorResource)
-                                },
-                                selectedOption = labelColor,
-                                onOptionsSelected = {
-                                    setLabelColor(it)
-                                    todoViewModel.onLabelChange(args.todo, it)
-                                    todoViewModel.onLabelDialogStatusChange(false)
-                                }
-                            )
+            val completedTaskAdapter = CompletedTaskAdapter(todoViewModel, taskViewModel, todo)
+            val completedTasks = todo.tasks.filter { task -> task.completed }
+            completedTaskAdapter.submitList(completedTasks)
+
+            setContent {
+                LocalSoftwareKeyboardController.current?.hideSoftwareKeyboard()
+                val settings by settingsViewModel.readSettings().observeAsState(
+                    initial = Settings()
+                )
+                val tasks by taskViewModel.tasks.observeAsState(
+                    initial = listOf()
+                )
+                val scrollState = rememberScrollState()
+                val (labelColor, setLabelColor) =
+                    rememberSaveable { mutableStateOf(args.todo.colorResource) }
+
+                SimpleTasksTheme {
+                    Scaffold(
+                        floatingActionButton = {
+                            TodoFAB(todoViewModel.labelColor) { }
                         }
-
-                        AndroidView({ context ->
-                            RecyclerView(context).apply {
-                                val dragManager = DragManager(
-                                    dragDirs = ItemTouchHelper.UP or ItemTouchHelper.DOWN,
-                                    swipeDirs = 0
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .verticalScroll(scrollState)
+                                .padding(
+                                    dimensionResource(id = R.dimen.space_between_8)
                                 )
-                                val helper = ItemTouchHelper(dragManager)
-                                helper.attachToRecyclerView(this)
-                                layoutManager = LinearLayoutManager(context)
-                                adapter = uncompletedTaskAdapter
-                                overScrollMode = View.OVER_SCROLL_NEVER
-                            }
-                        }, modifier = Modifier.fillMaxWidth())
-
-                        if (tasks.any { it.completed }) {
-                            if (tasks.any { !it.completed }) {
-                                Divider(
-                                    modifier = Modifier.padding(
-                                        horizontal = 0.dp,
-                                        vertical = dimensionResource(id = R.dimen.space_between_8)
-                                    )
-                                )
-                            }
-                            CompletedIndicator(
-                                isExpanded = settings.completedTasksExpanded,
-                                onExpandChange = { settingsViewModel.onExpandChange(settings) },
-                                completedAmount = tasks.filter { it.completed }.size
-                            )
-
-                            if (settings.completedTasksExpanded) {
-                                AndroidView({ context ->
-                                    RecyclerView(context).apply {
-                                        layoutManager = LinearLayoutManager(context)
-                                        adapter = completedTaskAdapter
-                                        overScrollMode = View.OVER_SCROLL_NEVER
+                        ) {
+                            if (todoViewModel.isLabelDialogVisible) {
+                                LabelDialog(
+                                    labels = labels,
+                                    onDismissRequest = {
+                                        todoViewModel.onLabelDialogStatusChange(false)
+                                        setLabelColor(args.todo.colorResource)
+                                    },
+                                    selectedOption = labelColor,
+                                    onOptionsSelected = {
+                                        setLabelColor(it)
+                                        todoViewModel.onLabelChange(args.todo, it)
+                                        todoViewModel.onLabelDialogStatusChange(false)
                                     }
-                                }, modifier = Modifier.fillMaxWidth())
+                                )
+                            }
+
+                            AndroidView({ context ->
+                                RecyclerView(context).apply {
+                                    val dragManager = DragManager(
+                                        dragDirs = ItemTouchHelper.UP or ItemTouchHelper.DOWN,
+                                        swipeDirs = 0
+                                    )
+                                    val helper = ItemTouchHelper(dragManager)
+                                    helper.attachToRecyclerView(this)
+                                    layoutManager = LinearLayoutManager(context)
+                                    adapter = uncompletedTaskAdapter
+                                    overScrollMode = View.OVER_SCROLL_NEVER
+                                }
+                            }, modifier = Modifier.fillMaxWidth())
+
+                            if (tasks.any { it.completed }) {
+                                if (tasks.any { !it.completed }) {
+                                    Divider(
+                                        modifier = Modifier.padding(
+                                            horizontal = 0.dp,
+                                            vertical = dimensionResource(id = R.dimen.space_between_8)
+                                        )
+                                    )
+                                }
+                                CompletedIndicator(
+                                    isExpanded = settings.completedTasksExpanded,
+                                    onExpandChange = { settingsViewModel.onExpandChange(settings) },
+                                    completedAmount = tasks.filter { it.completed }.size
+                                )
+
+                                if (settings.completedTasksExpanded) {
+                                    AndroidView({ context ->
+                                        RecyclerView(context).apply {
+                                            layoutManager = LinearLayoutManager(context)
+                                            adapter = completedTaskAdapter
+                                            overScrollMode = View.OVER_SCROLL_NEVER
+                                        }
+                                    }, modifier = Modifier.fillMaxWidth())
+                                }
                             }
                         }
                     }
                 }
             }
-        }
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        todoViewModel.onNameChange(args.todo.name)
-        taskViewModel.tasks.observe(viewLifecycleOwner) {
-            val uncompleted = it.filter { task -> !task.completed }
-            val completed = it.filter { task -> task.completed }
-
-            uncompletedTaskAdapter.apply {
-                submitList(uncompleted)
-                updateList(uncompleted)
-            }
-            completedTaskAdapter.submitList(completed)
         }
     }
 

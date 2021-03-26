@@ -12,6 +12,9 @@ interface TodoDao {
     @Query("SELECT * FROM todo WHERE name LIKE '%' || :searchQuery || '%' ORDER BY id DESC")
     fun readTodosByQuery(searchQuery: String): Flow<List<Todo>>
 
+    @Query("SELECT * FROM todo WHERE id LIKE :id")
+    fun readTodoById(id: Int): Flow<Todo>
+
     @Insert
     suspend fun addTodo(todo: Todo)
 

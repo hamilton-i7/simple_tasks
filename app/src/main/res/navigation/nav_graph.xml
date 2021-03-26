@@ -22,14 +22,18 @@
             app:argType="com.example.simpletasks.data.todo.Todo" />
         <action
             android:id="@+id/action_todoFragment_to_todoEditFragment"
-            app:destination="@id/todoEditFragment" />
+            app:destination="@id/editTodoFragment" />
         <action
             android:id="@+id/action_todoFragment_to_taskEditFragment"
             app:destination="@id/editTaskFragment" />
+        <argument
+            android:name="todoId"
+            app:argType="integer"
+            android:defaultValue="-1" />
     </fragment>
     <fragment
-        android:id="@+id/todoEditFragment"
-        android:name="com.example.simpletasks.ui.todo.edit.TodoEditFragment"
+        android:id="@+id/editTodoFragment"
+        android:name="com.example.simpletasks.ui.todo.edit.EditTodoFragment"
         android:label="@string/rename_list" >
         <argument
             android:name="todo"

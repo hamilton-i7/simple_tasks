@@ -18,14 +18,14 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.simpletasks.R
 import com.example.simpletasks.data.todo.TodoViewModel
+import com.example.simpletasks.ui.components.SimpleTextField
 import com.example.simpletasks.ui.theme.SimpleTasksTheme
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
-class TodoEditFragment : Fragment() {
+class EditTodoFragment : Fragment() {
 
-    private val args by navArgs<TodoEditFragmentArgs>()
-
+    private val args by navArgs<EditTodoFragmentArgs>()
     private val todoViewModel by activityViewModels<TodoViewModel>()
 
     @ExperimentalComposeUiApi
@@ -33,28 +33,30 @@ class TodoEditFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View = ComposeView(requireContext()).apply {
         setHasOptionsMenu(true)
-        return ComposeView(requireContext()).apply {
-            setContent {
-                val keyboardController = LocalSoftwareKeyboardController.current
 
-                SimpleTasksTheme {
-                    Surface {
-                        Column(modifier = Modifier.padding(
+        setContent {
+            val keyboardController = LocalSoftwareKeyboardController.current
+
+            SimpleTasksTheme {
+                Surface {
+                    Column(
+                        modifier = Modifier.padding(
                             dimensionResource(id = R.dimen.space_between_16)
-                        )) {
-                            TodoNameTextField(
-                                name = todoViewModel.todoName,
-                                onNameChange = todoViewModel::onNameChange,
-                                isError = todoViewModel.isRepeatedName || todoViewModel.isInvalidName,
-                                modifier = Modifier.fillMaxWidth()
-                            ) { keyboardController?.hideSoftwareKeyboard() }
-                            if (todoViewModel.isInvalidName)
-                                ErrorText(text = stringResource(id = R.string.invalid_name))
-                            else if (todoViewModel.isRepeatedName)
-                                ErrorText(text = stringResource(id = R.string.name_repeated))
-                        }
+                        )
+                    ) {
+                        SimpleTextField(
+                            name = todoViewModel.todoName,
+                            onNameChange = todoViewModel::onNameChange,
+                            label = stringResource(id = R.string.list_name),
+                            isError = todoViewModel.isRepeatedName || todoViewModel.isInvalidName,
+                            modifier = Modifier.fillMaxWidth()
+                        ) { keyboardController?.hideSoftwareKeyboard() }
+                        if (todoViewModel.isInvalidName)
+                            ErrorText(text = stringResource(id = R.string.invalid_name))
+                        else if (todoViewModel.isRepeatedName)
+                            ErrorText(text = stringResource(id = R.string.name_repeated))
                     }
                 }
             }
