@@ -11,10 +11,7 @@ import com.example.simpletasks.data.SimpleTasksDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 @ExperimentalCoroutinesApi
@@ -22,6 +19,12 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
 
     private val applicationScope = CoroutineScope(SupervisorJob())
     private val repo: TodoRepo
+
+    var loading by mutableStateOf(false)
+        private set
+
+    var todo by mutableStateOf(Todo.Default)
+        private set
 
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> get() = _searchQuery
@@ -54,7 +57,15 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
         todos = todosFlow.asLiveData()
     }
 
+    fun searchTodo(id: String) = viewModelScope.launch {
+        loading = true
+//        delay(800)
+        todo = repo.readTodoById(id).stateIn(this).value
+        loading = false
+    }
+
     fun readTodoById(id: String): Flow<Todo> = repo.readTodoById(id)
+
 
     fun updateTodo(todo: Todo) = viewModelScope.launch {
         repo.updateTodo(todo)
@@ -71,6 +82,10 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
     fun onDialogStatusChange(showDialog: Boolean) {
         isDialogVisible = showDialog
         if (!showDialog) resetValidationState()
+    }
+
+    fun setInitialLabel(@ColorRes color: Int) {
+        labelColor = color
     }
 
     fun onLabelDialogStatusChange(showDialog: Boolean) {

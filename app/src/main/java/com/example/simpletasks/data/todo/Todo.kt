@@ -15,7 +15,7 @@ data class Todo(
     @PrimaryKey val id: String = UUID.randomUUID().toString(),
     val name: String,
     @ColorRes val colorResource: Int = R.color.default_color,
-    val tasks: List<Task> = listOf()
+    val tasks: List<Task> = emptyList()
 ) : Parcelable {
     companion object {
         val Default = Todo(name = "")

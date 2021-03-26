@@ -16,7 +16,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 @ExperimentalCoroutinesApi
 class TaskViewModel(private val todoViewModel: TodoViewModel) : ViewModel() {
 
-    private var _tasks = MutableLiveData<List<Task>>(listOf())
+    private var _tasks = MutableLiveData<List<Task>>(emptyList())
     val tasks: LiveData<List<Task>> get() = _tasks
 
     var taskName by mutableStateOf("")
