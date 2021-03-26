@@ -6,14 +6,14 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface TodoDao {
 
-    @Query("SELECT * FROM todo ORDER BY id DESC")
+    @Query("SELECT * FROM todo")
     fun readAllTodos(): Flow<List<Todo>>
 
-    @Query("SELECT * FROM todo WHERE name LIKE '%' || :searchQuery || '%' ORDER BY id DESC")
+    @Query("SELECT * FROM todo WHERE name LIKE '%' || :searchQuery || '%'")
     fun readTodosByQuery(searchQuery: String): Flow<List<Todo>>
 
     @Query("SELECT * FROM todo WHERE id LIKE :id")
-    fun readTodoById(id: Int): Flow<Todo>
+    fun readTodoById(id: String): Flow<Todo>
 
     @Insert
     suspend fun addTodo(todo: Todo)

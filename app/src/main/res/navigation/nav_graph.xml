@@ -17,9 +17,6 @@
     <fragment
         android:id="@+id/todoFragment"
         android:name="com.example.simpletasks.ui.todo.TodoFragment">
-        <argument
-            android:name="todo"
-            app:argType="com.example.simpletasks.data.todo.Todo" />
         <action
             android:id="@+id/action_todoFragment_to_todoEditFragment"
             app:destination="@id/editTodoFragment" />
@@ -28,8 +25,11 @@
             app:destination="@id/editTaskFragment" />
         <argument
             android:name="todoId"
-            app:argType="integer"
-            android:defaultValue="-1" />
+            app:argType="string"
+            android:defaultValue="" />
+        <action
+            android:id="@+id/action_todoFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
     </fragment>
     <fragment
         android:id="@+id/editTodoFragment"

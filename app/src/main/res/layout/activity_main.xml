@@ -16,13 +16,14 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="?attr/colorSurface"
-            android:fitsSystemWindows="true"
             android:elevation="0dp"
+            android:fitsSystemWindows="true"
             android:minHeight="?attr/actionBarSize"
             android:theme="?attr/actionBarTheme"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:theme="@style/ToolbarTheme" />
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/fragment_container"

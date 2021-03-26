@@ -11,6 +11,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.Scaffold
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +26,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.asLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -36,6 +38,7 @@ import com.example.simpletasks.data.settings.Settings
 import com.example.simpletasks.data.settings.SettingsViewModel
 import com.example.simpletasks.data.task.TaskViewModel
 import com.example.simpletasks.data.task.TaskViewModelFactory
+import com.example.simpletasks.data.todo.Todo
 import com.example.simpletasks.data.todo.TodoViewModel
 import com.example.simpletasks.ui.theme.SimpleTasksTheme
 import com.example.simpletasks.util.DragManager
@@ -52,10 +55,10 @@ class TodoFragment : Fragment() {
     private val taskViewModel: TaskViewModel by lazy {
         ViewModelProvider(
             this,
-            TaskViewModelFactory(args.todo, todoViewModel)
+            TaskViewModelFactory(todoViewModel)
         ).get(TaskViewModel::class.java)
     }
-
+    private var currentTodo: Todo? = null
     private val labels = LabelSource.readLabels()
 
     @ExperimentalComposeUiApi
@@ -66,42 +69,50 @@ class TodoFragment : Fragment() {
         savedInstanceState: Bundle?
     ) = ComposeView(requireContext()).apply {
         setHasOptionsMenu(true)
-        todoViewModel.readTodoById(args.todoId).observe(viewLifecycleOwner) { todo ->
-            (requireActivity() as AppCompatActivity).supportActionBar?.title = todo.name
-            todoViewModel.onNameChange(todo.name)
 
-            val uncompletedTaskAdapter = UncompletedTaskAdapter(
-                todoViewModel,
-                taskViewModel,
-                todo,
-                findNavController()
+        setContent {
+            val todo by todoViewModel.readTodoById(args.todoId).collectAsState(
+                initial = Todo.Default
             )
-            val uncompletedTasks = todo.tasks.filter { task -> !task.completed }
-            uncompletedTaskAdapter.apply {
-                submitList(uncompletedTasks)
-                updateList(uncompletedTasks)
-            }
 
-            val completedTaskAdapter = CompletedTaskAdapter(todoViewModel, taskViewModel, todo)
-            val completedTasks = todo.tasks.filter { task -> task.completed }
-            completedTaskAdapter.submitList(completedTasks)
+            LocalSoftwareKeyboardController.current?.hideSoftwareKeyboard()
+            val settings by settingsViewModel.readSettings().observeAsState(
+                initial = Settings()
+            )
+            val scrollState = rememberScrollState()
 
-            setContent {
-                LocalSoftwareKeyboardController.current?.hideSoftwareKeyboard()
-                val settings by settingsViewModel.readSettings().observeAsState(
-                    initial = Settings()
-                )
-                val tasks by taskViewModel.tasks.observeAsState(
-                    initial = listOf()
-                )
-                val scrollState = rememberScrollState()
+            todoViewModel.onNameChange(todo.name)
+            (requireActivity() as AppCompatActivity).supportActionBar?.title = todo.name
+
+            if (todo.tasks.isNotEmpty()) {
+                taskViewModel.setTasks(todo.tasks)
                 val (labelColor, setLabelColor) =
-                    rememberSaveable { mutableStateOf(args.todo.colorResource) }
+                    rememberSaveable { mutableStateOf(todo.colorResource) }
+
+                val uncompletedTaskAdapter = UncompletedTaskAdapter(
+                    taskViewModel,
+                    todo,
+                    findNavController()
+                )
+                val completedTaskAdapter = CompletedTaskAdapter(taskViewModel, todo, labelColor)
+
+                taskViewModel.tasks.observe(viewLifecycleOwner) {
+                    val uncompletedTasks = it.filter { task -> !task.completed }
+                    uncompletedTaskAdapter.apply {
+                        submitList(uncompletedTasks)
+                        updateList(uncompletedTasks)
+                    }
+
+                    val completedTasks = it.filter { task -> task.completed }
+                    completedTaskAdapter.submitList(completedTasks)
+                }
+
+
 
                 SimpleTasksTheme {
                     Scaffold(
                         floatingActionButton = {
-                            TodoFAB(todoViewModel.labelColor) { }
+                            TodoFAB(todo.colorResource) { }
                         }
                     ) {
                         Column(
@@ -116,12 +127,12 @@ class TodoFragment : Fragment() {
                                     labels = labels,
                                     onDismissRequest = {
                                         todoViewModel.onLabelDialogStatusChange(false)
-                                        setLabelColor(args.todo.colorResource)
+                                        setLabelColor(todo.colorResource)
                                     },
                                     selectedOption = labelColor,
                                     onOptionsSelected = {
                                         setLabelColor(it)
-                                        todoViewModel.onLabelChange(args.todo, it)
+                                        todoViewModel.onLabelChange(todo, it)
                                         todoViewModel.onLabelDialogStatusChange(false)
                                     }
                                 )
@@ -141,8 +152,8 @@ class TodoFragment : Fragment() {
                                 }
                             }, modifier = Modifier.fillMaxWidth())
 
-                            if (tasks.any { it.completed }) {
-                                if (tasks.any { !it.completed }) {
+                            if (todo.tasks.any { it.completed }) {
+                                if (todo.tasks.any { !it.completed }) {
                                     Divider(
                                         modifier = Modifier.padding(
                                             horizontal = 0.dp,
@@ -153,7 +164,7 @@ class TodoFragment : Fragment() {
                                 CompletedIndicator(
                                     isExpanded = settings.completedTasksExpanded,
                                     onExpandChange = { settingsViewModel.onExpandChange(settings) },
-                                    completedAmount = tasks.filter { it.completed }.size
+                                    completedAmount = todo.tasks.filter { it.completed }.size
                                 )
 
                                 if (settings.completedTasksExpanded) {
@@ -173,6 +184,18 @@ class TodoFragment : Fragment() {
         }
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        todoViewModel.readTodoById(args.todoId).asLiveData().observe(viewLifecycleOwner) {
+            currentTodo = it
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        currentTodo = null
+    }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.todo_menu, menu)
     }
@@ -188,24 +211,31 @@ class TodoFragment : Fragment() {
                 true
             }
             R.id.action_delete_completed_tasks -> {
-                taskViewModel.onCompletedTasksDelete(args.todo)
-                true
+                currentTodo?.let {
+                    taskViewModel.onCompletedTasksDelete(it)
+                    true
+                } ?: false
             }
             R.id.action_delete_list -> {
-                goToHomeScreen()
-                todoViewModel.deleteTodo(args.todo)
-                true
+                currentTodo?.let {
+                    todoViewModel.deleteTodo(it)
+                    goToHomeScreen()
+                    true
+                } ?: false
             }
             else -> super.onOptionsItemSelected(item)
         }
     }
 
     private fun goToHomeScreen() {
-        findNavController().navigateUp()
+        val action = TodoFragmentDirections.actionTodoFragmentToHomeFragment()
+        findNavController().navigate(action)
     }
 
     private fun goToEditingScreen() {
-        val action = TodoFragmentDirections.actionTodoFragmentToTodoEditFragment(args.todo)
-        findNavController().navigate(action)
+        currentTodo?.let {
+            val action = TodoFragmentDirections.actionTodoFragmentToTodoEditFragment(it)
+            findNavController().navigate(action)
+        }
     }
 }

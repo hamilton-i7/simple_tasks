@@ -7,42 +7,37 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavController
 import com.example.simpletasks.data.todo.Todo
 import com.example.simpletasks.data.todo.TodoViewModel
+import com.example.simpletasks.ui.todo.TodoFragmentDirections
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
-class TaskViewModel(
-    todo: Todo,
-    private val todoViewModel: TodoViewModel
-) : ViewModel() {
+class TaskViewModel(private val todoViewModel: TodoViewModel) : ViewModel() {
 
-    private var _tasks = MutableLiveData<List<Task>>()
+    private var _tasks = MutableLiveData<List<Task>>(listOf())
     val tasks: LiveData<List<Task>> get() = _tasks
 
     var taskName by mutableStateOf("")
         private set
 
-    init {
-        _tasks.value = todo.tasks
+    fun setTasks(tasks: List<Task>) {
+        _tasks.value = tasks
     }
 
     fun onTaskNameChange(name: String) {
         taskName = name
     }
 
-    fun onTaskStateChange(
-        completed: Boolean,
-        task: Task,
-        todo: Todo,
-    ) {
+    fun onTaskStateChange(task: Task, todo: Todo) {
         val newList = _tasks.value!!.toMutableList().also { it.remove(task) }
         val updatedTask = Task(
             id = task.id,
             name = task.name,
-            completed = completed
+            completed = !task.completed
         )
-        if (completed)
+        if (!task.completed)
             newList.add(updatedTask)
         else
             newList.add(newList.indexOfLast { !it.completed } + 1, updatedTask)
@@ -54,6 +49,21 @@ class TaskViewModel(
         )
         _tasks.value = newList
         todoViewModel.updateTodo(updatedTodo)
+    }
+
+    fun onTasksSwap(tasks: List<Task>, todo: Todo) {
+        val updatedTodo = Todo(
+            id = todo.id,
+            name = todo.name,
+            colorResource = todo.colorResource,
+            tasks = tasks + todo.tasks.filter { it.completed }
+        )
+        todoViewModel.updateTodo(updatedTodo)
+    }
+
+    fun onTaskClick(task: Task, todo: Todo, navController: NavController) {
+        val action = TodoFragmentDirections.actionTodoFragmentToTaskEditFragment(todo, task)
+        navController.navigate(action)
     }
 
     fun onTaskCreate(todo: Todo, taskName: String) {
@@ -71,9 +81,8 @@ class TaskViewModel(
     }
 
     fun onCompletedTasksDelete(todo: Todo) {
-        val remainingTasks = _tasks.value!!.filter { !it.completed }
-        val updatedTodo = Todo(todo.id!!, todo.name, todo.colorResource, remainingTasks)
-        _tasks.value = remainingTasks
+        val remainingTasks = todo.tasks.filter { !it.completed }
+        val updatedTodo = Todo(todo.id, todo.name, todo.colorResource, remainingTasks)
         todoViewModel.updateTodo(updatedTodo)
     }
 
@@ -109,9 +118,8 @@ class TaskViewModel(
 @ExperimentalCoroutinesApi
 @Suppress("UNCHECKED_CAST")
 class TaskViewModelFactory(
-    private val todo: Todo,
     private val todoViewModel: TodoViewModel
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T =
-        TaskViewModel(todo, todoViewModel) as T
+        TaskViewModel(todoViewModel) as T
 }

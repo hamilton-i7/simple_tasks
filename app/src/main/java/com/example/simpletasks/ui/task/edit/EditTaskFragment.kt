@@ -33,7 +33,7 @@ class EditTaskFragment : Fragment() {
     private val taskViewModel: TaskViewModel by lazy {
         ViewModelProvider(
             this,
-            TaskViewModelFactory(args.todo, todoViewModel)
+            TaskViewModelFactory(todoViewModel)
         ).get(TaskViewModel::class.java)
     }
 

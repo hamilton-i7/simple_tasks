@@ -9,7 +9,7 @@ class TodoRepo(private val todoDao: TodoDao) {
     fun readTodosByQuery(searchQuery: String): Flow<List<Todo>> =
         todoDao.readTodosByQuery(searchQuery)
 
-    fun readTodoById(id: Int): Flow<Todo> = todoDao.readTodoById(id)
+    fun readTodoById(id: String): Flow<Todo> = todoDao.readTodoById(id)
 
     suspend fun addTodo(todo: Todo) = todoDao.addTodo(todo)
 

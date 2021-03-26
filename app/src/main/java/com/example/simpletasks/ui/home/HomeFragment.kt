@@ -19,7 +19,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.asLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
@@ -47,54 +46,60 @@ class HomeFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View = ComposeView(requireContext()).apply {
         setHasOptionsMenu(true)
         todoCardAdapter = TodoCardAdapter(findNavController())
 
-        return ComposeView(requireContext()).apply {
-            setContent {
-                val todos by todoViewModel.readTodosByQuery(todoViewModel.searchQuery.value)
-                var isExpanded by rememberSaveable { mutableStateOf(false) }
+        setContent {
+            var isExpanded by rememberSaveable { mutableStateOf(false) }
+            val (todoName, setTodoName) = rememberSaveable { mutableStateOf("") }
 
-                SimpleTasksTheme {
-                    Scaffold(
-                        floatingActionButton = {
-                            HomeFAB { todoViewModel.onDialogStatusChange(true) }
-                        }
+            SimpleTasksTheme {
+                Scaffold(
+                    floatingActionButton = {
+                        HomeFAB { todoViewModel.onDialogStatusChange(true) }
+                    }
+                ) {
+                    Box(
+                        modifier = Modifier.padding(
+                            dimensionResource(id = R.dimen.space_between_8)
+                        )
                     ) {
-                        Box(
-                            modifier = Modifier.padding(
-                                dimensionResource(id = R.dimen.space_between_8)
-                            )
-                        ) {
-                            AndroidView({ context ->
-                                RecyclerView(context).apply {
-                                    id = R.id.todo_card_recyclerview
-                                    layoutManager = StaggeredGridLayoutManager(
-                                        2, StaggeredGridLayoutManager.VERTICAL
-                                    )
-                                    adapter = todoCardAdapter
-                                }
-                            }, modifier = Modifier.fillMaxSize())
-
-                            if (todoViewModel.isDialogVisible) {
-                                NewListDialog(
-                                    todoViewModel = todoViewModel,
-                                    labels = labels,
-                                    isExpanded = isExpanded,
-                                    onExpandChange = { isExpanded = !isExpanded },
-                                    onDismissRequest = {
-                                        todoViewModel.onDialogStatusChange(false)
-                                    },
-                                    selectedOption = todoViewModel.newTodoColor,
-                                    onOptionsSelected = todoViewModel::onNewColorChange,
-                                    onCancel = {
-                                        todoViewModel.onCancelDialog()
-                                        isExpanded = false
-                                    },
-                                    onDone = { todoViewModel.onDone(todos, findNavController()) }
+                        AndroidView({ context ->
+                            RecyclerView(context).apply {
+                                id = R.id.todo_card_recyclerview
+                                layoutManager = StaggeredGridLayoutManager(
+                                    2, StaggeredGridLayoutManager.VERTICAL
                                 )
+                                adapter = todoCardAdapter
                             }
+                        }, modifier = Modifier.fillMaxSize())
+
+                        if (todoViewModel.isDialogVisible) {
+
+                            NewListDialog(
+                                todoName = todoName,
+                                onNewNameChange = setTodoName,
+                                enabled = todoName.trim().isNotEmpty(),
+                                labels = labels,
+                                isExpanded = isExpanded,
+                                onExpandChange = { isExpanded = !isExpanded },
+                                onDismissRequest = {
+                                    todoViewModel.onDialogStatusChange(false)
+                                },
+                                selectedOption = todoViewModel.newTodoColor,
+                                onOptionsSelected = todoViewModel::onNewColorChange,
+                                onCancel = {
+                                    todoViewModel.onCancelDialog()
+                                    setTodoName("")
+                                    isExpanded = false
+                                },
+                                onDone = {
+                                    todoViewModel.onCreateDone(todoName)
+                                    goToTodoScreen()
+                                    setTodoName("")
+                                }
+                            )
                         }
                     }
                 }
@@ -104,8 +109,8 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        todoViewModel.todos.asLiveData().observe(viewLifecycleOwner) { todos ->
-            todoCardAdapter.submitList(todos)
+        todoViewModel.todos.observe(viewLifecycleOwner) { todos ->
+            todoCardAdapter.submitList(todos.reversed())
         }
     }
 
@@ -130,6 +135,13 @@ class HomeFragment : Fragment() {
 
         searchView.onQueryTextChanged { query ->
             todoViewModel.onQueryChange(query)
+        }
+    }
+
+    private fun goToTodoScreen() {
+        todoViewModel.newTodo?.let {
+            val action = HomeFragmentDirections.actionHomeFragmentToTodoFragment(it.id)
+            findNavController().navigate(action)
         }
     }
 }

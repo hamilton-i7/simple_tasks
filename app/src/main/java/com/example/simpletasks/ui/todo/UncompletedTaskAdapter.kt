@@ -10,18 +10,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.simpletasks.data.task.Task
 import com.example.simpletasks.data.task.TaskViewModel
 import com.example.simpletasks.data.todo.Todo
-import com.example.simpletasks.data.todo.TodoViewModel
 import com.example.simpletasks.ui.theme.SimpleTasksTheme
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.util.*
 
 @ExperimentalCoroutinesApi
 class UncompletedTaskAdapter(
-    private val todoViewModel: TodoViewModel,
     private val taskViewModel: TaskViewModel,
     private val todo: Todo,
     private val navController: NavController
-):
+) :
     ListAdapter<Task, UncompletedTaskAdapter.UncompletedTaskViewHolder>(DiffCallback()) {
 
     private var tasks = mutableListOf<Task>()
@@ -36,9 +34,9 @@ class UncompletedTaskAdapter(
                         UncompletedTaskRow(
                             name = task.name,
                             onTaskComplete = {
-                                taskViewModel.onTaskStateChange(completed = true, task, todo)
+                                taskViewModel.onTaskStateChange(task, todo)
                             },
-                            onNameClick =  { todoViewModel.onTaskClick(todo, task, navController) }
+                            onNameClick = { taskViewModel.onTaskClick(task, todo, navController) }
                         )
                     }
                 }
@@ -49,15 +47,13 @@ class UncompletedTaskAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UncompletedTaskViewHolder =
         UncompletedTaskViewHolder(ComposeView(parent.context))
 
-    override fun onBindViewHolder(holder: UncompletedTaskViewHolder, position: Int) {
-        val currentTask = getItem(position)
-        holder.bind(currentTask)
-    }
+    override fun onBindViewHolder(holder: UncompletedTaskViewHolder, position: Int) =
+        holder.bind(getItem(position))
 
     fun swapItems(startPosition: Int, endPosition: Int) {
         Collections.swap(tasks, startPosition, endPosition)
         notifyItemMoved(startPosition, endPosition)
-        todoViewModel.onTasksSwap(todo, tasks)
+        taskViewModel.onTasksSwap(tasks, todo)
     }
 
     fun updateList(tasks: List<Task>) {

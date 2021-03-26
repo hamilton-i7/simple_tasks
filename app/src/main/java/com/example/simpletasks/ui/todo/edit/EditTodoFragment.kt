@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Surface
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
@@ -47,16 +48,18 @@ class EditTodoFragment : Fragment() {
                         )
                     ) {
                         SimpleTextField(
-                            name = todoViewModel.todoName,
+                            name = todoViewModel.todoName.observeAsState(
+                                initial = args.todo.name
+                            ).value,
                             onNameChange = todoViewModel::onNameChange,
                             label = stringResource(id = R.string.list_name),
-                            isError = todoViewModel.isRepeatedName || todoViewModel.isInvalidName,
+//                            isError = todoViewModel.isRepeatedName || todoViewModel.isInvalidName,
                             modifier = Modifier.fillMaxWidth()
                         ) { keyboardController?.hideSoftwareKeyboard() }
-                        if (todoViewModel.isInvalidName)
-                            ErrorText(text = stringResource(id = R.string.invalid_name))
-                        else if (todoViewModel.isRepeatedName)
-                            ErrorText(text = stringResource(id = R.string.name_repeated))
+//                        if (todoViewModel.isInvalidName)
+//                            ErrorText(text = stringResource(id = R.string.invalid_name))
+//                        else if (todoViewModel.isRepeatedName)
+//                            ErrorText(text = stringResource(id = R.string.name_repeated))
                     }
                 }
             }
@@ -65,12 +68,19 @@ class EditTodoFragment : Fragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.todo_editing_menu, menu)
+
+        val doneButton = menu.findItem(R.id.action_todo_editing_done)
+
+        todoViewModel.todoName.observe(viewLifecycleOwner) {
+            doneButton.isEnabled = it.trim().isNotEmpty()
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_todo_editing_done -> {
-                todoViewModel.onDone(args.todo, findNavController())
+                todoViewModel.onEditDone(args.todo)
+                findNavController().navigateUp()
                 true
             }
             else -> super.onOptionsItemSelected(item)

@@ -21,7 +21,7 @@ class TodoCardAdapter(private val navController: NavController) :
                 SimpleTasksTheme {
                     TodoCard(todo) {
                         val action =
-                            HomeFragmentDirections.actionHomeFragmentToTodoFragment(todo, todo.id!!)
+                            HomeFragmentDirections.actionHomeFragmentToTodoFragment(todo.id)
                         navController.navigate(action)
                     }
                 }
