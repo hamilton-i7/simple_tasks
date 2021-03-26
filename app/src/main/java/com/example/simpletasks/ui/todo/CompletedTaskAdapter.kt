@@ -1,7 +1,6 @@
 package com.example.simpletasks.ui.todo
 
 import android.view.ViewGroup
-import androidx.annotation.ColorRes
 import androidx.compose.ui.platform.ComposeView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -9,14 +8,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.simpletasks.data.task.Task
 import com.example.simpletasks.data.task.TaskViewModel
 import com.example.simpletasks.data.todo.Todo
+import com.example.simpletasks.data.todo.TodoViewModel
 import com.example.simpletasks.ui.theme.SimpleTasksTheme
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
 class CompletedTaskAdapter(
-    private val taskViewModel: TaskViewModel,
     private val todo: Todo,
-    @ColorRes private val labelColor: Int
+    private val todoViewModel: TodoViewModel,
+    private val taskViewModel: TaskViewModel
 ) :
     ListAdapter<Task, CompletedTaskAdapter.CompletedTaskViewHolder>(DiffCallback()) {
 
@@ -28,7 +28,7 @@ class CompletedTaskAdapter(
                 SimpleTasksTheme {
                     CompletedTaskRow(
                         name = task.name,
-                        iconColor = labelColor
+                        iconColor = todoViewModel.labelColor
                     ) {
                         taskViewModel.onTaskStateChange(task, todo)
                     }
