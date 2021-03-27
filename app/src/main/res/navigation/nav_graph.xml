@@ -30,6 +30,9 @@
         <action
             android:id="@+id/action_todoFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
+        <action
+            android:id="@+id/action_todoFragment_to_createTaskFragment"
+            app:destination="@id/createTaskFragment" />
     </fragment>
     <fragment
         android:id="@+id/editTodoFragment"
@@ -53,5 +56,13 @@
         <argument
             android:name="task"
             app:argType="com.example.simpletasks.data.task.Task" />
+    </fragment>
+    <fragment
+        android:id="@+id/createTaskFragment"
+        android:name="com.example.simpletasks.ui.task.CreateTaskFragment"
+        android:label="create_task" >
+        <argument
+            android:name="todo"
+            app:argType="com.example.simpletasks.data.todo.Todo" />
     </fragment>
 </navigation>

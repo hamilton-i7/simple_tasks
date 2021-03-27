@@ -2,7 +2,7 @@ package com.example.simpletasks.ui.todo.edit
 
 import android.os.Bundle
 import android.view.*
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Surface
@@ -42,7 +42,7 @@ class EditTodoFragment : Fragment() {
 
             SimpleTasksTheme {
                 Surface {
-                    Column(
+                    Box(
                         modifier = Modifier.padding(
                             dimensionResource(id = R.dimen.space_between_16)
                         )
@@ -53,13 +53,8 @@ class EditTodoFragment : Fragment() {
                             ).value,
                             onNameChange = todoViewModel::onNameChange,
                             label = stringResource(id = R.string.list_name),
-//                            isError = todoViewModel.isRepeatedName || todoViewModel.isInvalidName,
                             modifier = Modifier.fillMaxWidth()
                         ) { keyboardController?.hideSoftwareKeyboard() }
-//                        if (todoViewModel.isInvalidName)
-//                            ErrorText(text = stringResource(id = R.string.invalid_name))
-//                        else if (todoViewModel.isRepeatedName)
-//                            ErrorText(text = stringResource(id = R.string.name_repeated))
                     }
                 }
             }
@@ -67,9 +62,9 @@ class EditTodoFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.todo_editing_menu, menu)
+        inflater.inflate(R.menu.editing_menu, menu)
 
-        val doneButton = menu.findItem(R.id.action_todo_editing_done)
+        val doneButton = menu.findItem(R.id.action_done)
 
         todoViewModel.todoName.observe(viewLifecycleOwner) {
             doneButton.isEnabled = it.trim().isNotEmpty()
@@ -78,7 +73,7 @@ class EditTodoFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.action_todo_editing_done -> {
+            R.id.action_done -> {
                 todoViewModel.onEditDone(args.todo)
                 findNavController().navigateUp()
                 true

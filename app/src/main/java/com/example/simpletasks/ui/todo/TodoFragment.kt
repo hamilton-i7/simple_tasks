@@ -87,7 +87,7 @@ class TodoFragment : Fragment() {
                 Scaffold(
                     floatingActionButton = {
                         if (!todoViewModel.loading)
-                            TodoFAB(todoViewModel.labelColor) { }
+                            TodoFAB(todoViewModel.labelColor) { goToCreateTaskScreen() }
                     }
                 ) {
                     Box(modifier = Modifier.fillMaxSize()) {
@@ -241,6 +241,13 @@ class TodoFragment : Fragment() {
     private fun goToEditingScreen() {
         currentTodo?.let {
             val action = TodoFragmentDirections.actionTodoFragmentToTodoEditFragment(it)
+            findNavController().navigate(action)
+        }
+    }
+
+    private fun goToCreateTaskScreen() {
+        currentTodo?.let {
+            val action = TodoFragmentDirections.actionTodoFragmentToCreateTaskFragment(it)
             findNavController().navigate(action)
         }
     }

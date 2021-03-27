@@ -22,12 +22,33 @@ class TaskViewModel(private val todoViewModel: TodoViewModel) : ViewModel() {
     var taskName by mutableStateOf("")
         private set
 
+    private val _newTaskName = MutableLiveData("")
+    val newTaskName: LiveData<String> get() = _newTaskName
+
     fun setTasks(tasks: List<Task>) {
         _tasks.value = tasks
     }
 
+    fun onTaskCreate(todo: Todo) {
+        val newTask = Task(name = _newTaskName.value!!)
+        val newList = todo.tasks.toMutableList().also {
+            it.add(it.indexOfLast { task -> !task.completed } + 1, newTask)
+        }
+        val updatedTodo = Todo(
+            id = todo.id,
+            name = todo.name,
+            colorResource = todo.colorResource,
+            tasks = newList
+        )
+        todoViewModel.updateTodo(updatedTodo)
+    }
+
     fun onTaskNameChange(name: String) {
         taskName = name
+    }
+
+    fun onNewTaskNameChange(name: String) {
+        _newTaskName.value = name
     }
 
     fun onTaskStateChange(task: Task, todo: Todo) {
@@ -64,20 +85,6 @@ class TaskViewModel(private val todoViewModel: TodoViewModel) : ViewModel() {
     fun onTaskClick(task: Task, todo: Todo, navController: NavController) {
         val action = TodoFragmentDirections.actionTodoFragmentToTaskEditFragment(todo, task)
         navController.navigate(action)
-    }
-
-    fun onTaskCreate(todo: Todo, taskName: String) {
-        val newTask = Task(name = taskName)
-        val newList = todo.tasks.toMutableList().also {
-            it.add(it.indexOfLast { task -> !task.completed } + 1, newTask)
-        }
-        val updatedTodo = Todo(
-            id = todo.id,
-            name = todo.name,
-            colorResource = todo.colorResource,
-            tasks = newList
-        )
-        todoViewModel.updateTodo(updatedTodo)
     }
 
     fun onCompletedTasksDelete(todo: Todo) {

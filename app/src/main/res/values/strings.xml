@@ -43,4 +43,6 @@
     <string name="todo_name">{todoName}</string>
     <string name="mark_completed">Mark completed</string>
     <string name="mark_uncompleted">Mark uncompleted</string>
+    <string name="task_name">Task name</string>
+    <string name="create_task">Create task</string>
 </resources>

@@ -81,7 +81,7 @@ class EditTaskFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.task_editing_menu, menu)
+        inflater.inflate(R.menu.delete_task_menu, menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

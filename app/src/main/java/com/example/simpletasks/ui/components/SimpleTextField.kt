@@ -16,7 +16,6 @@ fun SimpleTextField(
     onNameChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     label: String,
-    isError: Boolean = false,
     onDone: () -> Unit
 ) {
     TextField(
@@ -28,7 +27,6 @@ fun SimpleTextField(
             onDone = { onDone() }
         ),
         singleLine = true,
-        isError = isError,
         colors = TextFieldDefaults.textFieldColors(
             backgroundColor = Color.Transparent
         ),
