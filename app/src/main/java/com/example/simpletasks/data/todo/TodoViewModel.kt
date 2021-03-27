@@ -61,8 +61,9 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
         loading = false
     }
 
-    fun readTodoById(id: String): Flow<Todo> = repo.readTodoById(id)
+    fun readAllTodos(): Flow<List<Todo>> = repo.readAllTodos()
 
+    fun readTodoById(id: String): Flow<Todo> = repo.readTodoById(id)
 
     fun updateTodo(todo: Todo) = viewModelScope.launch {
         repo.updateTodo(todo)

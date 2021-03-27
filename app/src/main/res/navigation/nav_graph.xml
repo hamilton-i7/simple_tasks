@@ -49,7 +49,8 @@
     </fragment>
     <fragment
         android:id="@+id/editTaskFragment"
-        android:name="com.example.simpletasks.ui.task.edit.EditTaskFragment">
+        android:name="com.example.simpletasks.ui.task.edit.EditTaskFragment"
+        android:label="">
         <argument
             android:name="todo"
             app:argType="com.example.simpletasks.data.todo.Todo" />

@@ -3,6 +3,7 @@ package com.example.simpletasks.ui.task.edit
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -18,13 +19,15 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.dp
 import com.example.simpletasks.R
+import com.example.simpletasks.data.todo.Todo
 
 @Composable
-fun MarkButton(isCompleted: Boolean, onClick: () -> Unit) {
+fun MarkButton(taskCompleted: Boolean, onClick: () -> Unit) {
     TextButton(onClick = onClick) {
         Text(
-            text = if (isCompleted)
+            text = if (taskCompleted)
                 stringResource(id = R.string.mark_uncompleted)
             else
                 stringResource(id = R.string.mark_completed)
@@ -33,17 +36,25 @@ fun MarkButton(isCompleted: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
-fun ListButton(name: String, isExpanded: Boolean, onClick: () -> Unit) {
-    TextButton(onClick = onClick) {
+fun ListButton(
+    text: String,
+    enabled: Boolean,
+    expanded: Boolean = false,
+    onClick: () -> Unit = {}
+) {
+    TextButton(
+        onClick = onClick,
+        enabled = enabled
+    ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(text = name)
+            Text(text = text)
             Spacer(
                 modifier = Modifier.padding(
                     dimensionResource(id = R.dimen.space_between_10)
                 )
             )
             Icon(
-                imageVector = if (isExpanded)
+                imageVector = if (expanded)
                     Icons.Rounded.ExpandLess
                 else
                     Icons.Rounded.ExpandMore,
@@ -57,7 +68,7 @@ fun ListButton(name: String, isExpanded: Boolean, onClick: () -> Unit) {
 fun TaskTextField(
     name: String,
     onNameChange: (String) -> Unit,
-    isCompleted: Boolean,
+    readOnly: Boolean,
     modifier: Modifier = Modifier,
     onDone: () -> Unit = {}
 ) {
@@ -65,11 +76,11 @@ fun TaskTextField(
         BasicTextField(
             value = name,
             onValueChange = onNameChange,
-            readOnly = isCompleted,
-            textStyle = if (isCompleted)
+            readOnly = readOnly,
+            textStyle = if (readOnly)
                 MaterialTheme.typography.h5.copy(
                     textDecoration = TextDecoration.LineThrough,
-                    color = MaterialTheme.colors.primary
+                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.35f)
                 ) else
                 MaterialTheme.typography.h5.copy(
                     color = MaterialTheme.colors.onSurface
@@ -81,5 +92,33 @@ fun TaskTextField(
             cursorBrush = SolidColor(MaterialTheme.colors.primary),
             modifier = modifier
         )
+    }
+}
+
+@Composable
+fun TodoDropdownMenu(
+    expanded: Boolean,
+    todos: List<Todo>,
+    onDismiss: () -> Unit,
+    onClick: () -> Unit
+) {
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onDismiss,
+        modifier = Modifier.widthIn(min = 160.dp)
+    ) {
+        Text(
+            text = stringResource(id = R.string.move_task_to),
+            color = MaterialTheme.colors.primary,
+            modifier = Modifier.padding(
+                horizontal = dimensionResource(id = R.dimen.space_between_16)
+            )
+        )
+
+        todos.forEach { todo ->
+            DropdownMenuItem(onClick = onClick) {
+                Text(text = todo.name)
+            }
+        }
     }
 }

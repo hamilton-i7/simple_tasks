@@ -2,13 +2,16 @@ package com.example.simpletasks.ui.task.edit
 
 import android.os.Bundle
 import android.view.*
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Scaffold
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.dimensionResource
@@ -30,7 +33,6 @@ class EditTaskFragment : Fragment() {
     private val args by navArgs<EditTaskFragmentArgs>()
 
     private val todoViewModel by activityViewModels<TodoViewModel>()
-
     private val taskViewModel: TaskViewModel by lazy {
         ViewModelProvider(
             this,
@@ -47,10 +49,17 @@ class EditTaskFragment : Fragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 val scrollState = rememberScrollState()
+                val initialListButtonName by todoViewModel.todoName.observeAsState(initial = "")
+                var listButtonExpanded by rememberSaveable { mutableStateOf(false) }
+                val todos by todoViewModel.readAllTodos().collectAsState(initial = emptyList())
+
                 SimpleTasksTheme {
                     Scaffold(
                         floatingActionButton = {
-                            MarkButton(isCompleted = false) {}
+                            MarkButton(taskCompleted = args.task.completed) {
+                                taskViewModel.onTaskStateChange(args.task, args.todo)
+                                goToTodoScreen()
+                            }
                         }
                     ) {
                         Column(
@@ -60,25 +69,53 @@ class EditTaskFragment : Fragment() {
                                     dimensionResource(id = R.dimen.space_between_16)
                                 )
                         ) {
-                            ListButton(name = args.todo.name, isExpanded = false) {}
+                            Box {
+                                if (args.task.completed)
+                                    ListButton(text = initialListButtonName, enabled = false)
+                                else
+                                    ListButton(
+                                        text = initialListButtonName,
+                                        enabled = true,
+                                        expanded = listButtonExpanded,
+                                        onClick = { listButtonExpanded = true }
+                                    )
+                                if (listButtonExpanded) {
+                                    TodoDropdownMenu(
+                                        expanded = listButtonExpanded,
+                                        todos = todos,
+                                        onDismiss = { listButtonExpanded = false },
+                                        onClick = {}
+                                    )
+                                }
+                            }
                             Spacer(modifier = Modifier.padding(
                                 dimensionResource(id = R.dimen.space_between_10)
                             ))
                             TaskTextField(
                                 name = taskViewModel.taskName,
                                 onNameChange = taskViewModel::onTaskNameChange,
-                                isCompleted = false,
+                                readOnly = args.task.completed,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(
-                                    dimensionResource(id = R.dimen.space_between_8)
-                                )
+                                        dimensionResource(id = R.dimen.space_between_8)
+                                    )
                             )
                         }
                     }
                 }
             }
         }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        taskViewModel.onTaskNameChange(args.task.name)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        taskViewModel.onTaskEdit(args.task, args.todo)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

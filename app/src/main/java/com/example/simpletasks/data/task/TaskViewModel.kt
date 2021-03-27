@@ -29,7 +29,7 @@ class TaskViewModel(private val todoViewModel: TodoViewModel) : ViewModel() {
 
     fun onTaskCreate(todo: Todo) {
         val newTask = Task(name = _newTaskName.value!!)
-        val newList = todo.tasks.toMutableList().also {
+        val newList = _tasks.value!!.toMutableList().also {
             it.add(it.indexOfLast { task -> !task.completed } + 1, newTask)
         }
         val updatedTodo = Todo(
@@ -81,13 +81,13 @@ class TaskViewModel(private val todoViewModel: TodoViewModel) : ViewModel() {
     }
 
     fun onCompletedTasksDelete(todo: Todo) {
-        val remainingTasks = todo.tasks.filter { !it.completed }
+        val remainingTasks = _tasks.value!!.filter { !it.completed }
         val updatedTodo = Todo(todo.id, todo.name, todo.colorResource, remainingTasks)
         todoViewModel.updateTodo(updatedTodo)
     }
 
     fun onTaskDelete(task: Task, todo: Todo) {
-        val newList = todo.tasks.toMutableList().also { it.remove(task) }
+        val newList = _tasks.value!!.toMutableList().also { it.remove(task) }
         val updatedTodo = Todo(
             id = todo.id,
             name = todo.name,
@@ -97,11 +97,11 @@ class TaskViewModel(private val todoViewModel: TodoViewModel) : ViewModel() {
         todoViewModel.updateTodo(updatedTodo)
     }
 
-    fun onTaskEdit(task: Task, todo: Todo, name: String) {
-        val newList = todo.tasks.toMutableList().also {
+    fun onTaskEdit(task: Task, todo: Todo) {
+        val newList = _tasks.value!!.toMutableList().also {
             it[it.indexOf(task)] = Task(
                 id = task.id,
-                name = name,
+                name = taskName,
                 completed = task.completed
             )
         }
