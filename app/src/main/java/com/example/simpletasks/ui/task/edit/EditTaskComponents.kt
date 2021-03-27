@@ -58,8 +58,8 @@ fun TaskTextField(
     name: String,
     onNameChange: (String) -> Unit,
     isCompleted: Boolean,
-    onDone: () -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onDone: () -> Unit = {}
 ) {
     Surface {
         BasicTextField(

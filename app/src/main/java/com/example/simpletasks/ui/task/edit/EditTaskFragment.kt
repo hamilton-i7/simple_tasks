@@ -15,6 +15,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.simpletasks.R
 import com.example.simpletasks.data.task.TaskViewModel
@@ -87,9 +88,15 @@ class EditTaskFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_delete_task -> {
+                taskViewModel.onTaskDelete(args.task, args.todo)
+                goToTodoScreen()
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun goToTodoScreen() {
+        findNavController().navigateUp()
     }
 }

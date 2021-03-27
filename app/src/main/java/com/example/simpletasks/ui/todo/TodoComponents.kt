@@ -59,7 +59,8 @@ fun CompletedTaskRow(
     name: String,
     @ColorRes iconColor: Int,
     modifier: Modifier = Modifier,
-    onTaskUncheck: () -> Unit
+    onTaskUncheck: () -> Unit,
+    onNameClick: () -> Unit
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         IconButton(onClick = onTaskUncheck) {
@@ -74,7 +75,13 @@ fun CompletedTaskRow(
             maxLines = 1,
             textDecoration = TextDecoration.LineThrough,
             color = MaterialTheme.colors.primary,
-            modifier = modifier.fillMaxWidth()
+            modifier = modifier
+                .fillMaxWidth()
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = onNameClick
+                )
         )
     }
 }

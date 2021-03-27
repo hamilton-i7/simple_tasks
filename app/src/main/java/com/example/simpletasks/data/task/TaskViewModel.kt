@@ -7,10 +7,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.NavController
 import com.example.simpletasks.data.todo.Todo
 import com.example.simpletasks.data.todo.TodoViewModel
-import com.example.simpletasks.ui.todo.TodoFragmentDirections
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
@@ -80,11 +78,6 @@ class TaskViewModel(private val todoViewModel: TodoViewModel) : ViewModel() {
             tasks = tasks + todo.tasks.filter { it.completed }
         )
         todoViewModel.updateTodo(updatedTodo)
-    }
-
-    fun onTaskClick(task: Task, todo: Todo, navController: NavController) {
-        val action = TodoFragmentDirections.actionTodoFragmentToTaskEditFragment(todo, task)
-        navController.navigate(action)
     }
 
     fun onCompletedTasksDelete(todo: Todo) {

@@ -2,6 +2,7 @@ package com.example.simpletasks.ui.todo
 
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
+import androidx.navigation.NavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -16,7 +17,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 class CompletedTaskAdapter(
     private val todo: Todo,
     private val todoViewModel: TodoViewModel,
-    private val taskViewModel: TaskViewModel
+    private val taskViewModel: TaskViewModel,
+    private val navController: NavController
 ) :
     ListAdapter<Task, CompletedTaskAdapter.CompletedTaskViewHolder>(DiffCallback()) {
 
@@ -28,10 +30,10 @@ class CompletedTaskAdapter(
                 SimpleTasksTheme {
                     CompletedTaskRow(
                         name = task.name,
-                        iconColor = todoViewModel.labelColor
-                    ) {
-                        taskViewModel.onTaskStateChange(task, todo)
-                    }
+                        iconColor = todoViewModel.labelColor,
+                        onTaskUncheck = { taskViewModel.onTaskStateChange(task, todo) },
+                        onNameClick = { goToEditTaskScreen(task) }
+                    )
                 }
             }
         }
@@ -42,6 +44,11 @@ class CompletedTaskAdapter(
 
     override fun onBindViewHolder(holder: CompletedTaskViewHolder, position: Int) =
         holder.bind(getItem(position))
+
+    private fun goToEditTaskScreen(task: Task) {
+        val action = TodoFragmentDirections.actionTodoFragmentToTaskEditFragment(todo, task)
+        navController.navigate(action)
+    }
 
     class DiffCallback : DiffUtil.ItemCallback<Task>() {
         override fun areItemsTheSame(oldItem: Task, newItem: Task): Boolean =

@@ -36,7 +36,7 @@ class UncompletedTaskAdapter(
                             onTaskComplete = {
                                 taskViewModel.onTaskStateChange(task, todo)
                             },
-                            onNameClick = { taskViewModel.onTaskClick(task, todo, navController) }
+                            onNameClick = { goToEditTaskScreen(task) }
                         )
                     }
                 }
@@ -58,6 +58,11 @@ class UncompletedTaskAdapter(
 
     fun updateList(tasks: List<Task>) {
         this.tasks = tasks as MutableList<Task>
+    }
+
+    private fun goToEditTaskScreen(task: Task) {
+        val action = TodoFragmentDirections.actionTodoFragmentToTaskEditFragment(todo, task)
+        navController.navigate(action)
     }
 
     class DiffCallback : DiffUtil.ItemCallback<Task>() {

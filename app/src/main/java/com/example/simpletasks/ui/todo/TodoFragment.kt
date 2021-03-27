@@ -105,7 +105,12 @@ class TodoFragment : Fragment() {
                                 findNavController()
                             )
                             val completedTaskAdapter =
-                                CompletedTaskAdapter(todo, todoViewModel, taskViewModel)
+                                CompletedTaskAdapter(
+                                    todo,
+                                    todoViewModel,
+                                    taskViewModel,
+                                    findNavController()
+                                )
 
                             taskViewModel.tasks.observe(viewLifecycleOwner) {
                                 val uncompletedTasks = it.filter { task -> !task.completed }
