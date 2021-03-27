@@ -63,7 +63,7 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
 
     fun readAllTodos(): Flow<List<Todo>> = repo.readAllTodos()
 
-    fun readTodoById(id: String): Flow<Todo> = repo.readTodoById(id)
+    fun readTodoById(id: String): LiveData<Todo> = repo.readTodoById(id).asLiveData()
 
     fun updateTodo(todo: Todo) = viewModelScope.launch {
         repo.updateTodo(todo)

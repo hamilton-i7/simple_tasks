@@ -16,8 +16,8 @@ import java.util.*
 
 @ExperimentalCoroutinesApi
 class UncompletedTaskAdapter(
-    private val taskViewModel: TaskViewModel,
     private val todo: Todo,
+    private val taskViewModel: TaskViewModel,
     private val navController: NavController
 ) :
     ListAdapter<Task, UncompletedTaskAdapter.UncompletedTaskViewHolder>(DiffCallback()) {
