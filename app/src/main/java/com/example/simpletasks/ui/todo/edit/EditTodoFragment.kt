@@ -61,6 +61,11 @@ class EditTodoFragment : Fragment() {
         }
     }
 
+    override fun onStop() {
+        super.onStop()
+        todoViewModel.onStop()
+    }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.editing_menu, menu)
 

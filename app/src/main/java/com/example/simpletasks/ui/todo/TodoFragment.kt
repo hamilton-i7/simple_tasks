@@ -83,6 +83,9 @@ class TodoFragment : Fragment() {
                 taskViewModel.setTasks(currentTodo.tasks)
                 (requireActivity() as AppCompatActivity).supportActionBar?.title = currentTodo.name
 
+                /** Variable created to control the UI states made with Composables*/
+                val tasks by taskViewModel.tasks.observeAsState(initial = currentTodo.tasks)
+
                 uncompletedTaskAdapter = UncompletedTaskAdapter(
                     currentTodo,
                     taskViewModel,
@@ -145,8 +148,8 @@ class TodoFragment : Fragment() {
                                     overScrollMode = View.OVER_SCROLL_NEVER
                                 }
                             }, modifier = Modifier.fillMaxWidth())
-                            if (currentTodo.tasks.any { it.completed }) {
-                                if (currentTodo.tasks.any { !it.completed }) {
+                            if (tasks.any { it.completed }) {
+                                if (tasks.any { !it.completed }) {
                                     Divider(
                                         modifier = Modifier.padding(
                                             horizontal = 0.dp,
@@ -162,7 +165,7 @@ class TodoFragment : Fragment() {
                                         settingsViewModel.onExpandChange(settings)
                                     },
                                     completedAmount =
-                                    currentTodo.tasks.filter { it.completed }.size
+                                    tasks.filter { it.completed }.size
                                 )
 
                                 if (settings.completedTasksExpanded) {
@@ -185,6 +188,11 @@ class TodoFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         todoViewModel.readTodoById(args.todoId).observe(viewLifecycleOwner) { todo = it }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        todoViewModel.onStop()
     }
 
     override fun onDestroy() {

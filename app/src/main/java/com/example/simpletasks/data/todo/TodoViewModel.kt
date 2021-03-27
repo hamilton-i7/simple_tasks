@@ -8,8 +8,14 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.*
 import com.example.simpletasks.R
 import com.example.simpletasks.data.SimpleTasksDatabase
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.launch
 
 @ExperimentalCoroutinesApi
 class TodoViewModel(application: Application) : AndroidViewModel(application) {
@@ -17,18 +23,14 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
     private val applicationScope = CoroutineScope(SupervisorJob())
     private val repo: TodoRepo
 
-    var loading by mutableStateOf(false)
-        private set
-
-    var todo by mutableStateOf(Todo.Default)
-        private set
-
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> get() = _searchQuery
     val todos: LiveData<List<Todo>>
 
     var newTodo: Todo? = null
         private set
+
+    private var updatedTodo: Todo? = null
 
     var newTodoColor by mutableStateOf(R.color.default_color)
         private set
@@ -54,20 +56,9 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
         todos = todosFlow.asLiveData()
     }
 
-    fun searchTodo(id: String) = viewModelScope.launch {
-        loading = true
-        delay(800)
-        todo = repo.readTodoById(id).stateIn(this).value
-        loading = false
-    }
-
     fun readAllTodos(): Flow<List<Todo>> = repo.readAllTodos()
 
     fun readTodoById(id: String): LiveData<Todo> = repo.readTodoById(id).asLiveData()
-
-    fun updateTodo(todo: Todo) = viewModelScope.launch {
-        repo.updateTodo(todo)
-    }
 
     fun deleteTodo(todo: Todo) = viewModelScope.launch {
         repo.deleteTodo(todo)
@@ -92,13 +83,7 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
 
     fun onLabelChange(todo: Todo, @ColorRes newColor: Int) {
         labelColor = newColor
-        val updatedTodo = Todo(
-            id = todo.id,
-            name = todo.name,
-            colorResource = newColor,
-            tasks = todo.tasks
-        )
-        updateTodo(updatedTodo)
+        updatedTodo = todo.copy(colorResource = newColor)
     }
 
     fun onNewColorChange(@ColorRes color: Int) {
@@ -115,19 +100,21 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun onEditDone(todo: Todo) {
-        val updatedTodo = Todo(
-            id = todo.id,
-            name = _todoName.value!!,
-            colorResource = todo.colorResource,
-            tasks = todo.tasks
-        )
-        updateTodo(updatedTodo)
+        updatedTodo = todo.copy(name = _todoName.value!!)
         resetValidationState()
     }
 
     fun onCreateDone(name: String) {
         newTodo = createTodo(name)
         onValidTodo(newTodo!!)
+    }
+
+    fun onEvent(todo: Todo) {
+        updatedTodo = todo
+    }
+
+    fun onStop() {
+        updatedTodo?.let { updateTodo(it) }
     }
 
     private fun createTodo(name: String): Todo {
@@ -141,6 +128,10 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun addTodo(todo: Todo) = viewModelScope.launch {
         repo.addTodo(todo)
+    }
+
+    private fun updateTodo(todo: Todo) = viewModelScope.launch {
+        repo.updateTodo(todo)
     }
 
     private fun onValidTodo(todo: Todo) {

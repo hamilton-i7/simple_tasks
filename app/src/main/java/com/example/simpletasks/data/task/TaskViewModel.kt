@@ -32,13 +32,8 @@ class TaskViewModel(private val todoViewModel: TodoViewModel) : ViewModel() {
         val newList = _tasks.value!!.toMutableList().also {
             it.add(it.indexOfLast { task -> !task.completed } + 1, newTask)
         }
-        val updatedTodo = Todo(
-            id = todo.id,
-            name = todo.name,
-            colorResource = todo.colorResource,
-            tasks = newList
-        )
-        todoViewModel.updateTodo(updatedTodo)
+        todoViewModel.onEvent(todo.copy(tasks = newList))
+        _tasks.value = newList
     }
 
     fun onTaskNameChange(name: String) {
@@ -60,42 +55,26 @@ class TaskViewModel(private val todoViewModel: TodoViewModel) : ViewModel() {
             newList.add(updatedTask)
         else
             newList.add(newList.indexOfLast { !it.completed } + 1, updatedTask)
-        val updatedTodo = Todo(
-            id = todo.id,
-            name = todo.name,
-            colorResource = todo.colorResource,
-            tasks = newList
-        )
+        todoViewModel.onEvent(todo.copy(tasks = newList))
         _tasks.value = newList
-        todoViewModel.updateTodo(updatedTodo)
     }
 
     fun onTasksSwap(tasks: List<Task>, todo: Todo) {
-        val updatedTodo = Todo(
-            id = todo.id,
-            name = todo.name,
-            colorResource = todo.colorResource,
-            tasks = tasks + todo.tasks.filter { it.completed }
-        )
-        todoViewModel.updateTodo(updatedTodo)
+        val newList = tasks + todo.tasks.filter { it.completed }
+        todoViewModel.onEvent(todo.copy(tasks = newList))
+        _tasks.value = newList
     }
 
     fun onCompletedTasksDelete(todo: Todo) {
         val remainingTasks = _tasks.value!!.filter { !it.completed }
-        val updatedTodo = Todo(todo.id, todo.name, todo.colorResource, remainingTasks)
+        todoViewModel.onEvent(todo.copy(tasks = remainingTasks))
         _tasks.value = remainingTasks
-        todoViewModel.updateTodo(updatedTodo)
     }
 
     fun onTaskDelete(task: Task, todo: Todo) {
         val newList = _tasks.value!!.toMutableList().also { it.remove(task) }
-        val updatedTodo = Todo(
-            id = todo.id,
-            name = todo.name,
-            colorResource = todo.colorResource,
-            tasks = newList
-        )
-        todoViewModel.updateTodo(updatedTodo)
+        todoViewModel.onEvent(todo.copy(tasks = newList))
+        _tasks.value = newList
     }
 
     fun onTaskEdit(task: Task, todo: Todo) {
@@ -106,13 +85,8 @@ class TaskViewModel(private val todoViewModel: TodoViewModel) : ViewModel() {
                 completed = task.completed
             )
         }
-        val updatedTodo = Todo(
-            id = todo.id,
-            name = todo.name,
-            colorResource = todo.colorResource,
-            tasks = newList
-        )
-        todoViewModel.updateTodo(updatedTodo)
+        todoViewModel.onEvent(todo.copy(tasks = newList))
+        _tasks.value = newList
     }
 }
 
