@@ -43,10 +43,11 @@ class TaskViewModel(private val todoViewModel: TodoViewModel) : ViewModel() {
         val newList = _tasks.value!!.toMutableList().also {
             it.add(it.indexOfLast { task -> !task.completed } + 1, newTask)
         }
-        todoViewModel.onEvent(todo.copy(tasks = newList))
+//        todoViewModel.onEvent(todo.copy(tasks = newList))
         _tasks.value = newList
         newTaskDetails = ""
         resetNewTaskField()
+        todoViewModel.updateTodo(todo.copy(tasks = newList))
     }
 
     fun onTaskNameChange(name: String) {
@@ -72,26 +73,30 @@ class TaskViewModel(private val todoViewModel: TodoViewModel) : ViewModel() {
             newList.add(updatedTask)
         else
             newList.add(newList.indexOfLast { !it.completed } + 1, updatedTask)
-        todoViewModel.onEvent(todo.copy(tasks = newList))
+//        todoViewModel.onEvent(todo.copy(tasks = newList))
         _tasks.value = newList
+        todoViewModel.updateTodo(todo.copy(tasks = newList))
     }
 
     fun onTasksSwap(tasks: List<Task>, todo: Todo) {
         val newList = tasks + todo.tasks.filter { it.completed }
-        todoViewModel.onEvent(todo.copy(tasks = newList))
+//        todoViewModel.onEvent(todo.copy(tasks = newList))
         _tasks.value = newList
+        todoViewModel.updateTodo(todo.copy(tasks = newList))
     }
 
     fun onCompletedTasksDelete(todo: Todo) {
         val remainingTasks = _tasks.value!!.filter { !it.completed }
-        todoViewModel.onEvent(todo.copy(tasks = remainingTasks))
+//        todoViewModel.onEvent(todo.copy(tasks = remainingTasks))
         _tasks.value = remainingTasks
+        todoViewModel.updateTodo(todo.copy(tasks = remainingTasks))
     }
 
     fun onTaskDelete(task: Task, todo: Todo) {
         val newList = _tasks.value!!.toMutableList().also { it.remove(task) }
-        todoViewModel.onEvent(todo.copy(tasks = newList))
+//        todoViewModel.onEvent(todo.copy(tasks = newList))
         _tasks.value = newList
+        todoViewModel.updateTodo(todo.copy(tasks = newList))
     }
 
     fun onTaskEdit(task: Task, todo: Todo) {
@@ -102,8 +107,9 @@ class TaskViewModel(private val todoViewModel: TodoViewModel) : ViewModel() {
                     details = taskDetails
                 )
             }
-            todoViewModel.onEvent(todo.copy(tasks = newList))
+//            todoViewModel.onEvent(todo.copy(tasks = newList))
             _tasks.value = newList
+            todoViewModel.updateTodo(todo.copy(tasks = newList))
         }
     }
 
@@ -113,11 +119,17 @@ class TaskViewModel(private val todoViewModel: TodoViewModel) : ViewModel() {
             index = it.indexOfLast { task -> !task.completed } + 1,
             element = task
         ) }
-
-        todoViewModel.onEvent(setOf(
+        setOf(
             from.copy(tasks = newList1),
             to.copy(tasks = newList2)
-        ))
+        ).forEach {
+            todoViewModel.updateTodo(it)
+        }
+
+//        todoViewModel.onEvent(setOf(
+//            from.copy(tasks = newList1),
+//            to.copy(tasks = newList2)
+//        ))
     }
 
     private fun resetNewTaskField() {

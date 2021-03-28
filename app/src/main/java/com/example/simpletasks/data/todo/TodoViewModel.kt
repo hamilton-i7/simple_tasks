@@ -64,6 +64,10 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
 
     fun readTodoById(id: String): LiveData<Todo> = repo.readTodoById(id).asLiveData()
 
+    fun updateTodo(todo: Todo) = viewModelScope.launch {
+        repo.updateTodo(todo)
+    }
+
     fun deleteTodo(todo: Todo) = viewModelScope.launch {
         repo.deleteTodo(todo)
     }
@@ -103,8 +107,9 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
         newTodoColor = R.color.default_color
     }
 
-    fun onEditDone(todo: Todo) {
-        updatedTodo = todo.copy(name = _todoName.value!!)
+    fun onEditDone(todo: Todo, name: String) {
+//        updatedTodo = todo.copy(name = _todoName.value!!)
+        updateTodo(todo.copy(name = name))
     }
 
     fun onCreateDone(name: String) {
@@ -122,23 +127,22 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
 
     /**
      * Event that updates the current Todo on screen. Must be called to update UI feedback*/
-    fun onEvent(todo: Todo) {
-        updatedTodo = todo
-    }
+//    fun onEvent(todo: Todo) {
+//        updatedTodo = todo
+//    }
 
-    fun onEvent(todos: Set<Todo>) {
-        todos.forEach {
-            updatedTodo = it
-            updateTodo(it)
-        }
-    }
+//    fun onEvent(todos: Set<Todo>) {
+//        todos.forEach {
+//            updatedTodo = it
+//            updateTodo(it)
+//        }
+//    }
 
     /**
      * Sends the latest Todo state to the database*/
     fun onStop() {
         updatedTodo?.let { updateTodo(it) }
     }
-
 
     private fun createTodo(name: String): Todo {
         val newTodo = Todo(
@@ -148,12 +152,8 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
         addTodo(newTodo)
         return newTodo
     }
-
     private fun addTodo(todo: Todo) = viewModelScope.launch {
         repo.addTodo(todo)
-    }
-    private fun updateTodo(todo: Todo) = viewModelScope.launch {
-        repo.updateTodo(todo)
     }
 
     private fun onValidTodo(todo: Todo) {

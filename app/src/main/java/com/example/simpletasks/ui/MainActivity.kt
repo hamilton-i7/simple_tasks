@@ -20,8 +20,10 @@ import com.example.simpletasks.data.task.TaskViewModelFactory
 import com.example.simpletasks.data.todo.TodoViewModel
 import com.example.simpletasks.ui.components.NavDrawerContent
 import com.example.simpletasks.ui.home.HomeScreen
+import com.example.simpletasks.ui.task.edit.EditTaskScreen
 import com.example.simpletasks.ui.theme.SimpleTasksTheme
 import com.example.simpletasks.ui.todo.TodoScreen
+import com.example.simpletasks.ui.todo.edit.EditTodoScreen
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 
@@ -86,6 +88,55 @@ class MainActivity : AppCompatActivity() {
                                     navController = navController,
                                     lifecycleOwner = this@MainActivity,
                                     state = state
+                                )
+
+                                this@MainActivity.onBackPressedDispatcher.addCallback(backStackEntry,
+                                    object : OnBackPressedCallback(true) {
+                                        override fun handleOnBackPressed() {
+                                            if (state.isOpen)
+                                                scope.launch { state.close() }
+                                            else {
+                                                navController.navigate(Screen.Home.route) {
+                                                    popUpTo(Screen.Home.route) { inclusive = true }
+                                                }
+//                                                todoViewModel.onTodoSelect(Screen.Home.route)
+                                            }
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                        composable(
+                            route = Screen.EditTodo.route,
+                            arguments = listOf(navArgument(TODO_ARG) {
+                                type = NavType.StringType
+                            })
+                        ) { backStackEntry ->
+                            backStackEntry.arguments?.getString(TODO_ARG)?.let {
+                                EditTodoScreen(
+                                    todoId = it,
+                                    todoViewModel = todoViewModel,
+                                    navController = navController
+                                )
+                            }
+                        }
+                        composable(
+                            route = Screen.EditTask.route,
+                            arguments = listOf(
+                                navArgument(TODO_ARG) { type = NavType.StringType },
+                                navArgument(TASK_ARG) { type = NavType.StringType }
+                            )
+                        ) { backStackEntry ->
+                            if (
+                                backStackEntry.arguments!!.getString(TODO_ARG) != null &&
+                                backStackEntry.arguments!!.getString(TASK_ARG) != null
+                            ) {
+                                EditTaskScreen(
+                                    todoId = backStackEntry.arguments!!.getString(TODO_ARG)!!,
+                                    taskId = backStackEntry.arguments!!.getString(TASK_ARG)!!,
+                                    todoViewModel = todoViewModel,
+                                    taskViewModel = taskViewModel,
+                                    navController = navController
                                 )
                             }
                         }

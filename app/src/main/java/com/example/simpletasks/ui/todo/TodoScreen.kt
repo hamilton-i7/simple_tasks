@@ -33,6 +33,7 @@ import com.example.simpletasks.data.todo.TodoViewModel
 import com.example.simpletasks.ui.Screen
 import com.example.simpletasks.ui.theme.SimpleTasksTheme
 import com.example.simpletasks.util.DragManager
+import com.example.simpletasks.util.createTodoEditRoute
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 
@@ -75,6 +76,7 @@ fun TodoScreen(
             taskViewModel,
             navController
         )
+
         taskViewModel.tasks.observe(lifecycleOwner) {
             val uncompletedTasks = it.filter { task -> !task.completed }
             uncompletedTaskAdapter.apply {
@@ -100,7 +102,11 @@ fun TodoScreen(
                         },
                         onShowMenu = { isOverflowMenuVisible = true },
                         onDismissRequest = { isOverflowMenuVisible = false },
-                        onListRename = { /*TODO*/ },
+                        onListRename = {
+                            val route = createTodoEditRoute(currentTodo.id)
+                            navController.navigate(route)
+                            isOverflowMenuVisible = false
+                        },
                         onLabelColorChange = {
                             isLabelDialogVisible = true
                             isOverflowMenuVisible = false
