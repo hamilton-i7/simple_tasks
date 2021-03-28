@@ -46,7 +46,7 @@ fun EditTodoScreen(
                         title = stringResource(id = R.string.rename_list),
                         doneEnabled = name.isNotEmpty(),
                         onDoneClick = {
-                            todoViewModel.onEditDone(it, name)
+                            todoViewModel.onEditTodo(it, name)
                             goToTodoScreen(navController, todoId)
                         },
                         onUpButtonClick = {

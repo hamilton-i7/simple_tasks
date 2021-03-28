@@ -13,13 +13,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.simpletasks.ui.MainActivity
 import com.example.simpletasks.R
+import com.example.simpletasks.ui.MainActivity
 import com.example.simpletasks.ui.components.AppNameText
 import com.example.simpletasks.ui.components.CreatorNameText
 import com.example.simpletasks.ui.theme.SimpleTasksTheme
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 class SplashActivity : AppCompatActivity() {
+    @ExperimentalCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {

@@ -48,7 +48,6 @@ fun NavDrawerContent(
             Spacer(modifier = Modifier.padding(dimensionResource(id = R.dimen.space_between_8)))
         }
         item {
-            val route = Screen.Home.route
             val isSelected = Screen.Home.route == todoViewModel.selectedTodo
             NavDrawerRow(
                 icon = Icons.Rounded.Home,
@@ -56,13 +55,13 @@ fun NavDrawerContent(
                 isSelected = isSelected,
                 title = stringResource(id = R.string.lists),
                 onRowSelected = {
-                    todoViewModel.onTodoSelect(it)
+                    todoViewModel.onTodoSelect(Screen.Home.route)
                     scope.launch {
+                        val route = Screen.Home.route
                         navController.navigate(route) {
                             popUpTo(route) { inclusive = true }
                             launchSingleTop = true
                         }
-//                        todoViewModel.clearNameField()
                         state.close()
                     }
                 }
@@ -86,7 +85,6 @@ fun NavDrawerContent(
                         navController.navigate(route) {
                             popUpTo(route) { inclusive = true }
                         }
-//                        todoViewModel.clearNameField()
                         state.close()
                     }
                 }
@@ -100,7 +98,6 @@ fun NavDrawerContent(
                 isSelected = stringResource(id = R.string.add_list) == todoViewModel.selectedTodo,
                 title = stringResource(id = R.string.add_list),
                 onRowSelected = {
-//                    todoViewModel.clearNameField()
                     todoViewModel.onDialogStatusChange(true)
                     scope.launch { state.close() }
                 }

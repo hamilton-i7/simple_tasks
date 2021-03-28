@@ -100,7 +100,7 @@ class MainActivity : AppCompatActivity() {
                                                 navController.navigate(Screen.Home.route) {
                                                     popUpTo(Screen.Home.route) { inclusive = true }
                                                 }
-//                                                todoViewModel.onTodoSelect(Screen.Home.route)
+                                                todoViewModel.onTodoSelect(Screen.Home.route)
                                             }
                                         }
                                     }

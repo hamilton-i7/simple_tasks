@@ -13,6 +13,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
@@ -28,15 +29,19 @@ import com.example.simpletasks.data.label.LabelSource
 import com.example.simpletasks.data.settings.Settings
 import com.example.simpletasks.data.settings.SettingsViewModel
 import com.example.simpletasks.data.task.TaskViewModel
+import com.example.simpletasks.data.todo.Todo
 import com.example.simpletasks.data.todo.TodoViewModel
 import com.example.simpletasks.ui.Screen
+import com.example.simpletasks.ui.components.NewListDialog
 import com.example.simpletasks.ui.theme.SimpleTasksTheme
 import com.example.simpletasks.util.DragManager
 import com.example.simpletasks.util.createNewTaskRoute
 import com.example.simpletasks.util.createTodoEditRoute
+import com.example.simpletasks.util.createTodoRoute
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 
+@ExperimentalComposeUiApi
 @ExperimentalFoundationApi
 @ExperimentalCoroutinesApi
 @Composable
@@ -49,7 +54,6 @@ fun TodoScreen(
     lifecycleOwner: LifecycleOwner,
     state: DrawerState
 ) {
-//    LocalSoftwareKeyboardController.current?.hideSoftwareKeyboard()
     val settings by settingsViewModel.readSettings().observeAsState(
         initial = Settings()
     )
@@ -59,7 +63,6 @@ fun TodoScreen(
 
     todo?.let { currentTodo ->
         todoViewModel.onNameChange(currentTodo.name)
-//        todoViewModel.setInitialLabel(currentTodo.colorResource)
         taskViewModel.setTasks(currentTodo.tasks)
         taskViewModel.onButtonNameChange(currentTodo.name)
 
@@ -91,6 +94,8 @@ fun TodoScreen(
 
         var isLabelDialogVisible by rememberSaveable { mutableStateOf(false) }
         var isOverflowMenuVisible by rememberSaveable { mutableStateOf(false) }
+        val (newTodoName, setNewTodoName) = rememberSaveable { mutableStateOf("") }
+        var isExpanded by rememberSaveable { mutableStateOf(false) }
 
         SimpleTasksTheme {
             Scaffold(
@@ -136,6 +141,32 @@ fun TodoScreen(
                             dimensionResource(id = R.dimen.space_between_8)
                         )
                 ) {
+                    if (todoViewModel.isDialogVisible) {
+                        NewListDialog(
+                            todoName = newTodoName,
+                            onNewNameChange = setNewTodoName,
+                            enabled = newTodoName.trim().isNotEmpty(),
+                            labels = labels,
+                            isExpanded = isExpanded,
+                            onExpandChange = { isExpanded = !isExpanded },
+                            onDismissRequest = {
+                                todoViewModel.onDialogStatusChange(false)
+                            },
+                            selectedOption = todoViewModel.newTodoColor,
+                            onOptionsSelected = todoViewModel::onNewColorChange,
+                            onCancel = {
+                                todoViewModel.onCancelDialog()
+                                setNewTodoName("")
+                                isExpanded = false
+                            },
+                            onDone = {
+                                todoViewModel.onCreateDone(newTodoName)
+                                goToTodoScreen(navController, todoViewModel.newTodo)
+                                setNewTodoName("")
+                            }
+                        )
+                    }
+
                     if (isLabelDialogVisible) {
                         LabelDialog(
                             labels = labels,
@@ -211,4 +242,11 @@ private fun goToHomeScreen(
 ) {
     navController.navigate(Screen.Home.route)
     todoViewModel.onTodoSelect(Screen.Home.route)
+}
+
+private fun goToTodoScreen(navController: NavController, todo: Todo?) {
+    todo?.let {
+        val route = createTodoRoute(it.id)
+        navController.navigate(route)
+    }
 }
