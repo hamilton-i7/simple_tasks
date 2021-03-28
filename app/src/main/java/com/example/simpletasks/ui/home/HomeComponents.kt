@@ -19,9 +19,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -41,13 +41,12 @@ import kotlinx.coroutines.launch
 const val MAX_TASK_ROWS = 9
 
 @ExperimentalCoroutinesApi
-@ExperimentalComposeUiApi
 @Composable
 fun HomeTopBar(
     todoViewModel: TodoViewModel,
     state: DrawerState
 ) {
-    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
     val scope = rememberCoroutineScope()
     val query by todoViewModel.searchQuery.collectAsState()
 
@@ -62,17 +61,16 @@ fun HomeTopBar(
         Row(verticalAlignment = Alignment.CenterVertically) {
             NavigationIcon { scope.launch { state.open() } }
             Spacer(modifier = Modifier.padding(dimensionResource(id = R.dimen.space_between_2)))
-            SearchField(query, todoViewModel::onQueryChange, keyboardController)
+            SearchField(query, todoViewModel::onQueryChange, focusManager)
         }
     }
 }
 
-@ExperimentalComposeUiApi
 @Composable
 fun SearchField(
     query: String,
     onQueryChange: (String) -> Unit,
-    keyboardController: SoftwareKeyboardController? = null,
+    focusManager: FocusManager
 ) {
     Card(
         shape = RoundedCornerShape(26.dp),
@@ -98,7 +96,7 @@ fun SearchField(
             ),
             keyboardActions = KeyboardActions(
                 onSearch = {
-                    keyboardController?.hideSoftwareKeyboard()
+                    focusManager.clearFocus()
                 }
             )
         )

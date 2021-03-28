@@ -8,12 +8,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Circle
-import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.ExpandLess
-import androidx.compose.material.icons.rounded.ExpandMore
+import androidx.compose.material.icons.rounded.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
@@ -25,7 +23,91 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.example.simpletasks.R
 import com.example.simpletasks.data.label.Label
+import com.example.simpletasks.data.todo.Todo
 import com.example.simpletasks.ui.components.LabelOptions
+import com.example.simpletasks.ui.components.NavigationIcon
+
+@Composable
+fun ListTopBar(
+    todo: Todo,
+    isMenuVisible: Boolean,
+    onNavigationIconClick: () -> Unit,
+    onShowMenu: () -> Unit,
+    onDismissRequest: () -> Unit,
+    onListRename: () -> Unit,
+    onLabelColorChange: () -> Unit,
+    onCompletedTasksDelete: () -> Unit,
+    onListDelete: () -> Unit
+) {
+    TopAppBar(
+        navigationIcon = {
+            NavigationIcon(onClick = onNavigationIconClick)
+        },
+        title = {
+            Text(text = todo.name)
+        },
+        actions = {
+            Box(contentAlignment = AbsoluteAlignment.TopRight) {
+                IconButton(onClick = onShowMenu) {
+                    Icon(
+                        imageVector = Icons.Rounded.MoreVert,
+                        contentDescription = stringResource(id = R.string.view_options)
+                    )
+                }
+                TodoSettingsMenu(
+                    isMenuVisible = isMenuVisible,
+                    onDismissRequest = onDismissRequest,
+                    onRenameList = onListRename,
+                    onChangeLabelColor = onLabelColorChange,
+                    onDeleteCompletedTasks = onCompletedTasksDelete,
+                    onDeleteList = onListDelete
+                )
+            }
+        },
+        backgroundColor = MaterialTheme.colors.surface,
+        elevation = 0.dp,
+    )
+}
+
+@Composable
+fun TodoSettingsMenu(
+    isMenuVisible: Boolean,
+    onDismissRequest: () -> Unit,
+    onRenameList: () -> Unit,
+    onChangeLabelColor: () -> Unit,
+    onDeleteCompletedTasks: () -> Unit,
+    onDeleteList: () -> Unit,
+) {
+    DropdownMenu(
+        expanded = isMenuVisible,
+        onDismissRequest = onDismissRequest
+    ) {
+        DropdownMenuItem(onClick = onRenameList) {
+            Text(
+                text = stringResource(id = R.string.rename_list),
+                style = MaterialTheme.typography.body2
+            )
+        }
+        DropdownMenuItem(onClick = onChangeLabelColor) {
+            Text(
+                text = stringResource(id = R.string.change_label_color),
+                style = MaterialTheme.typography.body2
+            )
+        }
+        DropdownMenuItem(onClick = onDeleteCompletedTasks) {
+            Text(
+                text = stringResource(id = R.string.delete_completed_tasks),
+                style = MaterialTheme.typography.body2
+            )
+        }
+        DropdownMenuItem(onClick = onDeleteList) {
+            Text(
+                text = stringResource(id = R.string.delete_list),
+                style = MaterialTheme.typography.body2
+            )
+        }
+    }
+}
 
 @Composable
 fun UncompletedTaskRow(

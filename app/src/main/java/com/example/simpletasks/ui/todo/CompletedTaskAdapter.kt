@@ -38,7 +38,7 @@ class CompletedTaskAdapter(
                         CompletedTaskRow(
                             name = task.name,
                             details = task.details,
-                            iconColor = todoViewModel.labelColor,
+                            iconColor = R.color.default_color,
                             onTaskUncheck = { taskViewModel.onTaskStateChange(task, todo) },
                             onNameClick = { goToEditTaskScreen(task) }
                         )

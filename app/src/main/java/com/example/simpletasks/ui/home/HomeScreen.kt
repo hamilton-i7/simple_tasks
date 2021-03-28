@@ -34,10 +34,10 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 @ExperimentalCoroutinesApi
 @Composable
 fun HomeScreen(
-    navController: NavController,
     state: DrawerState,
-    todoViewModel: TodoViewModel,
-    lifecycleOwner: LifecycleOwner
+    navController: NavController,
+    lifecycleOwner: LifecycleOwner,
+    todoViewModel: TodoViewModel
 ) {
     val labels = LabelSource.readLabels()
     var isExpanded by rememberSaveable { mutableStateOf(false) }
@@ -45,7 +45,7 @@ fun HomeScreen(
     val todoCardAdapter = TodoCardAdapter(navController)
 
     todoViewModel.todos.observe(lifecycleOwner) {
-        todoCardAdapter.submitList(it)
+        todoCardAdapter.submitList(it.reversed())
     }
 
     SimpleTasksTheme {

@@ -75,7 +75,7 @@ class TodoFragment : Fragment() {
 
             todo?.let { currentTodo ->
                 todoViewModel.onNameChange(currentTodo.name)
-                todoViewModel.setInitialLabel(currentTodo.colorResource)
+//                todoViewModel.setInitialLabel(currentTodo.colorResource)
                 taskViewModel.setTasks(currentTodo.tasks)
                 (requireActivity() as AppCompatActivity).supportActionBar?.title = currentTodo.name
 
@@ -107,7 +107,7 @@ class TodoFragment : Fragment() {
                 SimpleTasksTheme {
                     Scaffold(
                         floatingActionButton = {
-                            TodoFAB(todoViewModel.labelColor) { goToCreateTaskScreen() }
+//                            TodoFAB(todoViewModel.labelColor) { goToCreateTaskScreen() }
                         }
                     ) {
                         Column(
@@ -123,7 +123,7 @@ class TodoFragment : Fragment() {
                                     onDismissRequest = {
                                         todoViewModel.onLabelDialogStatusChange(false)
                                     },
-                                    selectedOption = todoViewModel.labelColor,
+                                    selectedOption = R.color.default_color,
                                     onOptionsSelected = {
                                         todoViewModel.onLabelChange(currentTodo, it)
                                         todoViewModel.onLabelDialogStatusChange(false)

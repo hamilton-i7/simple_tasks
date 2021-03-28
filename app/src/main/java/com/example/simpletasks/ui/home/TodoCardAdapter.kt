@@ -3,11 +3,13 @@ package com.example.simpletasks.ui.home
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
 import androidx.navigation.NavController
+import androidx.navigation.compose.navigate
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.simpletasks.data.todo.Todo
 import com.example.simpletasks.ui.theme.SimpleTasksTheme
+import com.example.simpletasks.util.createTodoRoute
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
@@ -20,9 +22,8 @@ class TodoCardAdapter(private val navController: NavController) :
             view.setContent {
                 SimpleTasksTheme {
                     TodoCard(todo) {
-                        val action =
-                            HomeFragmentDirections.actionHomeFragmentToTodoFragment(todo.id)
-                        navController.navigate(action)
+                        val route = createTodoRoute(todo.id)
+                        navController.navigate(route)
                     }
                 }
             }

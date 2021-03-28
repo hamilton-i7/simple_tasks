@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.*
 import com.example.simpletasks.R
 import com.example.simpletasks.data.SimpleTasksDatabase
+import com.example.simpletasks.ui.Screen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
@@ -32,19 +33,25 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
 
     private var updatedTodo: Todo? = null
 
+//    var newTodoName by mutableStateOf("")
+//        private set
     var newTodoColor by mutableStateOf(R.color.default_color)
         private set
 
     private var _todoName = MutableLiveData("")
     val todoName: LiveData<String> get() = _todoName
 
-    var labelColor by mutableStateOf(R.color.default_color)
-        private set
+//    var labelColor by mutableStateOf(R.color.default_color)
+//        private set
 
     var isDialogVisible by mutableStateOf(false)
         private set
     var isLabelDialogVisible by mutableStateOf(false)
         private set
+
+    var selectedTodo by mutableStateOf(Screen.Home.route)
+        private set
+
 
     init {
         val todoDao = SimpleTasksDatabase.getDatabase(application, applicationScope).todoDao()
@@ -69,17 +76,18 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
         isDialogVisible = showDialog
     }
 
-    fun setInitialLabel(@ColorRes color: Int) {
-        labelColor = color
-    }
+//    fun setInitialLabel(@ColorRes color: Int) {
+//        labelColor = color
+//    }
 
     fun onLabelDialogStatusChange(showDialog: Boolean) {
         isLabelDialogVisible = showDialog
     }
 
     fun onLabelChange(todo: Todo, @ColorRes newColor: Int) {
-        labelColor = newColor
+//        labelColor = newColor
         updatedTodo = todo.copy(colorResource = newColor)
+        updateTodo(todo.copy(colorResource = newColor))
     }
 
     fun onNewColorChange(@ColorRes color: Int) {
@@ -103,6 +111,14 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
         newTodo = createTodo(name)
         onValidTodo(newTodo!!)
     }
+
+    fun onTodoSelect(selection: String) {
+        selectedTodo = selection
+    }
+
+//    fun clearNameField() {
+//        newTodoName = ""
+//    }
 
     /**
      * Event that updates the current Todo on screen. Must be called to update UI feedback*/
