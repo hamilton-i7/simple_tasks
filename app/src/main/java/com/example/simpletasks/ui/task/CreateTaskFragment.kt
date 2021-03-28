@@ -11,12 +11,11 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.simpletasks.R
@@ -33,11 +32,8 @@ class CreateTaskFragment : Fragment() {
     private val args by navArgs<CreateTaskFragmentArgs>()
 
     private val todoViewModel by activityViewModels<TodoViewModel>()
-    private val taskViewModel: TaskViewModel by lazy {
-        ViewModelProvider(
-            this,
-            TaskViewModelFactory(todoViewModel)
-        ).get(TaskViewModel::class.java)
+    private val taskViewModel by activityViewModels<TaskViewModel> {
+        TaskViewModelFactory(todoViewModel)
     }
 
     @ExperimentalComposeUiApi
@@ -49,7 +45,7 @@ class CreateTaskFragment : Fragment() {
         setHasOptionsMenu(true)
 
         setContent {
-            val keyboardController = LocalSoftwareKeyboardController.current
+            val focusManager = LocalFocusManager.current
             val newTaskName by taskViewModel.newTaskName.observeAsState(initial = "")
 
             SimpleTasksTheme {
@@ -64,11 +60,17 @@ class CreateTaskFragment : Fragment() {
                             onNameChange = taskViewModel::onNewTaskNameChange,
                             label = stringResource(id = R.string.task_name),
                             modifier = Modifier.fillMaxWidth()
-                        ) { keyboardController?.hideSoftwareKeyboard() }
+                        ) { focusManager.clearFocus() }
                     }
                 }
             }
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        taskViewModel.resetNewTaskField()
+        todoViewModel.onStop()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

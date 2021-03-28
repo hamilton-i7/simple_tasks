@@ -14,10 +14,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.dimensionResource
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.simpletasks.R
@@ -33,75 +33,74 @@ class EditTaskFragment : Fragment() {
     private val args by navArgs<EditTaskFragmentArgs>()
 
     private val todoViewModel by activityViewModels<TodoViewModel>()
-    private val taskViewModel: TaskViewModel by lazy {
-        ViewModelProvider(
-            this,
-            TaskViewModelFactory(todoViewModel)
-        ).get(TaskViewModel::class.java)
+    private val taskViewModel by activityViewModels<TaskViewModel> {
+        TaskViewModelFactory(todoViewModel)
     }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View = ComposeView(requireContext()).apply {
         setHasOptionsMenu(true)
-        return ComposeView(requireContext()).apply {
-            setContent {
-                val scrollState = rememberScrollState()
-                val initialListButtonName by todoViewModel.todoName.observeAsState(initial = "")
-                var listButtonExpanded by rememberSaveable { mutableStateOf(false) }
-                val todos by todoViewModel.readAllTodos().collectAsState(initial = emptyList())
+        setContent {
+            val scrollState = rememberScrollState()
+            val focusManager = LocalFocusManager.current
+            val initialListButtonName by todoViewModel.todoName.observeAsState(initial = "")
+            var listButtonExpanded by rememberSaveable { mutableStateOf(false) }
+            val todos by todoViewModel.readAllTodos().collectAsState(initial = emptyList())
 
-                SimpleTasksTheme {
-                    Scaffold(
-                        floatingActionButton = {
-                            MarkButton(taskCompleted = args.task.completed) {
-                                taskViewModel.onTaskStateChange(args.task, args.todo)
-                                goToTodoScreen()
-                            }
+            SimpleTasksTheme {
+                Scaffold(
+                    floatingActionButton = {
+                        MarkButton(taskCompleted = args.task.completed) {
+                            taskViewModel.onTaskStateChange(args.task, args.todo)
+                            goToTodoScreen()
                         }
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .verticalScroll(scrollState)
-                                .padding(
-                                    dimensionResource(id = R.dimen.space_between_16)
-                                )
-                        ) {
-                            Box {
-                                if (args.task.completed)
-                                    ListButton(text = initialListButtonName, enabled = false)
-                                else
-                                    ListButton(
-                                        text = initialListButtonName,
-                                        enabled = true,
-                                        expanded = listButtonExpanded,
-                                        onClick = { listButtonExpanded = true }
-                                    )
-                                if (listButtonExpanded) {
-                                    TodoDropdownMenu(
-                                        expanded = listButtonExpanded,
-                                        todos = todos,
-                                        onDismiss = { listButtonExpanded = false },
-                                        onClick = {}
-                                    )
-                                }
-                            }
-                            Spacer(modifier = Modifier.padding(
-                                dimensionResource(id = R.dimen.space_between_10)
-                            ))
-                            TaskTextField(
-                                name = taskViewModel.taskName,
-                                onNameChange = taskViewModel::onTaskNameChange,
-                                readOnly = args.task.completed,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(
-                                        dimensionResource(id = R.dimen.space_between_8)
-                                    )
+                    }
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .verticalScroll(scrollState)
+                            .padding(
+                                dimensionResource(id = R.dimen.space_between_16)
                             )
+                    ) {
+                        Box {
+                            if (args.task.completed)
+                                ListButton(text = initialListButtonName, enabled = false)
+                            else
+                                ListButton(
+                                    text = initialListButtonName,
+                                    enabled = true,
+                                    expanded = listButtonExpanded,
+                                    onClick = { listButtonExpanded = true }
+                                )
+                            if (listButtonExpanded) {
+                                TodoDropdownMenu(
+                                    expanded = listButtonExpanded,
+                                    task = args.task,
+                                    currentTodo = args.todo,
+                                    todos = todos.sortedBy { it.name },
+                                    taskViewModel = taskViewModel,
+                                    onDismiss = { listButtonExpanded = false },
+                                )
+                            }
                         }
+                        Spacer(
+                            modifier = Modifier.padding(
+                                dimensionResource(id = R.dimen.space_between_10)
+                            )
+                        )
+                        TaskTextField(
+                            name = taskViewModel.taskName,
+                            onNameChange = taskViewModel::onTaskNameChange,
+                            readOnly = args.task.completed,
+                            onDone = { focusManager.clearFocus() },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(dimensionResource(id = R.dimen.space_between_8))
+                        )
                     }
                 }
             }
@@ -116,6 +115,7 @@ class EditTaskFragment : Fragment() {
     override fun onStop() {
         super.onStop()
         taskViewModel.onTaskEdit(args.task, args.todo)
+        todoViewModel.onStop()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

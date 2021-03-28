@@ -109,13 +109,25 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
         onValidTodo(newTodo!!)
     }
 
+    /**
+     * Event that updates the current Todo on screen. Must be called to update UI feedback*/
     fun onEvent(todo: Todo) {
         updatedTodo = todo
     }
 
+    fun onEvent(todos: Set<Todo>) {
+        todos.forEach {
+            updatedTodo = it
+            updateTodo(it)
+        }
+    }
+
+    /**
+     * Sends the latest Todo state to the database*/
     fun onStop() {
         updatedTodo?.let { updateTodo(it) }
     }
+
 
     private fun createTodo(name: String): Todo {
         val newTodo = Todo(
@@ -129,7 +141,6 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
     private fun addTodo(todo: Todo) = viewModelScope.launch {
         repo.addTodo(todo)
     }
-
     private fun updateTodo(todo: Todo) = viewModelScope.launch {
         repo.updateTodo(todo)
     }

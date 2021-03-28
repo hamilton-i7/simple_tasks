@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -47,13 +46,10 @@ class TodoFragment : Fragment() {
 
     private val todoViewModel by activityViewModels<TodoViewModel>()
     private val settingsViewModel by activityViewModels<SettingsViewModel>()
-
-    private val taskViewModel: TaskViewModel by lazy {
-        ViewModelProvider(
-            this,
-            TaskViewModelFactory(todoViewModel)
-        ).get(TaskViewModel::class.java)
+    private val taskViewModel by activityViewModels<TaskViewModel> {
+        TaskViewModelFactory(todoViewModel)
     }
+
     private var todo: Todo? = null
     private val labels = LabelSource.readLabels()
 

@@ -1,5 +1,6 @@
 package com.example.simpletasks.ui.task.edit
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -14,6 +15,7 @@ import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -21,7 +23,10 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.example.simpletasks.R
+import com.example.simpletasks.data.task.Task
+import com.example.simpletasks.data.task.TaskViewModel
 import com.example.simpletasks.data.todo.Todo
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @Composable
 fun MarkButton(taskCompleted: Boolean, onClick: () -> Unit) {
@@ -95,12 +100,15 @@ fun TaskTextField(
     }
 }
 
+@ExperimentalCoroutinesApi
 @Composable
 fun TodoDropdownMenu(
     expanded: Boolean,
+    task: Task,
+    currentTodo: Todo,
     todos: List<Todo>,
+    taskViewModel: TaskViewModel,
     onDismiss: () -> Unit,
-    onClick: () -> Unit
 ) {
     DropdownMenu(
         expanded = expanded,
@@ -110,13 +118,21 @@ fun TodoDropdownMenu(
         Text(
             text = stringResource(id = R.string.move_task_to),
             color = MaterialTheme.colors.primary,
-            modifier = Modifier.padding(
-                horizontal = dimensionResource(id = R.dimen.space_between_16)
-            )
+            modifier = Modifier
+                .padding(horizontal = dimensionResource(id = R.dimen.space_between_16),)
+                .padding(bottom = dimensionResource(id = R.dimen.space_between_8))
         )
 
         todos.forEach { todo ->
-            DropdownMenuItem(onClick = onClick) {
+            DropdownMenuItem(
+                onClick = { taskViewModel.onTaskSwitch(task, currentTodo, todo) },
+                modifier = Modifier.background(
+                    if (todo.tasks.contains(task))
+                        MaterialTheme.colors.primary.copy(alpha = 0.35f)
+                    else
+                        Color.Transparent
+                )
+            ) {
                 Text(text = todo.name)
             }
         }
