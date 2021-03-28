@@ -96,8 +96,8 @@ class TaskViewModel(private val todoViewModel: TodoViewModel) : ViewModel() {
 
     fun onTaskEdit(task: Task, todo: Todo) {
         if (task.name != taskName || task.details != taskDetails) {
-            val newList = _tasks.value!!.toMutableList().also {
-                it[it.indexOf(task)] = task.copy(
+            val newList = _tasks.value!!.toMutableList().also { tasks ->
+                tasks[tasks.indexOfFirst { it.id == task.id }] = task.copy(
                     name = taskName,
                     details = taskDetails
                 )

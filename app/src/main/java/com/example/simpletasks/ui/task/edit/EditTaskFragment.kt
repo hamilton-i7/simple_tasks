@@ -144,6 +144,10 @@ class EditTaskFragment : Fragment() {
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+    }
+
     private fun goToTodoScreen() {
         findNavController().navigateUp()
     }
