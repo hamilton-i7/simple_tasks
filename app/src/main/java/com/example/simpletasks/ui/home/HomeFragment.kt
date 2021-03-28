@@ -109,9 +109,9 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        todoViewModel.todos.observe(viewLifecycleOwner) { todos ->
-            todoCardAdapter.submitList(todos.reversed())
-        }
+//        todoViewModel.todos.observe(viewLifecycleOwner) { todos ->
+//            todoCardAdapter.submitList(todos.reversed())
+//        }
     }
 
     override fun onStop() {
@@ -127,11 +127,11 @@ class HomeFragment : Fragment() {
         searchView = searchItem.actionView as SearchView
         searchView.queryHint = getString(R.string.search_list)
 
-        val pendingQuery = todoViewModel.searchQuery.value
-        if (pendingQuery.isNotEmpty()) {
-            searchItem.expandActionView()
-            searchView.setQuery(pendingQuery, false)
-        }
+//        val pendingQuery = todoViewModel.searchQuery.value
+//        if (pendingQuery.isNotEmpty()) {
+//            searchItem.expandActionView()
+//            searchView.setQuery(pendingQuery, false)
+//        }
 
         searchView.onQueryTextChanged { query ->
             todoViewModel.onQueryChange(query)

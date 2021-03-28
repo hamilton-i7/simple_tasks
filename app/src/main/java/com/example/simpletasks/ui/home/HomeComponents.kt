@@ -2,6 +2,9 @@ package com.example.simpletasks.ui.home
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreHoriz
@@ -10,19 +13,98 @@ import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Circle
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.simpletasks.R
 import com.example.simpletasks.data.task.Task
 import com.example.simpletasks.data.todo.Todo
+import com.example.simpletasks.data.todo.TodoViewModel
+import com.example.simpletasks.ui.components.NavigationIcon
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 
 const val MAX_TASK_ROWS = 9
+
+@ExperimentalCoroutinesApi
+@ExperimentalComposeUiApi
+@Composable
+fun HomeTopBar(
+    todoViewModel: TodoViewModel,
+    state: DrawerState
+) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val scope = rememberCoroutineScope()
+    val query by todoViewModel.searchQuery.collectAsState()
+
+    TopAppBar(
+        backgroundColor = MaterialTheme.colors.surface,
+        elevation = 0.dp,
+        contentPadding = PaddingValues(
+            vertical = dimensionResource(id = R.dimen.space_between_8),
+            horizontal = dimensionResource(id = R.dimen.space_between_4)
+        )
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            NavigationIcon { scope.launch { state.open() } }
+            Spacer(modifier = Modifier.padding(dimensionResource(id = R.dimen.space_between_2)))
+            SearchField(query, todoViewModel::onQueryChange, keyboardController)
+        }
+    }
+}
+
+@ExperimentalComposeUiApi
+@Composable
+fun SearchField(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    keyboardController: SoftwareKeyboardController? = null,
+) {
+    Card(
+        shape = RoundedCornerShape(26.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(end = 12.dp)
+    ) {
+        TextField(
+            value = query,
+            onValueChange = onQueryChange,
+            placeholder = {
+                Text(text = stringResource(id = R.string.search_list))
+            },
+            colors = TextFieldDefaults.textFieldColors(
+                backgroundColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent
+            ),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Search
+            ),
+            keyboardActions = KeyboardActions(
+                onSearch = {
+                    keyboardController?.hideSoftwareKeyboard()
+                }
+            )
+        )
+    }
+}
+
 
 @Composable
 fun TodoCard(todo: Todo, modifier: Modifier = Modifier, onClick: () -> Unit = {}) {

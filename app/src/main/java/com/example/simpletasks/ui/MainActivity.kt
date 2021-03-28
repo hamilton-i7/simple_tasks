@@ -53,7 +53,9 @@ class MainActivity : AppCompatActivity() {
                         composable(Screen.Home.route) { backStackEntry ->
                             HomeScreen(
                                 navController = navController,
-                                todoViewModel = todoViewModel
+                                todoViewModel = todoViewModel,
+                                state = state,
+                                lifecycleOwner = this@MainActivity
                             )
                             this@MainActivity.onBackPressedDispatcher.addCallback(backStackEntry,
                                 object : OnBackPressedCallback(true) {

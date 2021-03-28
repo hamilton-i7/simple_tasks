@@ -4,6 +4,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.DrawerState
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -14,6 +15,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
 import androidx.navigation.compose.navigate
 import androidx.recyclerview.widget.RecyclerView
@@ -33,15 +35,24 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 @Composable
 fun HomeScreen(
     navController: NavController,
-    todoViewModel: TodoViewModel
+    state: DrawerState,
+    todoViewModel: TodoViewModel,
+    lifecycleOwner: LifecycleOwner
 ) {
     val labels = LabelSource.readLabels()
     var isExpanded by rememberSaveable { mutableStateOf(false) }
     val (todoName, setTodoName) = rememberSaveable { mutableStateOf("") }
     val todoCardAdapter = TodoCardAdapter(navController)
 
+    todoViewModel.todos.observe(lifecycleOwner) {
+        todoCardAdapter.submitList(it)
+    }
+
     SimpleTasksTheme {
         Scaffold(
+            topBar = {
+                     HomeTopBar(todoViewModel, state)
+            },
             floatingActionButton = {
                 HomeFAB { todoViewModel.onDialogStatusChange(true) }
             }
@@ -56,12 +67,11 @@ fun HomeScreen(
                         layoutManager = StaggeredGridLayoutManager(
                             2, StaggeredGridLayoutManager.VERTICAL
                         )
-                        adapter = TodoCardAdapter(navController)
+                        adapter = todoCardAdapter
                     }
                 }, modifier = Modifier.fillMaxSize())
 
                 if (todoViewModel.isDialogVisible) {
-
                     NewListDialog(
                         todoName = todoName,
                         onNewNameChange = setTodoName,
