@@ -23,10 +23,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val topLevelDestinations = setOf(
-            R.id.homeFragment,
-            R.id.todoFragment
-        )
+        val topLevelDestinations = setOf(R.id.homeFragment, R.id.todoFragment)
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.fragment_container) as NavHostFragment
 
