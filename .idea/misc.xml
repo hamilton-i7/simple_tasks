@@ -8,9 +8,11 @@
         <entry key="app/src/main/res/drawable/ic_round_expand_less.xml" value="0.38" />
         <entry key="app/src/main/res/drawable/ic_round_expand_more.xml" value="0.38" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.3697916666666667" />
+        <entry key="app/src/main/res/layout/drawer_menu_header.xml" value="0.3697916666666667" />
         <entry key="app/src/main/res/layout/fragment_home.xml" value="0.3697916666666667" />
         <entry key="app/src/main/res/layout/fragment_todo.xml" value="0.3697916666666667" />
         <entry key="app/src/main/res/layout/item_todo_card.xml" value="0.3697916666666667" />
+        <entry key="app/src/main/res/menu/drawer_menu.xml" value="0.20729166666666668" />
         <entry key="app/src/main/res/menu/editing_menu.xml" value="0.3697916666666667" />
         <entry key="app/src/main/res/menu/task_completed_menu.xml" value="0.3697916666666667" />
         <entry key="app/src/main/res/menu/task_editing_menu.xml" value="0.3697916666666667" />

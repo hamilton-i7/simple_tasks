@@ -2,12 +2,17 @@ package com.example.simpletasks.ui.task
 
 import android.os.Bundle
 import android.view.*
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Notes
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
@@ -47,10 +52,11 @@ class CreateTaskFragment : Fragment() {
         setContent {
             val focusManager = LocalFocusManager.current
             val newTaskName by taskViewModel.newTaskName.observeAsState(initial = "")
+            var isDetailsTextFieldVisible by rememberSaveable { mutableStateOf(false) }
 
             SimpleTasksTheme {
                 Surface {
-                    Box(
+                    Column(
                         modifier = Modifier.padding(
                             dimensionResource(id = R.dimen.space_between_16)
                         )
@@ -61,6 +67,26 @@ class CreateTaskFragment : Fragment() {
                             label = stringResource(id = R.string.task_name),
                             modifier = Modifier.fillMaxWidth()
                         ) { focusManager.clearFocus() }
+                        Spacer(modifier = Modifier.padding(
+                            dimensionResource(id = R.dimen.space_between_8)
+                        ))
+                        Row {
+                            IconButton(onClick = {
+                                isDetailsTextFieldVisible = !isDetailsTextFieldVisible
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Notes,
+                                    contentDescription = null
+                                )
+                            }
+                            if (isDetailsTextFieldVisible) {
+                                DetailsTextField(
+                                    details = taskViewModel.newTaskDetails,
+                                    onDetailsChange = taskViewModel::onNewTaskDetailsChange,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -69,7 +95,6 @@ class CreateTaskFragment : Fragment() {
 
     override fun onStop() {
         super.onStop()
-        taskViewModel.resetNewTaskField()
         todoViewModel.onStop()
     }
 

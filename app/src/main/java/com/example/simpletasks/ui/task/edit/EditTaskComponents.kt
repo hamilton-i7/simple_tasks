@@ -12,6 +12,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
+import androidx.compose.material.icons.rounded.Notes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -100,6 +101,41 @@ fun TaskTextField(
     }
 }
 
+@Composable
+fun DetailsRow(
+    details: String,
+    onDetailsChange: (String) -> Unit,
+    readOnly: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    Row {
+        Icon(
+            imageVector = Icons.Rounded.Notes,
+            contentDescription = null
+        )
+        Spacer(modifier = Modifier.padding(
+            dimensionResource(id = R.dimen.space_between_8))
+        )
+        Surface {
+            BasicTextField(
+                value = details,
+                onValueChange = onDetailsChange,
+                readOnly = readOnly,
+                textStyle = if (readOnly)
+                    MaterialTheme.typography.body1.copy(
+                        textDecoration = TextDecoration.LineThrough,
+                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.35f)
+                    ) else
+                    MaterialTheme.typography.body1.copy(
+                        color = MaterialTheme.colors.onSurface
+                    ),
+                cursorBrush = SolidColor(MaterialTheme.colors.primary),
+                modifier = modifier
+            )
+        }
+    }
+}
+
 @ExperimentalCoroutinesApi
 @Composable
 fun TodoDropdownMenu(
@@ -119,13 +155,17 @@ fun TodoDropdownMenu(
             text = stringResource(id = R.string.move_task_to),
             color = MaterialTheme.colors.primary,
             modifier = Modifier
-                .padding(horizontal = dimensionResource(id = R.dimen.space_between_16),)
+                .padding(horizontal = dimensionResource(id = R.dimen.space_between_16))
                 .padding(bottom = dimensionResource(id = R.dimen.space_between_8))
         )
 
         todos.forEach { todo ->
             DropdownMenuItem(
-                onClick = { taskViewModel.onTaskSwitch(task, currentTodo, todo) },
+                onClick = {
+                    taskViewModel.onButtonNameChange(todo.name)
+                    taskViewModel.onTaskSwitch(task, currentTodo, todo)
+                    onDismiss()
+                },
                 modifier = Modifier.background(
                     if (todo.tasks.contains(task))
                         MaterialTheme.colors.primary.copy(alpha = 0.35f)

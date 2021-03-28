@@ -1,12 +1,18 @@
 package com.example.simpletasks.ui.todo
 
 import android.view.ViewGroup
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Surface
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.dimensionResource
 import androidx.navigation.NavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.simpletasks.R
 import com.example.simpletasks.data.task.Task
 import com.example.simpletasks.data.task.TaskViewModel
 import com.example.simpletasks.data.todo.Todo
@@ -31,13 +37,23 @@ class UncompletedTaskAdapter(
             view.setContent {
                 SimpleTasksTheme {
                     Surface {
-                        UncompletedTaskRow(
-                            name = task.name,
-                            onTaskComplete = {
-                                taskViewModel.onTaskStateChange(task, todo)
-                            },
-                            onNameClick = { goToEditTaskScreen(task) }
-                        )
+                        Column {
+                            UncompletedTaskRow(
+                                name = task.name,
+                                details = task.details,
+                                onTaskComplete = {
+                                    taskViewModel.onTaskStateChange(task, todo)
+                                },
+                                onNameClick = { goToEditTaskScreen(task) }
+                            )
+                            if (!task.details.isNullOrEmpty()) {
+                                Spacer(
+                                    modifier = Modifier.padding(
+                                        dimensionResource(id = R.dimen.space_between_2)
+                                    )
+                                )
+                            }
+                        }
                     }
                 }
             }

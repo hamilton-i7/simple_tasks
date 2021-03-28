@@ -41,9 +41,6 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
     var labelColor by mutableStateOf(R.color.default_color)
         private set
 
-    var isInvalidName by mutableStateOf(false)
-        private set
-
     var isDialogVisible by mutableStateOf(false)
         private set
     var isLabelDialogVisible by mutableStateOf(false)
@@ -70,7 +67,6 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
 
     fun onDialogStatusChange(showDialog: Boolean) {
         isDialogVisible = showDialog
-        if (!showDialog) resetValidationState()
     }
 
     fun setInitialLabel(@ColorRes color: Int) {
@@ -101,7 +97,6 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
 
     fun onEditDone(todo: Todo) {
         updatedTodo = todo.copy(name = _todoName.value!!)
-        resetValidationState()
     }
 
     fun onCreateDone(name: String) {
@@ -148,10 +143,5 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
     private fun onValidTodo(todo: Todo) {
         isDialogVisible = false
         onNameChange(todo.name)
-        resetValidationState()
-    }
-
-    private fun resetValidationState() {
-        isInvalidName = false
     }
 }

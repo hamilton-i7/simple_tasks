@@ -18,6 +18,5 @@ data class Todo(
     val tasks: List<Task> = emptyList()
 ) : Parcelable {
     companion object {
-        val Default = Todo(name = "")
     }
 }

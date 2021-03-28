@@ -19,29 +19,50 @@ class TaskViewModel(private val todoViewModel: TodoViewModel) : ViewModel() {
 
     var taskName by mutableStateOf("")
         private set
+    var taskDetails by mutableStateOf("")
+        private set
 
     private val _newTaskName = MutableLiveData("")
     val newTaskName: LiveData<String> get() = _newTaskName
+
+    var newTaskDetails by mutableStateOf("")
+        private set
+
+    var buttonName by mutableStateOf("")
+        private set
 
     fun setTasks(tasks: List<Task>) {
         _tasks.value = tasks
     }
 
     fun onTaskCreate(todo: Todo) {
-        val newTask = Task(name = _newTaskName.value!!)
+        val newTask = Task(
+            name = _newTaskName.value!!,
+            details = if (newTaskDetails.isEmpty()) null else newTaskDetails
+        )
         val newList = _tasks.value!!.toMutableList().also {
             it.add(it.indexOfLast { task -> !task.completed } + 1, newTask)
         }
         todoViewModel.onEvent(todo.copy(tasks = newList))
         _tasks.value = newList
+        newTaskDetails = ""
+        resetNewTaskField()
     }
 
     fun onTaskNameChange(name: String) {
         taskName = name
     }
 
+    fun onTaskDetailsChange(details: String) {
+        taskDetails = details
+    }
+
     fun onNewTaskNameChange(name: String) {
         _newTaskName.value = name
+    }
+
+    fun onNewTaskDetailsChange(details: String) {
+        newTaskDetails = details
     }
 
     fun onTaskStateChange(task: Task, todo: Todo) {
@@ -74,9 +95,12 @@ class TaskViewModel(private val todoViewModel: TodoViewModel) : ViewModel() {
     }
 
     fun onTaskEdit(task: Task, todo: Todo) {
-        if (task.name != taskName) {
+        if (task.name != taskName || task.details != taskDetails) {
             val newList = _tasks.value!!.toMutableList().also {
-                it[it.indexOf(task)] = task.copy(name = taskName)
+                it[it.indexOf(task)] = task.copy(
+                    name = taskName,
+                    details = taskDetails
+                )
             }
             todoViewModel.onEvent(todo.copy(tasks = newList))
             _tasks.value = newList
@@ -96,8 +120,12 @@ class TaskViewModel(private val todoViewModel: TodoViewModel) : ViewModel() {
         ))
     }
 
-    fun resetNewTaskField() {
+    private fun resetNewTaskField() {
         _newTaskName.value = ""
+    }
+
+    fun onButtonNameChange(name: String) {
+        buttonName = name
     }
 }
 

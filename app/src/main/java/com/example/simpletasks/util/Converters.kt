@@ -16,13 +16,5 @@ class Converters {
         @JvmStatic
         fun toJson(value: List<Task>): String = Gson().toJson(value)
 
-        @TypeConverter
-        @JvmStatic
-        fun toPreference(value: String): Settings =
-            Gson().fromJson(value, Settings::class.java)
-
-        @TypeConverter
-        @JvmStatic
-        fun fromPreference(value: Settings): String = Gson().toJson(value)
     }
 }

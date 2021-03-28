@@ -1,11 +1,17 @@
 package com.example.simpletasks.ui.todo
 
 import android.view.ViewGroup
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.dimensionResource
 import androidx.navigation.NavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.simpletasks.R
 import com.example.simpletasks.data.task.Task
 import com.example.simpletasks.data.task.TaskViewModel
 import com.example.simpletasks.data.todo.Todo
@@ -28,12 +34,22 @@ class CompletedTaskAdapter(
         fun bind(task: Task) {
             view.setContent {
                 SimpleTasksTheme {
-                    CompletedTaskRow(
-                        name = task.name,
-                        iconColor = todoViewModel.labelColor,
-                        onTaskUncheck = { taskViewModel.onTaskStateChange(task, todo) },
-                        onNameClick = { goToEditTaskScreen(task) }
-                    )
+                    Column {
+                        CompletedTaskRow(
+                            name = task.name,
+                            details = task.details,
+                            iconColor = todoViewModel.labelColor,
+                            onTaskUncheck = { taskViewModel.onTaskStateChange(task, todo) },
+                            onNameClick = { goToEditTaskScreen(task) }
+                        )
+                        if (!task.details.isNullOrEmpty()) {
+                            Spacer(
+                                modifier = Modifier.padding(
+                                    dimensionResource(id = R.dimen.space_between_2)
+                                )
+                            )
+                        }
+                    }
                 }
             }
         }

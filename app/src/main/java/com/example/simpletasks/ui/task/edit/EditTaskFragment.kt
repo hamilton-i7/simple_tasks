@@ -8,10 +8,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalFocusManager
@@ -46,9 +46,10 @@ class EditTaskFragment : Fragment() {
         setContent {
             val scrollState = rememberScrollState()
             val focusManager = LocalFocusManager.current
-            val initialListButtonName by todoViewModel.todoName.observeAsState(initial = "")
             var listButtonExpanded by rememberSaveable { mutableStateOf(false) }
             val todos by todoViewModel.readAllTodos().collectAsState(initial = emptyList())
+
+            taskViewModel.onButtonNameChange(args.todo.name)
 
             SimpleTasksTheme {
                 Scaffold(
@@ -66,12 +67,12 @@ class EditTaskFragment : Fragment() {
                                 dimensionResource(id = R.dimen.space_between_16)
                             )
                     ) {
-                        Box {
+                        Box(contentAlignment = Alignment.BottomStart) {
                             if (args.task.completed)
-                                ListButton(text = initialListButtonName, enabled = false)
+                                ListButton(text = taskViewModel.buttonName, enabled = false)
                             else
                                 ListButton(
-                                    text = initialListButtonName,
+                                    text = taskViewModel.buttonName,
                                     enabled = true,
                                     expanded = listButtonExpanded,
                                     onClick = { listButtonExpanded = true }
@@ -101,6 +102,15 @@ class EditTaskFragment : Fragment() {
                                 .fillMaxWidth()
                                 .padding(dimensionResource(id = R.dimen.space_between_8))
                         )
+                        Spacer(modifier = Modifier.padding(
+                            dimensionResource(id = R.dimen.space_between_6)
+                        ))
+                        DetailsRow(
+                            details = taskViewModel.taskDetails,
+                            onDetailsChange = taskViewModel::onTaskDetailsChange,
+                            readOnly = args.task.completed,
+                            modifier = Modifier.fillMaxWidth()
+                        )
                     }
                 }
             }
@@ -110,6 +120,7 @@ class EditTaskFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         taskViewModel.onTaskNameChange(args.task.name)
+        taskViewModel.onTaskDetailsChange(args.task.details ?: "")
     }
 
     override fun onStop() {

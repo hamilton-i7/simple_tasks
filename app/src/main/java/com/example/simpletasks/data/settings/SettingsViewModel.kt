@@ -33,14 +33,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         updateSettings(updatedSettings)
     }
 
-    private suspend fun readSettingsFlow(): StateFlow<Settings> =
-        repo.readSettings().stateIn(applicationScope)
-
     private fun updateSettings(settings: Settings) = viewModelScope.launch {
         repo.updateSettings(settings)
     }
 
-    private fun deleteAllSettings() = viewModelScope.launch {
-        repo.deleteAllSettings()
-    }
 }

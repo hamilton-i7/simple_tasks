@@ -56,7 +56,7 @@ fun TodoCard(todo: Todo, modifier: Modifier = Modifier, onClick: () -> Unit = {}
             Spacer(modifier = Modifier.padding(
                 dimensionResource(id = R.dimen.space_between_6)
             ))
-            if (todo.tasks.size <= MAX_TASK_ROWS) {
+            if (todo.tasks.size <= MAX_TASK_ROWS + 1) {
                 todo.tasks.forEach { task ->
                     TaskRow(todo, task)
                     Spacer(modifier = Modifier.padding(4.dp))
