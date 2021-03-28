@@ -2,6 +2,7 @@ package com.example.simpletasks.ui.todo
 
 import android.view.View
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -184,10 +185,18 @@ fun TodoScreen(
                             items(currentTodo.tasks.filter { it.completed }) { task ->
                                 CompletedTaskRow(
                                     name = task.name,
+                                    details = task.details,
                                     iconColor = currentTodo.colorResource,
                                     onTaskUncheck = {},
                                     onNameClick = {}
                                 )
+                                if (!task.details.isNullOrEmpty()) {
+                                    Spacer(
+                                        modifier = Modifier.padding(
+                                            dimensionResource(id = R.dimen.space_between_2)
+                                        )
+                                    )
+                                }
                             }
 //                            item {
 //                                AndroidView({ context ->
