@@ -125,7 +125,7 @@ class EditTaskFragment : Fragment() {
 
     override fun onStop() {
         super.onStop()
-        taskViewModel.onTaskEdit(args.task, args.todo)
+//        taskViewModel.onTaskEdit(args.task, args.todo)
         todoViewModel.onStop()
     }
 

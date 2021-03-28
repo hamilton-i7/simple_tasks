@@ -35,17 +35,17 @@ class TaskViewModel(private val todoViewModel: TodoViewModel) : ViewModel() {
         _tasks.value = tasks
     }
 
-    fun onTaskCreate(todo: Todo) {
+    fun onTaskCreate(todo: Todo, taskName: String, taskDetails: String) {
         val newTask = Task(
-            name = _newTaskName.value!!,
-            details = if (newTaskDetails.isEmpty()) null else newTaskDetails
+            name = taskName,
+            details = taskDetails
         )
         val newList = _tasks.value!!.toMutableList().also {
             it.add(it.indexOfLast { task -> !task.completed } + 1, newTask)
         }
 //        todoViewModel.onEvent(todo.copy(tasks = newList))
         _tasks.value = newList
-        newTaskDetails = ""
+//        newTaskDetails = ""
         resetNewTaskField()
         todoViewModel.updateTodo(todo.copy(tasks = newList))
     }
@@ -99,26 +99,26 @@ class TaskViewModel(private val todoViewModel: TodoViewModel) : ViewModel() {
         todoViewModel.updateTodo(todo.copy(tasks = newList))
     }
 
-    fun onTaskEdit(task: Task, todo: Todo) {
-        if (task.name != taskName || task.details != taskDetails) {
-            val newList = _tasks.value!!.toMutableList().also { tasks ->
-                tasks[tasks.indexOfFirst { it.id == task.id }] = task.copy(
-                    name = taskName,
-                    details = taskDetails
-                )
-            }
-//            todoViewModel.onEvent(todo.copy(tasks = newList))
-            _tasks.value = newList
-            todoViewModel.updateTodo(todo.copy(tasks = newList))
+    fun onTaskEdit(task: Task, todo: Todo, taskName: String, taskDetails: String?) {
+        val newList = _tasks.value!!.toMutableList().also { tasks ->
+            tasks[tasks.indexOfFirst { it.id == task.id }] = task.copy(
+                name = taskName,
+                details = taskDetails
+            )
         }
+//            todoViewModel.onEvent(todo.copy(tasks = newList))
+        _tasks.value = newList
+        todoViewModel.updateTodo(todo.copy(tasks = newList))
     }
 
     fun onTaskSwitch(task: Task, from: Todo, to: Todo) {
         val newList1 = from.tasks.toMutableList().also { it.remove(task) }
-        val newList2 = to.tasks.toMutableList().also { it.add(
-            index = it.indexOfLast { task -> !task.completed } + 1,
-            element = task
-        ) }
+        val newList2 = to.tasks.toMutableList().also {
+            it.add(
+                index = it.indexOfLast { task -> !task.completed } + 1,
+                element = task
+            )
+        }
         setOf(
             from.copy(tasks = newList1),
             to.copy(tasks = newList2)

@@ -20,6 +20,7 @@ import com.example.simpletasks.data.task.TaskViewModelFactory
 import com.example.simpletasks.data.todo.TodoViewModel
 import com.example.simpletasks.ui.components.NavDrawerContent
 import com.example.simpletasks.ui.home.HomeScreen
+import com.example.simpletasks.ui.task.NewTaskScreen
 import com.example.simpletasks.ui.task.edit.EditTaskScreen
 import com.example.simpletasks.ui.theme.SimpleTasksTheme
 import com.example.simpletasks.ui.todo.TodoScreen
@@ -134,6 +135,19 @@ class MainActivity : AppCompatActivity() {
                                 EditTaskScreen(
                                     todoId = backStackEntry.arguments!!.getString(TODO_ARG)!!,
                                     taskId = backStackEntry.arguments!!.getString(TASK_ARG)!!,
+                                    todoViewModel = todoViewModel,
+                                    taskViewModel = taskViewModel,
+                                    navController = navController
+                                )
+                            }
+                        }
+                        composable(
+                            route = Screen.NewTask.route,
+                            arguments = listOf(navArgument(TODO_ARG) { type = NavType.StringType })
+                        ) { backStackEntry ->
+                            backStackEntry.arguments?.getString(TODO_ARG)?.let {
+                                NewTaskScreen(
+                                    todoId = it,
                                     todoViewModel = todoViewModel,
                                     taskViewModel = taskViewModel,
                                     navController = navController

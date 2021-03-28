@@ -28,11 +28,11 @@ import com.example.simpletasks.data.label.LabelSource
 import com.example.simpletasks.data.settings.Settings
 import com.example.simpletasks.data.settings.SettingsViewModel
 import com.example.simpletasks.data.task.TaskViewModel
-import com.example.simpletasks.data.todo.Todo
 import com.example.simpletasks.data.todo.TodoViewModel
 import com.example.simpletasks.ui.Screen
 import com.example.simpletasks.ui.theme.SimpleTasksTheme
 import com.example.simpletasks.util.DragManager
+import com.example.simpletasks.util.createNewTaskRoute
 import com.example.simpletasks.util.createTodoEditRoute
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -61,6 +61,7 @@ fun TodoScreen(
         todoViewModel.onNameChange(currentTodo.name)
 //        todoViewModel.setInitialLabel(currentTodo.colorResource)
         taskViewModel.setTasks(currentTodo.tasks)
+        taskViewModel.onButtonNameChange(currentTodo.name)
 
         /** Variable created to control the UI states made with Composables*/
         val tasks by taskViewModel.tasks.observeAsState(initial = currentTodo.tasks)
@@ -123,7 +124,9 @@ fun TodoScreen(
                     )
                 },
                 floatingActionButton = {
-                    TodoFAB(currentTodo.colorResource) { goToCreateTaskScreen(navController, todo) }
+                    TodoFAB(currentTodo.colorResource) {
+                        goToCreateTaskScreen(navController, currentTodo.id)
+                    }
                 }
             ) {
                 Column(
@@ -196,11 +199,9 @@ fun TodoScreen(
     }
 }
 
-private fun goToCreateTaskScreen(navController: NavController, todo: Todo?) {
-    todo?.let {
-        val route = ""
-        navController.navigate(route)
-    }
+private fun goToCreateTaskScreen(navController: NavController, todoId: String) {
+    val route = createNewTaskRoute(todoId)
+    navController.navigate(route)
 }
 
 @ExperimentalCoroutinesApi

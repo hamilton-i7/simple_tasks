@@ -13,6 +13,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.dimensionResource
 import androidx.navigation.NavController
 import com.example.simpletasks.R
+import com.example.simpletasks.data.task.Task
 import com.example.simpletasks.data.task.TaskViewModel
 import com.example.simpletasks.data.todo.TodoViewModel
 import com.example.simpletasks.ui.components.DeleteTopBar
@@ -32,12 +33,15 @@ fun EditTaskScreen(
     val focusManager = LocalFocusManager.current
     var listButtonExpanded by rememberSaveable { mutableStateOf(false) }
     val todos by todoViewModel.readAllTodos().collectAsState(initial = emptyList())
-
     val todo by todoViewModel.readTodoById(todoId).observeAsState()
+    var task: Task? = null
 
-    todo?.let { currentTodo ->
-        taskViewModel.onButtonNameChange(currentTodo.name)
-        val task = currentTodo.tasks.first { task -> task.id == taskId }
+    for (todoList in todos) {
+        task = todoList.tasks.find { it.id == taskId }
+        if (task != null) break
+    }
+
+    if (todo != null && task != null) {
         val (name, setName) = rememberSaveable { mutableStateOf(task.name) }
         val (details, setDetails) = rememberSaveable { mutableStateOf(task.details) }
 
@@ -45,13 +49,17 @@ fun EditTaskScreen(
             Scaffold(
                 topBar = {
                     DeleteTopBar(
-                        onUpButtonClick = {},
-                        onDelete = {}
+                        onUpButtonClick = {
+                            navController.navigateUp()
+                        },
+                        onDelete = {
+                            taskViewModel.onTaskDelete(task, todo!!)
+                        }
                     )
                 },
                 floatingActionButton = {
                     MarkButton(taskCompleted = task.completed) {
-                        taskViewModel.onTaskStateChange(task, currentTodo)
+                        taskViewModel.onTaskStateChange(task, todo!!)
                         navController.navigateUp()
                     }
                 }
@@ -77,7 +85,7 @@ fun EditTaskScreen(
                             TodoDropdownMenu(
                                 expanded = listButtonExpanded,
                                 task = task,
-                                currentTodo = currentTodo,
+                                currentTodo = todo!!,
                                 todos = todos.sortedBy { it.name },
                                 taskViewModel = taskViewModel,
                                 onDismiss = { listButtonExpanded = false },
@@ -91,7 +99,10 @@ fun EditTaskScreen(
                     )
                     TaskTextField(
                         name = name,
-                        onNameChange = setName,
+                        onNameChange = {
+                            setName(it)
+                            taskViewModel.onTaskEdit(task, todo!!, it, details)
+                        },
                         readOnly = task.completed,
                         onDone = { focusManager.clearFocus() },
                         modifier = Modifier
@@ -105,7 +116,10 @@ fun EditTaskScreen(
                     )
                     DetailsRow(
                         details = details ?: "",
-                        onDetailsChange = setDetails,
+                        onDetailsChange = {
+                            setDetails(it)
+                            taskViewModel.onTaskEdit(task, todo!!, name, it)
+                        },
                         readOnly = task.completed,
                         modifier = Modifier.fillMaxWidth()
                     )

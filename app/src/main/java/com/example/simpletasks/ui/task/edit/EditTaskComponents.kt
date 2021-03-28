@@ -115,7 +115,10 @@ fun DetailsRow(
             tint = if (readOnly)
                 MaterialTheme.colors.onSurface.copy(alpha = 0.35f)
             else
-                MaterialTheme.colors.onSurface
+                MaterialTheme.colors.onSurface,
+            modifier = Modifier.padding(
+                top = dimensionResource(id = R.dimen.space_between_16)
+            )
         )
         Spacer(
             modifier = Modifier.padding(
