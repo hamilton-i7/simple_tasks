@@ -2,10 +2,11 @@ package com.example.simpletasks.ui.todo
 
 import android.view.View
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.DrawerState
 import androidx.compose.material.Scaffold
@@ -68,21 +69,21 @@ fun TodoScreen(
             taskViewModel,
             navController
         )
-//        val completedTaskAdapter = CompletedTaskAdapter(
-//            currentTodo,
-//            todoViewModel,
-//            taskViewModel,
-//            navController
-//        )
+        val completedTaskAdapter = CompletedTaskAdapter(
+            currentTodo,
+            todoViewModel,
+            taskViewModel,
+            navController
+        )
         taskViewModel.tasks.observe(lifecycleOwner) {
             val uncompletedTasks = it.filter { task -> !task.completed }
             uncompletedTaskAdapter.apply {
                 submitList(uncompletedTasks)
                 updateList(uncompletedTasks)
             }
-//
-//            val completedTasks = it.filter { task -> task.completed }
-//            completedTaskAdapter.submitList(completedTasks)
+
+            val completedTasks = it.filter { task -> task.completed }
+            completedTaskAdapter.submitList(completedTasks)
         }
 
         var isLabelDialogVisible by rememberSaveable { mutableStateOf(false) }
@@ -119,85 +120,68 @@ fun TodoScreen(
                     TodoFAB(currentTodo.colorResource) { goToCreateTaskScreen(navController, todo) }
                 }
             ) {
-                LazyColumn(
-                    modifier = Modifier.padding(
+                Column(
+                    modifier = Modifier
+                        .verticalScroll(rememberScrollState())
+                        .padding(
                             dimensionResource(id = R.dimen.space_between_8)
                         )
                 ) {
-                    item {
-                        if (isLabelDialogVisible) {
-                            LabelDialog(
-                                labels = labels,
-                                onDismissRequest = {
-                                    isLabelDialogVisible = false
-                                },
-                                selectedOption = currentTodo.colorResource,
-                                onOptionsSelected = {
-                                    todoViewModel.onLabelChange(currentTodo, it)
-                                    isLabelDialogVisible = false
-                                }
-                            )
-                        }
-                    }
-
-                    item {
-                        AndroidView({ context ->
-                            RecyclerView(context).apply {
-                                val dragManager = DragManager(
-                                    dragDirs = ItemTouchHelper.UP or ItemTouchHelper.DOWN,
-                                    swipeDirs = 0
-                                )
-                                val helper = ItemTouchHelper(dragManager)
-                                helper.attachToRecyclerView(this)
-                                layoutManager = LinearLayoutManager(context)
-                                adapter = uncompletedTaskAdapter
-                                overScrollMode = View.OVER_SCROLL_NEVER
+                    if (isLabelDialogVisible) {
+                        LabelDialog(
+                            labels = labels,
+                            onDismissRequest = {
+                                isLabelDialogVisible = false
+                            },
+                            selectedOption = currentTodo.colorResource,
+                            onOptionsSelected = {
+                                todoViewModel.onLabelChange(currentTodo, it)
+                                isLabelDialogVisible = false
                             }
-                        }, modifier = Modifier.fillMaxWidth())
+                        )
                     }
+                    AndroidView({ context ->
+                        RecyclerView(context).apply {
+                            val dragManager = DragManager(
+                                dragDirs = ItemTouchHelper.UP or ItemTouchHelper.DOWN,
+                                swipeDirs = 0
+                            )
+                            val helper = ItemTouchHelper(dragManager)
+                            helper.attachToRecyclerView(this)
+                            layoutManager = LinearLayoutManager(context)
+                            adapter = uncompletedTaskAdapter
+                            overScrollMode = View.OVER_SCROLL_NEVER
+                        }
+                    }, modifier = Modifier.fillMaxWidth())
 
                     if (tasks.any { it.completed }) {
                         if (tasks.any { !it.completed }) {
-                            item {
-                                Divider(
-                                    modifier = Modifier.padding(
-                                        horizontal = 0.dp,
-                                        vertical = dimensionResource(
-                                            id = R.dimen.space_between_8
-                                        )
+                            Divider(
+                                modifier = Modifier.padding(
+                                    horizontal = 0.dp,
+                                    vertical = dimensionResource(
+                                        id = R.dimen.space_between_8
                                     )
                                 )
-                            }
-                        }
-                        item {
-                            CompletedIndicator(
-                                isExpanded = settings.completedTasksExpanded,
-                                onExpandChange = {
-                                    settingsViewModel.onExpandChange(settings)
-                                },
-                                completedAmount =
-                                tasks.filter { it.completed }.size
                             )
                         }
+                        CompletedIndicator(
+                            isExpanded = settings.completedTasksExpanded,
+                            onExpandChange = {
+                                settingsViewModel.onExpandChange(settings)
+                            },
+                            completedAmount =
+                            tasks.filter { it.completed }.size
+                        )
 
                         if (settings.completedTasksExpanded) {
-                            items(currentTodo.tasks.filter { it.completed }) { task ->
-                                CompletedTaskRow(
-                                    name = task.name,
-                                    iconColor = currentTodo.colorResource,
-                                    onTaskUncheck = {},
-                                    onNameClick = {}
-                                )
-                            }
-//                            item {
-//                                AndroidView({ context ->
-//                                    RecyclerView(context).apply {
-//                                        layoutManager = LinearLayoutManager(context)
-//                                        adapter = completedTaskAdapter
-//                                        overScrollMode = View.OVER_SCROLL_NEVER
-//                                    }
-//                                }, modifier = Modifier.fillMaxWidth())
-//                            }
+                            AndroidView({ context ->
+                                RecyclerView(context).apply {
+                                    layoutManager = LinearLayoutManager(context)
+                                    adapter = completedTaskAdapter
+                                    overScrollMode = View.OVER_SCROLL_NEVER
+                                }
+                            }, modifier = Modifier.fillMaxWidth())
                         }
                     }
                 }
