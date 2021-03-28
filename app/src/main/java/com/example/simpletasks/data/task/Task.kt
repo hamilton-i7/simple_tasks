@@ -8,5 +8,6 @@ import java.util.*
 data class Task(
     val id: String = UUID.randomUUID().toString(),
     val name: String,
+    val details: String? = null,
     val completed: Boolean = false
 ) : Parcelable

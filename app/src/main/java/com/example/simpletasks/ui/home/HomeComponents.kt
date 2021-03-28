@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.outlined.Circle
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Check
@@ -20,6 +21,8 @@ import androidx.compose.ui.unit.dp
 import com.example.simpletasks.R
 import com.example.simpletasks.data.task.Task
 import com.example.simpletasks.data.todo.Todo
+
+const val MAX_TASK_ROWS = 9
 
 @Composable
 fun TodoCard(todo: Todo, modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
@@ -53,16 +56,27 @@ fun TodoCard(todo: Todo, modifier: Modifier = Modifier, onClick: () -> Unit = {}
             Spacer(modifier = Modifier.padding(
                 dimensionResource(id = R.dimen.space_between_6)
             ))
-            todo.tasks.forEach { task ->
-                TaskRow(task = task)
-                Spacer(modifier = Modifier.padding(4.dp))
+            if (todo.tasks.size <= MAX_TASK_ROWS + 1) {
+                todo.tasks.forEach { task ->
+                    TaskRow(todo, task)
+                    Spacer(modifier = Modifier.padding(4.dp))
+                }
+            } else {
+                todo.tasks.take(MAX_TASK_ROWS).forEach { task ->
+                    TaskRow(todo, task)
+                    Spacer(modifier = Modifier.padding(4.dp))
+                }
+                Icon(
+                    imageVector = Icons.Filled.MoreHoriz,
+                    contentDescription = stringResource(id = R.string.more_tasks)
+                )
             }
         }
     }
 }
 
 @Composable
-fun TaskRow(task: Task, modifier: Modifier = Modifier) {
+fun TaskRow(todo: Todo, task: Task, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
@@ -88,7 +102,7 @@ fun TaskRow(task: Task, modifier: Modifier = Modifier) {
             Icon(
                 imageVector = Icons.Rounded.Check,
                 contentDescription = null,
-                tint = MaterialTheme.colors.primary,
+                tint = colorResource(id = todo.colorResource),
                 modifier = Modifier.size(16.dp)
             )
             Spacer(

@@ -7,12 +7,16 @@ import androidx.room.PrimaryKey
 import com.example.simpletasks.R
 import com.example.simpletasks.data.task.Task
 import kotlinx.parcelize.Parcelize
+import java.util.*
 
 @Entity(tableName = "todo")
 @Parcelize
 data class Todo(
-    @PrimaryKey(autoGenerate = true) val id: Int? = null,
+    @PrimaryKey val id: String = UUID.randomUUID().toString(),
     val name: String,
     @ColorRes val colorResource: Int = R.color.default_color,
-    val tasks: List<Task> = listOf()
-) : Parcelable
+    val tasks: List<Task> = emptyList()
+) : Parcelable {
+    companion object {
+    }
+}

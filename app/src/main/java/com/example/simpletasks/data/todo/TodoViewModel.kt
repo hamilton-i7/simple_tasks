@@ -2,19 +2,16 @@ package com.example.simpletasks.data.todo
 
 import android.app.Application
 import androidx.annotation.ColorRes
-import androidx.compose.runtime.*
-import androidx.compose.ui.text.intl.Locale
-import androidx.compose.ui.text.toLowerCase
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.viewModelScope
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.*
 import com.example.simpletasks.R
 import com.example.simpletasks.data.SimpleTasksDatabase
-import com.example.simpletasks.data.task.Task
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
@@ -30,18 +27,19 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
     val searchQuery: StateFlow<String> get() = _searchQuery
     val todos: LiveData<List<Todo>>
 
-    var newTodoName by mutableStateOf("")
+    var newTodo: Todo? = null
         private set
+
+    private var updatedTodo: Todo? = null
+
     var newTodoColor by mutableStateOf(R.color.default_color)
         private set
 
-    var todoName by mutableStateOf("")
-        private set
+    private var _todoName = MutableLiveData("")
+    val todoName: LiveData<String> get() = _todoName
 
-    var isInvalidName by mutableStateOf(false)
+    var labelColor by mutableStateOf(R.color.default_color)
         private set
-
-    var isRepeatedName by mutableStateOf(false)
 
     var isDialogVisible by mutableStateOf(false)
         private set
@@ -51,21 +49,13 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
     init {
         val todoDao = SimpleTasksDatabase.getDatabase(application, applicationScope).todoDao()
         repo = TodoRepo(todoDao)
-        val todosFLow = _searchQuery.flatMapLatest { repo.readTodosByQuery(it) }
-        todos = todosFLow.asLiveData()
+        val todosFlow = _searchQuery.flatMapLatest { repo.readTodosByQuery(it) }
+        todos = todosFlow.asLiveData()
     }
 
-    @Composable
-    fun readAllTodos(): State<List<Todo>> =
-        repo.readAllTodos().collectAsState(initial = listOf())
+    fun readAllTodos(): Flow<List<Todo>> = repo.readAllTodos()
 
-    @Composable
-    fun readTodosByQuery(searchQuery: String): State<List<Todo>> =
-        repo.readTodosByQuery(searchQuery).collectAsState(initial = listOf())
-
-    fun updateTodo(todo: Todo) = viewModelScope.launch {
-        repo.updateTodo(todo)
-    }
+    fun readTodoById(id: String): LiveData<Todo> = repo.readTodoById(id).asLiveData()
 
     fun deleteTodo(todo: Todo) = viewModelScope.launch {
         repo.deleteTodo(todo)
@@ -77,15 +67,19 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
 
     fun onDialogStatusChange(showDialog: Boolean) {
         isDialogVisible = showDialog
-        if (!showDialog) resetValidationState()
+    }
+
+    fun setInitialLabel(@ColorRes color: Int) {
+        labelColor = color
     }
 
     fun onLabelDialogStatusChange(showDialog: Boolean) {
         isLabelDialogVisible = showDialog
     }
 
-    fun onNewNameChange(name: String) {
-        newTodoName = name
+    fun onLabelChange(todo: Todo, @ColorRes newColor: Int) {
+        labelColor = newColor
+        updatedTodo = todo.copy(colorResource = newColor)
     }
 
     fun onNewColorChange(@ColorRes color: Int) {
@@ -93,62 +87,46 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun onNameChange(name: String) {
-        todoName = name
+        _todoName.value = name
     }
 
     fun onCancelDialog() {
         isDialogVisible = false
-        clearNameField()
+        newTodoColor = R.color.default_color
     }
 
-    fun onTasksSwap(todo: Todo, tasks: List<Task>) {
-        val updatedTodo = Todo(
-            id = todo.id,
-            name = todo.name,
-            colorResource = todo.colorResource,
-            tasks = tasks + todo.tasks.filter { it.completed }
-        )
-        updateTodo(updatedTodo)
+    fun onEditDone(todo: Todo) {
+        updatedTodo = todo.copy(name = _todoName.value!!)
     }
 
-    fun onCancel() {
-        resetValidationState()
+    fun onCreateDone(name: String) {
+        newTodo = createTodo(name)
+        onValidTodo(newTodo!!)
     }
 
-    fun onDone(todo: Todo, todos: List<Todo>) {
-        if (todoName == todo.name || (isValidName(todoName) && !isNameRepeated(todoName, todos))) {
-            val updatedTodo = Todo(
-                id = todo.id,
-                name = todoName,
-                colorResource = todo.colorResource,
-                tasks = todo.tasks
-            )
-            updateTodo(updatedTodo)
-            resetValidationState()
-        } else if (!isValidName(todoName)) {
-            onInvalidName()
-        } else if (isNameRepeated(todoName, todos)) {
-            onNameRepeated()
+    /**
+     * Event that updates the current Todo on screen. Must be called to update UI feedback*/
+    fun onEvent(todo: Todo) {
+        updatedTodo = todo
+    }
+
+    fun onEvent(todos: Set<Todo>) {
+        todos.forEach {
+            updatedTodo = it
+            updateTodo(it)
         }
     }
 
-    fun onDone(todos: List<Todo>) {
-        if (
-            isValidName(newTodoName) &&
-            !isNameRepeated(newTodoName, todos)
-        ) {
-            val newTodo = createTodo()
-            onValidName(newTodo)
-        } else if (!isValidName(newTodoName)) {
-            onInvalidName()
-        } else if (isNameRepeated(newTodoName, todos)) {
-            onNameRepeated()
-        }
+    /**
+     * Sends the latest Todo state to the database*/
+    fun onStop() {
+        updatedTodo?.let { updateTodo(it) }
     }
 
-    private fun createTodo(): Todo {
+
+    private fun createTodo(name: String): Todo {
         val newTodo = Todo(
-            name = newTodoName.trim(),
+            name = name,
             colorResource = newTodoColor,
         )
         addTodo(newTodo)
@@ -158,39 +136,12 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
     private fun addTodo(todo: Todo) = viewModelScope.launch {
         repo.addTodo(todo)
     }
-
-    private fun clearNameField() {
-        newTodoName = ""
+    private fun updateTodo(todo: Todo) = viewModelScope.launch {
+        repo.updateTodo(todo)
     }
 
-    private fun onValidName(todo: Todo) {
+    private fun onValidTodo(todo: Todo) {
         isDialogVisible = false
-        clearNameField()
         onNameChange(todo.name)
-        resetValidationState()
-    }
-
-    private fun onInvalidName() {
-        isInvalidName = true
-        isRepeatedName = false
-    }
-
-    private fun onNameRepeated() {
-        isRepeatedName = true
-        isInvalidName = false
-    }
-
-    private fun isValidName(name: String): Boolean = name.trim().isNotEmpty()
-
-    private fun isNameRepeated(name: String, todos: List<Todo>): Boolean {
-        val repeatedTodo = todos.find {
-            it.name.toLowerCase(Locale.current) == name.toLowerCase(Locale.current)
-        }
-        return repeatedTodo != null
-    }
-
-    private fun resetValidationState() {
-        isInvalidName = false
-        isRepeatedName = false
     }
 }

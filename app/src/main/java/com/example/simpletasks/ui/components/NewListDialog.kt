@@ -25,7 +25,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.window.Dialog
 import com.example.simpletasks.R
 import com.example.simpletasks.data.label.Label
-import com.example.simpletasks.data.todo.TodoViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
@@ -33,9 +32,11 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 @ExperimentalComposeUiApi
 @Composable
 fun NewListDialog(
-    todoViewModel: TodoViewModel,
+    todoName: String,
+    onNewNameChange: (String) -> Unit,
     labels: List<Label>,
     isExpanded: Boolean,
+    enabled: Boolean,
     onExpandChange: () -> Unit,
     onDismissRequest: () -> Unit,
     @ColorRes selectedOption: Int,
@@ -57,17 +58,12 @@ fun NewListDialog(
                         modifier = Modifier.padding(dimensionResource(id = R.dimen.space_between_4))
                     )
                     DialogTextField(
-                        todoViewModel.newTodoName,
-                        todoViewModel::onNewNameChange,
+                        todoName = todoName,
+                        onNameChange = onNewNameChange,
                         modifier = Modifier.padding(
                             bottom = dimensionResource(id = R.dimen.space_between_2)
                         )
                     )
-
-                    if (todoViewModel.isInvalidName)
-                        ErrorText(text = stringResource(id = R.string.invalid_name))
-                    else if (todoViewModel.isRepeatedName)
-                        ErrorText(text = stringResource(id = R.string.name_repeated))
                     Spacer(
                         modifier = Modifier.padding(
                             dimensionResource(id = R.dimen.space_between_4)
@@ -92,6 +88,7 @@ fun NewListDialog(
                     DialogButtons(
                         onCancel = onCancel,
                         onDone = onDone,
+                        enabled = enabled,
                         modifier = Modifier.align(Alignment.End)
                     )
                 }
@@ -111,13 +108,13 @@ private fun DialogTitle() {
 @ExperimentalComposeUiApi
 @Composable
 private fun DialogTextField(
-    listName: String,
+    todoName: String,
     onNameChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     TextField(
-        value = listName,
+        value = todoName,
         onValueChange = onNameChange,
         colors = TextFieldDefaults.textFieldColors(
             backgroundColor = Color.Transparent
@@ -177,6 +174,7 @@ private fun DialogSelectRow(isExpanded: Boolean, onExpandChange: () -> Unit) {
 private fun DialogButtons(
     onCancel: () -> Unit,
     onDone: () -> Unit,
+    enabled: Boolean,
     modifier: Modifier = Modifier
 ) {
     Row(modifier = modifier) {
@@ -184,7 +182,7 @@ private fun DialogButtons(
             Text(text = stringResource(id = R.string.cancel))
         }
         Spacer(modifier = Modifier.padding(dimensionResource(id = R.dimen.space_between_8)))
-        TextButton(onClick = onDone) {
+        TextButton(onClick = onDone, enabled = enabled) {
             Text(text = stringResource(id = R.string.done))
         }
     }

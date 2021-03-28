@@ -13,16 +13,15 @@ import androidx.compose.material.Divider
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -30,11 +29,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.simpletasks.R
 import com.example.simpletasks.data.label.LabelSource
+import com.example.simpletasks.data.settings.Settings
 import com.example.simpletasks.data.settings.SettingsViewModel
 import com.example.simpletasks.data.task.TaskViewModel
 import com.example.simpletasks.data.task.TaskViewModelFactory
-import com.example.simpletasks.data.todo.TodoScreenViewModel
-import com.example.simpletasks.data.todo.TodoScreenViewModelFactory
+import com.example.simpletasks.data.todo.Todo
 import com.example.simpletasks.data.todo.TodoViewModel
 import com.example.simpletasks.ui.theme.SimpleTasksTheme
 import com.example.simpletasks.util.DragManager
@@ -47,54 +46,68 @@ class TodoFragment : Fragment() {
 
     private val todoViewModel by activityViewModels<TodoViewModel>()
     private val settingsViewModel by activityViewModels<SettingsViewModel>()
-
-    private val todoScreenViewModel: TodoScreenViewModel by lazy {
-        ViewModelProvider(
-            this,
-            TodoScreenViewModelFactory(args.todo, todoViewModel)
-        ).get(TodoScreenViewModel::class.java)
-    }
-    private val taskViewModel: TaskViewModel by lazy {
-        ViewModelProvider(
-            this,
-            TaskViewModelFactory(args.todo, todoViewModel)
-        ).get(TaskViewModel::class.java)
+    private val taskViewModel by activityViewModels<TaskViewModel> {
+        TaskViewModelFactory(todoViewModel)
     }
 
+    private var todo: Todo? = null
     private val labels = LabelSource.readLabels()
 
     private lateinit var uncompletedTaskAdapter: UncompletedTaskAdapter
     private lateinit var completedTaskAdapter: CompletedTaskAdapter
 
+    @ExperimentalComposeUiApi
     @ExperimentalFoundationApi
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        uncompletedTaskAdapter = UncompletedTaskAdapter(todoViewModel, args.todo)
-        completedTaskAdapter = CompletedTaskAdapter(todoScreenViewModel)
-
-        (requireActivity() as AppCompatActivity).supportActionBar?.title = args.todo.name
+    ) = ComposeView(requireContext()).apply {
         setHasOptionsMenu(true)
 
-        return ComposeView(requireContext()).apply {
-            setContent {
-                val settings by settingsViewModel.readSettings()
-                val scrollState = rememberScrollState()
-                val uncompletedTasks by taskViewModel.uncompletedTasks.observeAsState(
-                    initial = listOf()
+        setContent {
+            LocalSoftwareKeyboardController.current?.hideSoftwareKeyboard()
+            val settings by settingsViewModel.readSettings().observeAsState(
+                initial = Settings()
+            )
+            val todo by todoViewModel.readTodoById(args.todoId).observeAsState()
+            val scrollState = rememberScrollState()
+
+            todo?.let { currentTodo ->
+                todoViewModel.onNameChange(currentTodo.name)
+                todoViewModel.setInitialLabel(currentTodo.colorResource)
+                taskViewModel.setTasks(currentTodo.tasks)
+                (requireActivity() as AppCompatActivity).supportActionBar?.title = currentTodo.name
+
+                /** Variable created to control the UI states made with Composables*/
+                val tasks by taskViewModel.tasks.observeAsState(initial = currentTodo.tasks)
+
+                uncompletedTaskAdapter = UncompletedTaskAdapter(
+                    currentTodo,
+                    taskViewModel,
+                    findNavController()
                 )
-                val completedTasks by taskViewModel.completedTasks.observeAsState(
-                    initial = listOf()
+                completedTaskAdapter = CompletedTaskAdapter(
+                    currentTodo,
+                    todoViewModel,
+                    taskViewModel,
+                    findNavController()
                 )
-                val (labelColor, setLabelColor) =
-                    rememberSaveable { mutableStateOf(args.todo.colorResource) }
+                taskViewModel.tasks.observe(viewLifecycleOwner) {
+                    val uncompletedTasks = it.filter { task -> !task.completed }
+                    uncompletedTaskAdapter.apply {
+                        submitList(uncompletedTasks)
+                        updateList(uncompletedTasks)
+                    }
+
+                    val completedTasks = it.filter { task -> task.completed }
+                    completedTaskAdapter.submitList(completedTasks)
+                }
 
                 SimpleTasksTheme {
                     Scaffold(
                         floatingActionButton = {
-                            TodoFAB(todoScreenViewModel.labelColor) { }
+                            TodoFAB(todoViewModel.labelColor) { goToCreateTaskScreen() }
                         }
                     ) {
                         Column(
@@ -109,12 +122,10 @@ class TodoFragment : Fragment() {
                                     labels = labels,
                                     onDismissRequest = {
                                         todoViewModel.onLabelDialogStatusChange(false)
-                                        setLabelColor(args.todo.colorResource)
                                     },
-                                    selectedOption = labelColor,
+                                    selectedOption = todoViewModel.labelColor,
                                     onOptionsSelected = {
-                                        setLabelColor(it)
-                                        todoScreenViewModel.onLabelChange(it)
+                                        todoViewModel.onLabelChange(currentTodo, it)
                                         todoViewModel.onLabelDialogStatusChange(false)
                                     }
                                 )
@@ -133,20 +144,24 @@ class TodoFragment : Fragment() {
                                     overScrollMode = View.OVER_SCROLL_NEVER
                                 }
                             }, modifier = Modifier.fillMaxWidth())
-
-                            if (completedTasks.isNotEmpty()) {
-                                if (uncompletedTasks.isNotEmpty()) {
+                            if (tasks.any { it.completed }) {
+                                if (tasks.any { !it.completed }) {
                                     Divider(
                                         modifier = Modifier.padding(
                                             horizontal = 0.dp,
-                                            vertical = dimensionResource(id = R.dimen.space_between_8)
+                                            vertical = dimensionResource(
+                                                id = R.dimen.space_between_8
+                                            )
                                         )
                                     )
                                 }
                                 CompletedIndicator(
-                                    isExpanded = settingsViewModel.isExpanded,
-                                    onExpandChange = { settingsViewModel.onExpandChange(settings) },
-                                    completedAmount = completedTasks.size
+                                    isExpanded = settings.completedTasksExpanded,
+                                    onExpandChange = {
+                                        settingsViewModel.onExpandChange(settings)
+                                    },
+                                    completedAmount =
+                                    tasks.filter { it.completed }.size
                                 )
 
                                 if (settings.completedTasksExpanded) {
@@ -168,17 +183,17 @@ class TodoFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        todoViewModel.readTodoById(args.todoId).observe(viewLifecycleOwner) { todo = it }
+    }
 
-        taskViewModel.uncompletedTasks.observe(viewLifecycleOwner) {
-            uncompletedTaskAdapter.apply {
-                submitList(it)
-                updateList(it)
-            }
+    override fun onStop() {
+        super.onStop()
+        todoViewModel.onStop()
+    }
 
-        }
-        taskViewModel.completedTasks.observe(viewLifecycleOwner) {
-            completedTaskAdapter.submitList(it)
-        }
+    override fun onDestroy() {
+        super.onDestroy()
+        todo = null
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -188,6 +203,7 @@ class TodoFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_rename_list -> {
+                goToEditingScreen()
                 true
             }
             R.id.action_change_label_color -> {
@@ -195,19 +211,38 @@ class TodoFragment : Fragment() {
                 true
             }
             R.id.action_delete_completed_tasks -> {
-                taskViewModel.onCompletedTasksDelete(args.todo)
-                true
+                todo?.let {
+                    taskViewModel.onCompletedTasksDelete(it)
+                    true
+                } ?: false
             }
             R.id.action_delete_list -> {
-                goToHomeScreen()
-                todoViewModel.deleteTodo(args.todo)
-                true
+                todo?.let {
+                    todoViewModel.deleteTodo(it)
+                    goToHomeScreen()
+                    true
+                } ?: false
             }
             else -> super.onOptionsItemSelected(item)
         }
     }
 
     private fun goToHomeScreen() {
-        findNavController().navigateUp()
+        val action = TodoFragmentDirections.actionTodoFragmentToHomeFragment()
+        findNavController().navigate(action)
+    }
+
+    private fun goToEditingScreen() {
+        todo?.let {
+            val action = TodoFragmentDirections.actionTodoFragmentToTodoEditFragment(it)
+            findNavController().navigate(action)
+        }
+    }
+
+    private fun goToCreateTaskScreen() {
+        todo?.let {
+            val action = TodoFragmentDirections.actionTodoFragmentToCreateTaskFragment(it)
+            findNavController().navigate(action)
+        }
     }
 }
