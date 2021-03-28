@@ -1,49 +1,74 @@
 package com.example.simpletasks.ui
 
 import android.os.Bundle
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.GravityCompat
-import androidx.navigation.NavController
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.navigation.ui.setupWithNavController
-import com.example.simpletasks.R
-import com.example.simpletasks.databinding.ActivityMainBinding
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.material.DrawerValue
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.ModalDrawer
+import androidx.compose.material.rememberDrawerState
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.navigation.compose.*
+import com.example.simpletasks.data.settings.SettingsViewModel
+import com.example.simpletasks.data.task.TaskViewModel
+import com.example.simpletasks.data.task.TaskViewModelFactory
+import com.example.simpletasks.data.todo.TodoViewModel
+import com.example.simpletasks.ui.home.HomeScreen
+import com.example.simpletasks.ui.theme.SimpleTasksTheme
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 
+@ExperimentalCoroutinesApi
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
-    private lateinit var navController: NavController
-    private lateinit var appBarConfiguration: AppBarConfiguration
+    private val settingsViewModel by viewModels<SettingsViewModel>()
+    private val todoViewModel by viewModels<TodoViewModel>()
+    private val taskViewModel by viewModels<TaskViewModel> {
+        TaskViewModelFactory(todoViewModel)
+    }
 
+    @ExperimentalFoundationApi
+    @ExperimentalComposeUiApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
-        val topLevelDestinations = setOf(R.id.homeFragment, R.id.todoFragment)
-        val navHostFragment = supportFragmentManager
-            .findFragmentById(R.id.fragment_container) as NavHostFragment
+        setContent {
+            val navController = rememberNavController()
+            val scope = rememberCoroutineScope()
+            val state = rememberDrawerState(initialValue = DrawerValue.Closed)
 
-        navController = navHostFragment.navController
-        appBarConfiguration = AppBarConfiguration(topLevelDestinations, binding.drawerLayout)
-
-        setSupportActionBar(binding.toolbar)
-        setupActionBarWithNavController(navController, appBarConfiguration)
-        binding.navigationView.setupWithNavController(navController)
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
-    }
-
-    override fun onBackPressed() {
-        val drawerMenu = binding.drawerLayout
-        if (drawerMenu.isDrawerOpen(GravityCompat.START))
-            drawerMenu.closeDrawer(GravityCompat.START)
-        else
-            super.onBackPressed()
+            SimpleTasksTheme {
+                ModalDrawer(
+                    drawerContent = {
+//                        NavDrawerContent(todoViewModel, state, navController)
+                    },
+                    drawerShape = MaterialTheme.shapes.large,
+                    drawerState = state
+                ) {
+                    NavHost(navController, startDestination = Screen.Home.route) {
+                        composable(Screen.Home.route) { backStackEntry ->
+                            HomeScreen(
+                                navController = navController,
+                                todoViewModel = todoViewModel
+                            )
+                            this@MainActivity.onBackPressedDispatcher.addCallback(backStackEntry,
+                                object : OnBackPressedCallback(true) {
+                                    override fun handleOnBackPressed() {
+                                        if (state.isOpen)
+                                            scope.launch { state.close() }
+                                        else
+                                            this@MainActivity.finish()
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
 }
