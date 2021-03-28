@@ -111,16 +111,28 @@ fun DetailsRow(
     Row {
         Icon(
             imageVector = Icons.Rounded.Notes,
-            contentDescription = null
+            contentDescription = null,
+            tint = if (readOnly)
+                MaterialTheme.colors.onSurface.copy(alpha = 0.35f)
+            else
+                MaterialTheme.colors.onSurface,
+            modifier = Modifier.padding(
+                top = dimensionResource(id = R.dimen.space_between_16)
+            )
         )
-        Spacer(modifier = Modifier.padding(
-            dimensionResource(id = R.dimen.space_between_8))
+        Spacer(
+            modifier = Modifier.padding(
+                dimensionResource(id = R.dimen.space_between_8)
+            )
         )
         Surface {
-            BasicTextField(
+            TextField(
                 value = details,
                 onValueChange = onDetailsChange,
                 readOnly = readOnly,
+                placeholder = {
+                    Text(text = stringResource(id = R.string.add_details))
+                },
                 textStyle = if (readOnly)
                     MaterialTheme.typography.body1.copy(
                         textDecoration = TextDecoration.LineThrough,
@@ -129,7 +141,11 @@ fun DetailsRow(
                     MaterialTheme.typography.body1.copy(
                         color = MaterialTheme.colors.onSurface
                     ),
-                cursorBrush = SolidColor(MaterialTheme.colors.primary),
+                colors = TextFieldDefaults.textFieldColors(
+                    backgroundColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                ),
                 modifier = modifier
             )
         }

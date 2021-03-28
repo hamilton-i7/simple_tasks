@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.dimensionResource
 import androidx.navigation.NavController
+import androidx.navigation.compose.navigate
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -17,6 +18,7 @@ import com.example.simpletasks.data.task.Task
 import com.example.simpletasks.data.task.TaskViewModel
 import com.example.simpletasks.data.todo.Todo
 import com.example.simpletasks.ui.theme.SimpleTasksTheme
+import com.example.simpletasks.util.createTaskEditRoute
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.util.*
 
@@ -44,7 +46,7 @@ class UncompletedTaskAdapter(
                                 onTaskComplete = {
                                     taskViewModel.onTaskStateChange(task, todo)
                                 },
-                                onNameClick = { goToEditTaskScreen(task) }
+                                onNameClick = { goToEditTaskScreen(task.id) }
                             )
                             if (!task.details.isNullOrEmpty()) {
                                 Spacer(
@@ -76,9 +78,9 @@ class UncompletedTaskAdapter(
         this.tasks = tasks as MutableList<Task>
     }
 
-    private fun goToEditTaskScreen(task: Task) {
-        val action = TodoFragmentDirections.actionTodoFragmentToTaskEditFragment(todo, task)
-        navController.navigate(action)
+    private fun goToEditTaskScreen(taskId: String) {
+        val route = createTaskEditRoute(todo.id, taskId)
+        navController.navigate(route)
     }
 
     class DiffCallback : DiffUtil.ItemCallback<Task>() {

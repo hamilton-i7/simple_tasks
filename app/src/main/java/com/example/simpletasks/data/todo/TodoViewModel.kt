@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.*
 import com.example.simpletasks.R
 import com.example.simpletasks.data.SimpleTasksDatabase
+import com.example.simpletasks.data.task.Task
 import com.example.simpletasks.ui.Screen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -33,16 +34,11 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
 
     private var updatedTodo: Todo? = null
 
-//    var newTodoName by mutableStateOf("")
-//        private set
     var newTodoColor by mutableStateOf(R.color.default_color)
         private set
 
     private var _todoName = MutableLiveData("")
     val todoName: LiveData<String> get() = _todoName
-
-//    var labelColor by mutableStateOf(R.color.default_color)
-//        private set
 
     var isDialogVisible by mutableStateOf(false)
         private set
@@ -76,16 +72,15 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
         isDialogVisible = showDialog
     }
 
-//    fun setInitialLabel(@ColorRes color: Int) {
-//        labelColor = color
-//    }
+    fun onEditTodo(todo: Todo, name: String) {
+        updateTodo(todo.copy(name = name))
+    }
 
-    fun onLabelDialogStatusChange(showDialog: Boolean) {
-        isLabelDialogVisible = showDialog
+    fun onEditTodo(todo: Todo, newTasks: List<Task>) {
+        updateTodo(todo.copy(tasks = newTasks))
     }
 
     fun onLabelChange(todo: Todo, @ColorRes newColor: Int) {
-//        labelColor = newColor
         updatedTodo = todo.copy(colorResource = newColor)
         updateTodo(todo.copy(colorResource = newColor))
     }
@@ -103,10 +98,6 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
         newTodoColor = R.color.default_color
     }
 
-    fun onEditDone(todo: Todo) {
-        updatedTodo = todo.copy(name = _todoName.value!!)
-    }
-
     fun onCreateDone(name: String) {
         newTodo = createTodo(name)
         onValidTodo(newTodo!!)
@@ -116,30 +107,6 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
         selectedTodo = selection
     }
 
-//    fun clearNameField() {
-//        newTodoName = ""
-//    }
-
-    /**
-     * Event that updates the current Todo on screen. Must be called to update UI feedback*/
-    fun onEvent(todo: Todo) {
-        updatedTodo = todo
-    }
-
-    fun onEvent(todos: Set<Todo>) {
-        todos.forEach {
-            updatedTodo = it
-            updateTodo(it)
-        }
-    }
-
-    /**
-     * Sends the latest Todo state to the database*/
-    fun onStop() {
-        updatedTodo?.let { updateTodo(it) }
-    }
-
-
     private fun createTodo(name: String): Todo {
         val newTodo = Todo(
             name = name,
@@ -148,10 +115,10 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
         addTodo(newTodo)
         return newTodo
     }
-
     private fun addTodo(todo: Todo) = viewModelScope.launch {
         repo.addTodo(todo)
     }
+
     private fun updateTodo(todo: Todo) = viewModelScope.launch {
         repo.updateTodo(todo)
     }
