@@ -12,11 +12,12 @@ import com.example.simpletasks.R
 @Composable
 fun NoDataDisplay(
     message: String,
+    modifier: Modifier = Modifier,
     icon: @Composable () -> Unit
 ) {
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally

@@ -2,10 +2,7 @@ package com.example.simpletasks.ui.todo
 
 import android.view.View
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
@@ -142,6 +139,7 @@ fun TodoScreen(
             ) {
                 Column(
                     modifier = Modifier
+                        .fillMaxSize()
                         .verticalScroll(rememberScrollState())
                         .padding(
                             dimensionResource(id = R.dimen.space_between_8)
@@ -188,7 +186,10 @@ fun TodoScreen(
                     }
                     
                     if (currentTodo.tasks.isEmpty()) {
-                        NoDataDisplay(message = stringResource(id = R.string.no_tasks_created)) {
+                        NoDataDisplay(
+                            message = stringResource(id = R.string.no_tasks_created),
+                            modifier = Modifier.weight(1f)
+                        ) {
                             Icon(
                                 imageVector = Icons.Rounded.TaskAlt,
                                 contentDescription = null,

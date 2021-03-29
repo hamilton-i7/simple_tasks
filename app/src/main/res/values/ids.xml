@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <item name="todo_card_recyclerview" type="id"/>
-    <item name="uncompleted_task_recyclerview" type="id"/>
-    <item name="completed_task_recyclerview" type="id"/>
-</resources>
