@@ -2,7 +2,7 @@ package com.example.simpletasks.ui.home
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.DrawerState
@@ -104,7 +104,7 @@ fun HomeScreen(
                                 )
                                 adapter = todoCardAdapter
                             }
-                        }, modifier = Modifier.fillMaxSize())
+                        }, modifier = Modifier.fillMaxWidth())
                     }
                 }
 

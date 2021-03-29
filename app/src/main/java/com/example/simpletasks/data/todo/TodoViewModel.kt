@@ -50,7 +50,7 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
     init {
         val todoDao = SimpleTasksDatabase.getDatabase(application, applicationScope).todoDao()
         repo = TodoRepo(todoDao)
-        val todosFlow = _searchQuery.flatMapLatest { repo.readTodosByQuery(it) }
+        val todosFlow = _searchQuery.flatMapLatest { repo.readTodosByQuery(it.trim()) }
         todos = todosFlow.asLiveData()
     }
 

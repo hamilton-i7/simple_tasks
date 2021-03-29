@@ -141,6 +141,9 @@ fun DetailsRow(
                     MaterialTheme.typography.body1.copy(
                         color = MaterialTheme.colors.onSurface
                     ),
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.None
+                ),
                 colors = TextFieldDefaults.textFieldColors(
                     backgroundColor = Color.Transparent,
                     focusedIndicatorColor = Color.Transparent,
