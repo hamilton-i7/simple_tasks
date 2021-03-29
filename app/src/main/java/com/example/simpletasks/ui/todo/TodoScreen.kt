@@ -5,17 +5,22 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.DrawerState
+import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.TaskAlt
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.LifecycleOwner
@@ -33,6 +38,7 @@ import com.example.simpletasks.data.todo.Todo
 import com.example.simpletasks.data.todo.TodoViewModel
 import com.example.simpletasks.ui.Screen
 import com.example.simpletasks.ui.components.NewListDialog
+import com.example.simpletasks.ui.components.NoDataDisplay
 import com.example.simpletasks.ui.theme.SimpleTasksTheme
 import com.example.simpletasks.util.DragManager
 import com.example.simpletasks.util.createNewTaskRoute
@@ -180,48 +186,61 @@ fun TodoScreen(
                             }
                         )
                     }
-                    AndroidView({ context ->
-                        RecyclerView(context).apply {
-                            val dragManager = DragManager(
-                                dragDirs = ItemTouchHelper.UP or ItemTouchHelper.DOWN,
-                                swipeDirs = 0
-                            )
-                            val helper = ItemTouchHelper(dragManager)
-                            helper.attachToRecyclerView(this)
-                            layoutManager = LinearLayoutManager(context)
-                            adapter = uncompletedTaskAdapter
-                            overScrollMode = View.OVER_SCROLL_NEVER
-                        }
-                    }, modifier = Modifier.fillMaxWidth())
-
-                    if (tasks.any { it.completed }) {
-                        if (tasks.any { !it.completed }) {
-                            Divider(
-                                modifier = Modifier.padding(
-                                    horizontal = 0.dp,
-                                    vertical = dimensionResource(
-                                        id = R.dimen.space_between_8
-                                    )
+                    
+                    if (currentTodo.tasks.isEmpty()) {
+                        NoDataDisplay(message = stringResource(id = R.string.no_tasks_created)) {
+                            Icon(
+                                imageVector = Icons.Rounded.TaskAlt,
+                                contentDescription = null,
+                                modifier = Modifier.size(
+                                    dimensionResource(id = R.dimen.no_data_icon_size)
                                 )
                             )
                         }
-                        CompletedIndicator(
-                            isExpanded = settings.completedTasksExpanded,
-                            onExpandChange = {
-                                settingsViewModel.onExpandChange(settings)
-                            },
-                            completedAmount =
-                            tasks.filter { it.completed }.size
-                        )
+                    } else {
+                        AndroidView({ context ->
+                            RecyclerView(context).apply {
+                                val dragManager = DragManager(
+                                    dragDirs = ItemTouchHelper.UP or ItemTouchHelper.DOWN,
+                                    swipeDirs = 0
+                                )
+                                val helper = ItemTouchHelper(dragManager)
+                                helper.attachToRecyclerView(this)
+                                layoutManager = LinearLayoutManager(context)
+                                adapter = uncompletedTaskAdapter
+                                overScrollMode = View.OVER_SCROLL_NEVER
+                            }
+                        }, modifier = Modifier.fillMaxWidth())
 
-                        if (settings.completedTasksExpanded) {
-                            AndroidView({ context ->
-                                RecyclerView(context).apply {
-                                    layoutManager = LinearLayoutManager(context)
-                                    adapter = completedTaskAdapter
-                                    overScrollMode = View.OVER_SCROLL_NEVER
-                                }
-                            }, modifier = Modifier.fillMaxWidth())
+                        if (tasks.any { it.completed }) {
+                            if (tasks.any { !it.completed }) {
+                                Divider(
+                                    modifier = Modifier.padding(
+                                        horizontal = 0.dp,
+                                        vertical = dimensionResource(
+                                            id = R.dimen.space_between_8
+                                        )
+                                    )
+                                )
+                            }
+                            CompletedIndicator(
+                                isExpanded = settings.completedTasksExpanded,
+                                onExpandChange = {
+                                    settingsViewModel.onExpandChange(settings)
+                                },
+                                completedAmount =
+                                tasks.filter { it.completed }.size
+                            )
+
+                            if (settings.completedTasksExpanded) {
+                                AndroidView({ context ->
+                                    RecyclerView(context).apply {
+                                        layoutManager = LinearLayoutManager(context)
+                                        adapter = completedTaskAdapter
+                                        overScrollMode = View.OVER_SCROLL_NEVER
+                                    }
+                                }, modifier = Modifier.fillMaxWidth())
+                            }
                         }
                     }
                 }

@@ -9,4 +9,5 @@
     <dimen name="space_between_4">4dp</dimen>
     <dimen name="space_between_6">6dp</dimen>
     <dimen name="space_between_20">20dp</dimen>
+    <dimen name="no_data_icon_size">50dp</dimen>
 </resources>

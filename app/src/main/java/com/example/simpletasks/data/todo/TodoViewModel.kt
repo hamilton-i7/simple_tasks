@@ -42,8 +42,6 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
 
     var isDialogVisible by mutableStateOf(false)
         private set
-    var isLabelDialogVisible by mutableStateOf(false)
-        private set
 
     var selectedTodo by mutableStateOf(Screen.Home.route)
         private set

@@ -38,8 +38,6 @@
     <string name="rename_list">Rename list</string>
     <string name="change_label_color">Change label color</string>
     <string name="cancel_editing">Cancel editing</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="todo_name">{todoName}</string>
     <string name="mark_completed">Mark completed</string>
     <string name="mark_uncompleted">Mark uncompleted</string>
@@ -49,4 +47,7 @@
     <string name="more_tasks">More tasks</string>
     <string name="add_details">Add details</string>
     <string name="go_back">Go back</string>
+    <string name="no_lists_created">No lists created</string>
+    <string name="no_lists_found">No lists found</string>
+    <string name="no_tasks_created">No tasks created</string>
 </resources>

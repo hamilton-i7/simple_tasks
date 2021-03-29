@@ -4,17 +4,21 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.DrawerState
+import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ListAlt
+import androidx.compose.material.icons.rounded.SearchOff
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
@@ -26,6 +30,7 @@ import com.example.simpletasks.data.label.LabelSource
 import com.example.simpletasks.data.todo.Todo
 import com.example.simpletasks.data.todo.TodoViewModel
 import com.example.simpletasks.ui.components.NewListDialog
+import com.example.simpletasks.ui.components.NoDataDisplay
 import com.example.simpletasks.ui.theme.SimpleTasksTheme
 import com.example.simpletasks.util.createTodoRoute
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -45,6 +50,8 @@ fun HomeScreen(
     val (todoName, setTodoName) = rememberSaveable { mutableStateOf("") }
     val todoCardAdapter = TodoCardAdapter(navController)
     val focusManager = LocalFocusManager.current
+    val todosState by todoViewModel.todos.observeAsState(initial = emptyList())
+    val query by todoViewModel.searchQuery.collectAsState()
 
     todoViewModel.todos.observe(lifecycleOwner) {
         todoCardAdapter.submitList(it.reversed())
@@ -67,14 +74,40 @@ fun HomeScreen(
                     dimensionResource(id = R.dimen.space_between_8)
                 )
             ) {
-                AndroidView({ context ->
-                    RecyclerView(context).apply {
-                        layoutManager = StaggeredGridLayoutManager(
-                            2, StaggeredGridLayoutManager.VERTICAL
-                        )
-                        adapter = todoCardAdapter
+                when {
+                    todosState.isEmpty() && query.isNotEmpty()  -> {
+                        NoDataDisplay(message = stringResource(id = R.string.no_lists_found)) {
+                            Icon(
+                                imageVector = Icons.Rounded.SearchOff,
+                                contentDescription = null,
+                                modifier = Modifier.size(
+                                    dimensionResource(id = R.dimen.no_data_icon_size)
+                                )
+                            )
+                        }
                     }
-                }, modifier = Modifier.fillMaxSize())
+                    todosState.isEmpty() -> {
+                        NoDataDisplay(message = stringResource(id = R.string.no_lists_created)) {
+                            Icon(
+                                imageVector = Icons.Rounded.ListAlt,
+                                contentDescription = null,
+                                modifier = Modifier.size(
+                                    dimensionResource(id = R.dimen.no_data_icon_size)
+                                )
+                            )
+                        }
+                    }
+                    else -> {
+                        AndroidView({ context ->
+                            RecyclerView(context).apply {
+                                layoutManager = StaggeredGridLayoutManager(
+                                    2, StaggeredGridLayoutManager.VERTICAL
+                                )
+                                adapter = todoCardAdapter
+                            }
+                        }, modifier = Modifier.fillMaxSize())
+                    }
+                }
 
                 if (todoViewModel.isDialogVisible) {
                     NewListDialog(
