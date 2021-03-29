@@ -16,6 +16,7 @@ import com.example.simpletasks.R
 import com.example.simpletasks.data.task.Task
 import com.example.simpletasks.data.task.TaskViewModel
 import com.example.simpletasks.data.todo.Todo
+import com.example.simpletasks.data.todo.TodoViewModel
 import com.example.simpletasks.ui.theme.SimpleTasksTheme
 import com.example.simpletasks.util.createTaskEditRoute
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -23,6 +24,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 @ExperimentalCoroutinesApi
 class CompletedTaskAdapter(
     private val todo: Todo,
+    private val todoViewModel: TodoViewModel,
     private val taskViewModel: TaskViewModel,
     private val navController: NavController
 ) :
@@ -38,7 +40,7 @@ class CompletedTaskAdapter(
                         CompletedTaskRow(
                             name = task.name,
                             details = task.details,
-                            iconColor = R.color.default_color,
+                            iconColor = todoViewModel.colorResource,
                             onTaskUncheck = { taskViewModel.onTaskStateChange(task, todo) },
                             onNameClick = { goToEditTaskScreen(task.id) }
                         )

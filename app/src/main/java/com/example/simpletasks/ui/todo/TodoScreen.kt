@@ -66,7 +66,7 @@ fun TodoScreen(
     todoViewModel.onQueryChange("")
 
     todo?.let { currentTodo ->
-        todoViewModel.onNameChange(currentTodo.name)
+        todoViewModel.onLabelChange(currentTodo, currentTodo.colorResource)
         taskViewModel.setTasks(currentTodo.tasks)
         taskViewModel.onButtonNameChange(currentTodo.name)
 
@@ -80,6 +80,7 @@ fun TodoScreen(
         )
         val completedTaskAdapter = CompletedTaskAdapter(
             currentTodo,
+            todoViewModel,
             taskViewModel,
             navController
         )
@@ -132,7 +133,7 @@ fun TodoScreen(
                     )
                 },
                 floatingActionButton = {
-                    TodoFAB(currentTodo.colorResource) {
+                    TodoFAB(todoViewModel.colorResource) {
                         goToCreateTaskScreen(navController, currentTodo.id)
                     }
                 }
@@ -177,7 +178,7 @@ fun TodoScreen(
                             onDismissRequest = {
                                 isLabelDialogVisible = false
                             },
-                            selectedOption = currentTodo.colorResource,
+                            selectedOption = todoViewModel.colorResource,
                             onOptionsSelected = {
                                 todoViewModel.onLabelChange(currentTodo, it)
                                 isLabelDialogVisible = false

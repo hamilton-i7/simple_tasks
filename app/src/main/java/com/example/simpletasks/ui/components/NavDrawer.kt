@@ -80,7 +80,6 @@ fun NavDrawerContent(
                 isSelected = isSelected,
                 onRowSelected = {
                     todoViewModel.onTodoSelect(route)
-                    todoViewModel.onNameChange(it)
                     scope.launch {
                         navController.navigate(route) {
                             popUpTo(route) { inclusive = true }
