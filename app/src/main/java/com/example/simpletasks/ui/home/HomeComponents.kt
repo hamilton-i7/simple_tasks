@@ -17,7 +17,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
@@ -59,7 +58,10 @@ fun HomeTopBar(
         )
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            NavigationIcon { scope.launch { state.open() } }
+            NavigationIcon {
+                scope.launch { state.open() }
+                focusManager.clearFocus()
+            }
             Spacer(modifier = Modifier.padding(dimensionResource(id = R.dimen.space_between_2)))
             SearchField(query, todoViewModel::onQueryChange, focusManager)
         }

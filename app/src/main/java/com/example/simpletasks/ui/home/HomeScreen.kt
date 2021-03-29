@@ -13,6 +13,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.LifecycleOwner
@@ -43,6 +44,7 @@ fun HomeScreen(
     var isExpanded by rememberSaveable { mutableStateOf(false) }
     val (todoName, setTodoName) = rememberSaveable { mutableStateOf("") }
     val todoCardAdapter = TodoCardAdapter(navController)
+    val focusManager = LocalFocusManager.current
 
     todoViewModel.todos.observe(lifecycleOwner) {
         todoCardAdapter.submitList(it.reversed())
@@ -54,7 +56,10 @@ fun HomeScreen(
                      HomeTopBar(todoViewModel, state)
             },
             floatingActionButton = {
-                HomeFAB { todoViewModel.onDialogStatusChange(true) }
+                HomeFAB {
+                    todoViewModel.onDialogStatusChange(true)
+                    focusManager.clearFocus()
+                }
             }
         ) {
             Box(

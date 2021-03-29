@@ -17,6 +17,5 @@ data class Todo(
     @ColorRes val colorResource: Int = R.color.default_color,
     val tasks: List<Task> = emptyList()
 ) : Parcelable {
-    companion object {
-    }
+    companion object
 }
