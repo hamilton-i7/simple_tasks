@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lists">Liste</string>
+    <string name="search_list">Cerca liste</string>
+    <string name="menu_icon">Icona del menú</string>
+    <string name="add_list">Aggiungi una lista</string>
+    <string name="create_list">Crea una lista</string>
+    <string name="list_name">Nome della lista</string>
+    <string name="hide_labels">Nascondi etichette</string>
+    <string name="show_labels">Mostra etichette</string>
+    <string name="cancel">Annulla</string>
+    <string name="done">Fatto</string>
+    <string name="red">Rosso</string>
+    <string name="blue">Blue</string>
+    <string name="green">Verde</string>
+    <string name="teal">Verde acqua</string>
+    <string name="purple">Viola</string>
+    <string name="pink">Rosa</string>
+    <string name="brown">Marrone</string>
+    <string name="default_color">Colore di default</string>
+    <string name="label_selected">Etichetta selezionata</string>
+    <string name="view_options">Visualizza opzioni</string>
+    <string name="delete_task">Cancella attività</string>
+    <string name="add_new_task">Aggiungi una nuova attività</string>
+    <string name="completed">Completate (%d)</string>
+    <string name="delete_completed_tasks">Elimina attività completate</string>
+    <string name="delete_list">"Elimina lista "</string>
+    <string name="check_task">Segna come completata</string>
+    <string name="uncheck_task">Segna come non completata</string>
+    <string name="mark_completed">Segna come completata</string>
+    <string name="mark_uncompleted">Segna come non completata</string>
+    <string name="yellow">Giallo</string>
+    <string name="select_label_color">Seleziona etichetta</string>
+    <string name="change_list_name">Cambia il nome della lista</string>
+    <string name="task_name">" Nome dell’attività"</string>
+    <string name="create_task">Crea attività</string>
+    <string name="move_task_to">Sposta attività</string>
+    <string name="more_tasks">Più attività</string>
+    <string name="add_details">Aggiungi dettagli</string>
+    <string name="go_back">Indietro</string>
+    <string name="no_lists_created">Nessuna lista creata</string>
+    <string name="no_lists_found">Nessuna lista trovata</string>
+    <string name="no_tasks_created">Nessuna attività creata</string>
+    <string name="change_label_color">Cambia il colore dell\'etichetta</string>
+</resources>
