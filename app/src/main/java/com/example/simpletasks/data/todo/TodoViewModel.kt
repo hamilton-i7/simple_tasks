@@ -43,7 +43,7 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
     var isDialogVisible by mutableStateOf(false)
         private set
 
-    var selectedTodo by mutableStateOf(Screen.Home.route)
+    var selectedRoute by mutableStateOf(Screen.Home.route)
         private set
 
 
@@ -101,8 +101,8 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
         onValidTodo(newTodo!!)
     }
 
-    fun onTodoSelect(selection: String) {
-        selectedTodo = selection
+    fun onTodoSelect(route: String) {
+        selectedRoute = route
     }
 
     private fun createTodo(name: String): Todo {

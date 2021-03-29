@@ -31,7 +31,6 @@ import com.example.simpletasks.data.label.LabelSource
 import com.example.simpletasks.data.settings.Settings
 import com.example.simpletasks.data.settings.SettingsViewModel
 import com.example.simpletasks.data.task.TaskViewModel
-import com.example.simpletasks.data.todo.Todo
 import com.example.simpletasks.data.todo.TodoViewModel
 import com.example.simpletasks.ui.Screen
 import com.example.simpletasks.ui.components.NewListDialog
@@ -63,6 +62,8 @@ fun TodoScreen(
     val scope = rememberCoroutineScope()
     val todo by todoViewModel.readTodoById(todoId).observeAsState()
     val labels = LabelSource.readLabels()
+
+    todoViewModel.onQueryChange("")
 
     todo?.let { currentTodo ->
         todoViewModel.onNameChange(currentTodo.name)
@@ -164,7 +165,7 @@ fun TodoScreen(
                             },
                             onDone = {
                                 todoViewModel.onCreateDone(newTodoName)
-                                goToTodoScreen(navController, todoViewModel.newTodo)
+                                goToTodoScreen(navController, todoViewModel)
                                 setNewTodoName("")
                             }
                         )
@@ -263,9 +264,14 @@ private fun goToHomeScreen(
     todoViewModel.onTodoSelect(Screen.Home.route)
 }
 
-private fun goToTodoScreen(navController: NavController, todo: Todo?) {
-    todo?.let {
+@ExperimentalCoroutinesApi
+private fun goToTodoScreen(
+    navController: NavController,
+    todoViewModel: TodoViewModel
+) {
+    todoViewModel.newTodo?.let {
         val route = createTodoRoute(it.id)
+        todoViewModel.onTodoSelect(route)
         navController.navigate(route)
     }
 }

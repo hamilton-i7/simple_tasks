@@ -8,12 +8,16 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.simpletasks.data.todo.Todo
+import com.example.simpletasks.data.todo.TodoViewModel
 import com.example.simpletasks.ui.theme.SimpleTasksTheme
 import com.example.simpletasks.util.createTodoRoute
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
-class TodoCardAdapter(private val navController: NavController) :
+class TodoCardAdapter(
+    private val navController: NavController,
+    private val todoViewModel: TodoViewModel
+    ) :
         ListAdapter<Todo, TodoCardAdapter.TodoCardViewHolder>(DiffCallback()) {
 
     inner class TodoCardViewHolder(private val view: ComposeView) : RecyclerView.ViewHolder(view) {
@@ -23,6 +27,7 @@ class TodoCardAdapter(private val navController: NavController) :
                 SimpleTasksTheme {
                     TodoCard(todo) {
                         val route = createTodoRoute(todo.id)
+                        todoViewModel.onTodoSelect(route)
                         navController.navigate(route)
                     }
                 }

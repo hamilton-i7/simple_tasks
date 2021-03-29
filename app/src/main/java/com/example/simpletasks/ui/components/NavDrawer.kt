@@ -48,7 +48,7 @@ fun NavDrawerContent(
             Spacer(modifier = Modifier.padding(dimensionResource(id = R.dimen.space_between_8)))
         }
         item {
-            val isSelected = Screen.Home.route == todoViewModel.selectedTodo
+            val isSelected = Screen.Home.route == todoViewModel.selectedRoute
             NavDrawerRow(
                 icon = Icons.Rounded.Home,
                 iconColor = MaterialTheme.colors.primary,
@@ -72,14 +72,14 @@ fun NavDrawerContent(
         }
         items(todos.sortedBy { it.name }) { todo ->
             val route = createTodoRoute(todo.id)
-            val isSelected = todo.name == todoViewModel.selectedTodo
+            val isSelected = route == todoViewModel.selectedRoute
             NavDrawerRow(
                 icon = Icons.Filled.Circle,
                 iconColor = colorResource(id = todo.colorResource),
                 title = todo.name,
                 isSelected = isSelected,
                 onRowSelected = {
-                    todoViewModel.onTodoSelect(it)
+                    todoViewModel.onTodoSelect(route)
                     todoViewModel.onNameChange(it)
                     scope.launch {
                         navController.navigate(route) {
@@ -95,7 +95,7 @@ fun NavDrawerContent(
             NavDrawerRow(
                 icon = Icons.Rounded.Add,
                 iconColor = MaterialTheme.colors.primary,
-                isSelected = stringResource(id = R.string.add_list) == todoViewModel.selectedTodo,
+                isSelected = stringResource(id = R.string.add_list) == todoViewModel.selectedRoute,
                 title = stringResource(id = R.string.add_list),
                 onRowSelected = {
                     todoViewModel.onDialogStatusChange(true)

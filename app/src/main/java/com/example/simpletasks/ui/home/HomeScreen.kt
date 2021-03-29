@@ -27,7 +27,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.simpletasks.R
 import com.example.simpletasks.data.label.LabelSource
-import com.example.simpletasks.data.todo.Todo
 import com.example.simpletasks.data.todo.TodoViewModel
 import com.example.simpletasks.ui.components.NewListDialog
 import com.example.simpletasks.ui.components.NoDataDisplay
@@ -48,7 +47,7 @@ fun HomeScreen(
     val labels = LabelSource.readLabels()
     var isExpanded by rememberSaveable { mutableStateOf(false) }
     val (todoName, setTodoName) = rememberSaveable { mutableStateOf("") }
-    val todoCardAdapter = TodoCardAdapter(navController)
+    val todoCardAdapter = TodoCardAdapter(navController, todoViewModel)
     val focusManager = LocalFocusManager.current
     val todosState by todoViewModel.todos.observeAsState(initial = emptyList())
     val query by todoViewModel.searchQuery.collectAsState()
@@ -129,7 +128,7 @@ fun HomeScreen(
                         },
                         onDone = {
                             todoViewModel.onCreateDone(todoName)
-                            goToTodoScreen(navController, todoViewModel.newTodo)
+                            goToTodoScreen(navController, todoViewModel)
                             setTodoName("")
                         }
                     )
@@ -139,9 +138,14 @@ fun HomeScreen(
     }
 }
 
-private fun goToTodoScreen(navController: NavController, todo: Todo?) {
-    todo?.let {
+@ExperimentalCoroutinesApi
+private fun goToTodoScreen(
+    navController: NavController,
+    todoViewModel: TodoViewModel
+) {
+    todoViewModel.newTodo?.let {
         val route = createTodoRoute(it.id)
+        todoViewModel.onTodoSelect(route)
         navController.navigate(route)
     }
 }
