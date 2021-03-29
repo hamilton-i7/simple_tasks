@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lists">Listas</string>
+    <string name="search_list">Buscar lista</string>
+    <string name="menu_icon">Ícono del menu</string>
+    <string name="add_list">Agregar lista</string>
+    <string name="create_list">Crear lista</string>
+    <string name="list_name">Nombre de la lista</string>
+    <string name="select_label_color">Seleccionar etiqueta</string>
+    <string name="hide_labels">Esconder etiquetas</string>
+    <string name="show_labels">Mostrar etiquetas</string>
+    <string name="cancel">Cancelar</string>
+    <string name="done">Hecho</string>
+    <string name="red">Rojo</string>
+    <string name="blue">Azul</string>
+    <string name="yellow">Amarillo</string>
+    <string name="green">Verde</string>
+    <string name="teal">Verde azulado</string>
+    <string name="purple">Morado</string>
+    <string name="pink">Rosa</string>
+    <string name="brown">Marrón</string>
+    <string name="default_color">Color predeterminado</string>
+    <string name="label_selected">Etiqueta seleccionada</string>
+    <string name="view_options">Ver opciones</string>
+    <string name="delete_task">Eliminar tarea</string>
+    <string name="add_new_task">Agregar nueva tarea</string>
+    <string name="completed">Completadas (%d)</string>
+    <string name="check_task">Marcar como completada</string>
+    <string name="uncheck_task">Marcar como no completada</string>
+    <string name="delete_completed_tasks">Eliminar tareas completadas</string>
+    <string name="delete_list">Eliminar lista</string>
+    <string name="change_list_name">Cambiar nombre a la lista</string>
+    <string name="change_label_color">Cambiar color de etiqueta</string>
+    <string name="mark_completed">Marcar como completada</string>
+    <string name="mark_uncompleted">Marcar como no completada</string>
+    <string name="task_name">Nombre de la tarea</string>
+    <string name="create_task">Crear tarea</string>
+    <string name="move_task_to">Mover tarea a</string>
+    <string name="more_tasks">Más tareas</string>
+    <string name="add_details">Agregar detalles</string>
+    <string name="go_back">Ir atrás</string>
+    <string name="no_lists_created">Ninguna lista creada</string>
+    <string name="no_lists_found">Ninguna lista encontrada</string>
+    <string name="no_tasks_created">Ninguna tarea creada</string>
+</resources>

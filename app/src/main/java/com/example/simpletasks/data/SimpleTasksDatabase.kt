@@ -1,3 +1,11 @@
+@file:Suppress("SpellCheckingInspection", "SpellCheckingInspection", "SpellCheckingInspection",
+    "SpellCheckingInspection", "SpellCheckingInspection", "SpellCheckingInspection",
+    "SpellCheckingInspection", "SpellCheckingInspection", "SpellCheckingInspection",
+    "SpellCheckingInspection", "SpellCheckingInspection", "SpellCheckingInspection",
+    "SpellCheckingInspection", "SpellCheckingInspection", "SpellCheckingInspection",
+    "SpellCheckingInspection", "SpellCheckingInspection", "SpellCheckingInspection"
+)
+
 package com.example.simpletasks.data
 
 import android.content.Context

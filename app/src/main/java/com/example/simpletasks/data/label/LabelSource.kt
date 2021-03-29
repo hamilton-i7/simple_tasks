@@ -7,7 +7,7 @@ object LabelSource {
         Label(R.string.default_color, R.color.default_color),
         Label(R.string.red, R.color.red),
         Label(R.string.blue, R.color.blue),
-        Label(R.string.gold, R.color.gold),
+        Label(R.string.yellow, R.color.gold),
         Label(R.string.green, R.color.green),
         Label(R.string.teal, R.color.teal),
         Label(R.string.purple, R.color.purple),

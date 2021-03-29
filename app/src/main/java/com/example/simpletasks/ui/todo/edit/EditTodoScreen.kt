@@ -43,7 +43,7 @@ fun EditTodoScreen(
             Scaffold(
                 topBar = {
                     DoneTopBar(
-                        title = stringResource(id = R.string.rename_list),
+                        title = stringResource(id = R.string.change_list_name),
                         doneEnabled = name.isNotEmpty(),
                         onDoneClick = {
                             todoViewModel.onEditTodo(it, name)

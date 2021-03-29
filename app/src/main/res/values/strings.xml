@@ -15,7 +15,6 @@
     <string name="done">Done</string>
     <string name="red">Red</string>
     <string name="blue">Blue</string>
-    <string name="gold">Gold</string>
     <string name="green">Green</string>
     <string name="teal">Teal</string>
     <string name="purple">Purple</string>
@@ -30,15 +29,10 @@
     <string name="completed">Completed (%d)</string>
     <string name="uncheck_task">Uncheck task</string>
     <string name="check_task">Check task</string>
-    <string name="invalid_name">Invalid name!</string>
-    <string name="name_repeated">List already exists!</string>
-    <string name="confirm_change">Confirm change</string>
     <string name="delete_completed_tasks">Delete completed tasks</string>
     <string name="delete_list">Delete list</string>
-    <string name="rename_list">Rename list</string>
+    <string name="change_list_name">Change list name</string>
     <string name="change_label_color">Change label color</string>
-    <string name="cancel_editing">Cancel editing</string>
-    <string name="todo_name">{todoName}</string>
     <string name="mark_completed">Mark completed</string>
     <string name="mark_uncompleted">Mark uncompleted</string>
     <string name="task_name">Task name</string>
@@ -50,4 +44,5 @@
     <string name="no_lists_created">No lists created</string>
     <string name="no_lists_found">No lists found</string>
     <string name="no_tasks_created">No tasks created</string>
+    <string name="yellow">Yellow</string>
 </resources>

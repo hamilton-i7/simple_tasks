@@ -84,7 +84,7 @@ fun TodoSettingsMenu(
     ) {
         DropdownMenuItem(onClick = onRenameList) {
             Text(
-                text = stringResource(id = R.string.rename_list),
+                text = stringResource(id = R.string.change_list_name),
                 style = MaterialTheme.typography.body2
             )
         }
