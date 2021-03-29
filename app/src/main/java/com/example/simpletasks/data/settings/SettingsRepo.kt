@@ -9,5 +9,4 @@ class SettingsRepo(private val settingsDao: SettingsDao) {
     suspend fun updateSettings(settings: Settings) =
         settingsDao.updateSettings(settings)
 
-    suspend fun deleteAllSettings() = settingsDao.deleteAllSettings()
 }

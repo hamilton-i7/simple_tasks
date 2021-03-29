@@ -79,7 +79,6 @@ fun TodoScreen(
         )
         val completedTaskAdapter = CompletedTaskAdapter(
             currentTodo,
-            todoViewModel,
             taskViewModel,
             navController
         )

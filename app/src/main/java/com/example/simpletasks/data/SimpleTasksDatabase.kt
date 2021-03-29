@@ -142,7 +142,7 @@ abstract class SimpleTasksDatabase : RoomDatabase() {
                     context.applicationContext,
                     SimpleTasksDatabase::class.java,
                     "simple_tasks_database"
-                ).addCallback(SimpleTasksDatabaseCallback(scope)).build()
+                ).build()
                 INSTANCE = instance
                 instance
             }

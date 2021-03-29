@@ -1,7 +1,6 @@
 package com.example.simpletasks.util
 
 import androidx.room.TypeConverter
-import com.example.simpletasks.data.settings.Settings
 import com.example.simpletasks.data.task.Task
 import com.google.gson.Gson
 

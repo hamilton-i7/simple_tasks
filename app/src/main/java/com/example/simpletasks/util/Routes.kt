@@ -1,6 +1,5 @@
 package com.example.simpletasks.util
 
-import com.example.simpletasks.data.todo.Todo
 import com.example.simpletasks.ui.EDIT_TASK_ROUTE_PREFIX
 import com.example.simpletasks.ui.EDIT_TODO_ROUTE_PREFIX
 import com.example.simpletasks.ui.NEW_TASK_ROUTE_PREFIX

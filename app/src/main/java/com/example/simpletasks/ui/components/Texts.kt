@@ -64,11 +64,3 @@ fun CreatorByNameText(modifier: Modifier = Modifier) {
     )
 }
 
-@Composable
-fun ErrorText(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.caption,
-        color = MaterialTheme.colors.error
-    )
-}
