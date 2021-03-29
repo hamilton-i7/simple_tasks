@@ -32,7 +32,7 @@ fun ListTopBar(
     todo: Todo,
     isMenuVisible: Boolean,
     onNavigationIconClick: () -> Unit,
-    onShowMenu: () -> Unit,
+    onShowOverflowMenu: () -> Unit,
     onDismissRequest: () -> Unit,
     onListRename: () -> Unit,
     onLabelColorChange: () -> Unit,
@@ -48,7 +48,7 @@ fun ListTopBar(
         },
         actions = {
             Box(contentAlignment = AbsoluteAlignment.TopRight) {
-                IconButton(onClick = onShowMenu) {
+                IconButton(onClick = onShowOverflowMenu) {
                     Icon(
                         imageVector = Icons.Rounded.MoreVert,
                         contentDescription = stringResource(id = R.string.view_options)
@@ -131,8 +131,7 @@ fun UncompletedTaskRow(
             Text(
                 text = name,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.fillMaxWidth()
+                overflow = TextOverflow.Ellipsis
             )
             if (!details.isNullOrEmpty()) {
                 Text(
@@ -173,8 +172,7 @@ fun CompletedTaskRow(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textDecoration = TextDecoration.LineThrough,
-                color = MaterialTheme.colors.onSurface.copy(alpha = 0.70f),
-                modifier = Modifier.fillMaxWidth()
+                color = MaterialTheme.colors.onSurface.copy(alpha = 0.70f)
 
             )
             if (!details.isNullOrEmpty()) {

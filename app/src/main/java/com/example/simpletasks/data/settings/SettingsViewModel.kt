@@ -24,11 +24,9 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun readSettings(): LiveData<Settings> = repo.readSettings().asLiveData()
 
     fun onExpandChange(settings: Settings) {
-        val updatedSettings = Settings(
-            id = settings.id,
-            completedTasksExpanded = !settings.completedTasksExpanded
+        updateSettings(settings.copy(
+            completedTasksExpanded = !settings.completedTasksExpanded)
         )
-        updateSettings(updatedSettings)
     }
 
     private fun updateSettings(settings: Settings) = viewModelScope.launch {

@@ -5,6 +5,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.DrawerValue
 import androidx.compose.material.MaterialTheme
@@ -28,6 +29,7 @@ import com.example.simpletasks.ui.todo.edit.EditTodoScreen
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 
+@ExperimentalAnimationApi
 @ExperimentalCoroutinesApi
 class MainActivity : AppCompatActivity() {
 

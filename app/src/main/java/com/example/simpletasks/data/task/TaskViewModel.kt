@@ -20,6 +20,12 @@ class TaskViewModel(private val todoViewModel: TodoViewModel) : ViewModel() {
     var buttonName by mutableStateOf("")
         private set
 
+    var upToDelete by mutableStateOf(false)
+        private set
+
+    private var taskToDelete: Task? = null
+    private var deletedPosition = -1
+
     fun setTasks(tasks: List<Task>) {
         _tasks.value = tasks
     }
@@ -34,6 +40,22 @@ class TaskViewModel(private val todoViewModel: TodoViewModel) : ViewModel() {
         }
         _tasks.value = newList
         todoViewModel.onEditTodo(todo, newList)
+    }
+
+    fun onTaskDeleteUndo(todo: Todo) {
+        if (taskToDelete != null && deletedPosition != -1) {
+            val newList = _tasks.value!!.toMutableList().also {
+                it.add(deletedPosition, taskToDelete!!)
+            }
+            _tasks.value = newList
+            resetDeleteState()
+            todoViewModel.onEditTodo(todo, newList)
+        }
+        upToDelete = false
+    }
+
+    fun onUpToDelete(toDelete: Boolean) {
+        upToDelete = toDelete
     }
 
     fun onTaskStateChange(task: Task, todo: Todo) {
@@ -61,6 +83,8 @@ class TaskViewModel(private val todoViewModel: TodoViewModel) : ViewModel() {
 
     fun onTaskDelete(task: Task, todo: Todo) {
         val newList = _tasks.value!!.toMutableList().also { it.remove(task) }
+        deletedPosition = _tasks.value!!.indexOf(task)
+        taskToDelete = task
         _tasks.value = newList
         todoViewModel.onEditTodo(todo, newList)
     }
@@ -90,6 +114,11 @@ class TaskViewModel(private val todoViewModel: TodoViewModel) : ViewModel() {
 
     fun onButtonNameChange(name: String) {
         buttonName = name
+    }
+
+    private fun resetDeleteState() {
+        taskToDelete = null
+        deletedPosition = -1
     }
 }
 

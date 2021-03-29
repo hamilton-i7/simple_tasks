@@ -45,4 +45,6 @@
     <string name="no_lists_found">No lists found</string>
     <string name="no_tasks_created">No tasks created</string>
     <string name="yellow">Yellow</string>
+    <string name="task_deleted">Task deleted</string>
+    <string name="undo">Undo</string>
 </resources>

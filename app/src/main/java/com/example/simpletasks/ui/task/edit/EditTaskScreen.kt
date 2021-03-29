@@ -54,6 +54,8 @@ fun EditTaskScreen(
                         },
                         onDelete = {
                             taskViewModel.onTaskDelete(task, todo!!)
+                            taskViewModel.onUpToDelete(toDelete = true)
+                            navController.navigateUp()
                         }
                     )
                 },
