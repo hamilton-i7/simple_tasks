@@ -12,7 +12,7 @@
     <string name="done">Fatto</string>
     <string name="red">Rosso</string>
     <string name="blue">Blue</string>
-    <string name="green">Verde</string>
+    <string name="golden">Verde</string>
     <string name="teal">Verde acqua</string>
     <string name="purple">Viola</string>
     <string name="pink">Rosa</string>
@@ -42,4 +42,7 @@
     <string name="no_lists_found">Nessuna lista trovata</string>
     <string name="no_tasks_created">Nessuna attività creata</string>
     <string name="change_label_color">Cambia il colore dell\'etichetta</string>
+    <string name="task_deleted">Attività cancellata</string>
+    <string name="list_deleted">Lista cancellata</string>
+    <string name="undo">Annulla</string>
 </resources>
