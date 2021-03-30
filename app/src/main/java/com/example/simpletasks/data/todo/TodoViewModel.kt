@@ -30,6 +30,7 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> get() = _searchQuery
+
     val todos: LiveData<List<Todo>>
 
     var newTodo: Todo? = null
@@ -41,9 +42,6 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
     var colorResource by mutableStateOf(R.color.default_color)
         private set
 
-    var isDialogVisible by mutableStateOf(false)
-        private set
-
     var selectedRoute by mutableStateOf(Screen.Home.route)
         private set
 
@@ -51,7 +49,9 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
         private set
 
     private var todoToDelete: Todo? = null
-    private var deletedPosition = -1
+
+    var orderPos = -1
+        private set
 
     init {
         val todoDao = SimpleTasksDatabase.getDatabase(application, applicationScope).todoDao()
@@ -66,6 +66,7 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
 
     fun deleteTodo(todo: Todo) {
         todoToDelete = todo
+        orderPos -= 1
         viewModelScope.launch {
             repo.deleteTodo(todo)
         }
@@ -76,19 +77,16 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun onTodoDeleteUndo() {
-        if (todoToDelete != null) {
-            addTodo(todoToDelete!!)
+        todoToDelete?.let {
+            addTodo(it)
             resetDeleteState()
+            orderPos += 1
         }
         deletingTodo = false
     }
 
     fun onQueryChange(query: String) {
         _searchQuery.value = query
-    }
-
-    fun onDialogStatusChange(showDialog: Boolean) {
-        isDialogVisible = showDialog
     }
 
     fun onEditTodo(todo: Todo, name: String) {
@@ -108,14 +106,8 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
         newTodoColor = color
     }
 
-    fun onCancelDialog() {
-        isDialogVisible = false
-        newTodoColor = R.color.default_color
-    }
-
     fun onCreateDone(name: String) {
         newTodo = createTodo(name)
-        isDialogVisible = false
     }
 
     fun onTodoSelect(route: String) {
@@ -123,13 +115,16 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun createTodo(name: String): Todo {
+        orderPos += 1
         val newTodo = Todo(
             name = name,
             colorResource = newTodoColor,
+            orderPos = orderPos
         )
         addTodo(newTodo)
         return newTodo
     }
+
     private fun addTodo(todo: Todo) = viewModelScope.launch {
         repo.addTodo(todo)
     }
@@ -140,6 +135,5 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun resetDeleteState() {
         todoToDelete = null
-        deletedPosition = -1
     }
 }

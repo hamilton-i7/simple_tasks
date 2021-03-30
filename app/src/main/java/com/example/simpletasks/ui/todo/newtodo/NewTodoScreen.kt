@@ -43,6 +43,8 @@ fun NewTodoScreen(
     var isExpanded by rememberSaveable { mutableStateOf(false) }
     val labels = LabelSource.readLabels()
 
+    todoViewModel.onNewColorChange(R.color.default_color)
+
     Scaffold(
         topBar = {
             DoneTopBar(

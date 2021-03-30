@@ -51,14 +51,14 @@ fun HomeScreen(
     val scope = rememberCoroutineScope()
     val query by todoViewModel.searchQuery.collectAsState()
 
-    todoViewModel.todos.observe(lifecycleOwner) {
-        todoCardAdapter.submitList(it.reversed())
+    todoViewModel.todos.observe(lifecycleOwner) { todos ->
+        todoCardAdapter.submitList(todos.sortedByDescending { it.orderPos })
     }
 
     SimpleTasksTheme {
         Scaffold(
             topBar = {
-                     HomeTopBar(todoViewModel, state)
+                HomeTopBar(todoViewModel, state)
             },
             floatingActionButton = {
                 HomeFAB {
@@ -72,44 +72,46 @@ fun HomeScreen(
             }
         ) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Box(
+                    modifier = Modifier.padding(
                         dimensionResource(id = R.dimen.space_between_8)
                     )
-            ) {
-                when {
-                    todosState.isEmpty() && query.isNotEmpty()  -> {
-                        NoDataDisplay(message = stringResource(id = R.string.no_lists_found)) {
-                            Icon(
-                                imageVector = Icons.Rounded.SearchOff,
-                                contentDescription = null,
-                                modifier = Modifier.size(
-                                    dimensionResource(id = R.dimen.no_data_icon_size)
+                ) {
+                    when {
+                        todosState.isEmpty() && query.isNotEmpty() -> {
+                            NoDataDisplay(message = stringResource(id = R.string.no_lists_found)) {
+                                Icon(
+                                    imageVector = Icons.Rounded.SearchOff,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(
+                                        dimensionResource(id = R.dimen.no_data_icon_size)
+                                    )
                                 )
-                            )
-                        }
-                    }
-                    todosState.isEmpty() -> {
-                        NoDataDisplay(message = stringResource(id = R.string.no_lists_created)) {
-                            Icon(
-                                imageVector = Icons.Rounded.ListAlt,
-                                contentDescription = null,
-                                modifier = Modifier.size(
-                                    dimensionResource(id = R.dimen.no_data_icon_size)
-                                )
-                            )
-                        }
-                    }
-                    else -> {
-                        AndroidView({ context ->
-                            RecyclerView(context).apply {
-                                layoutManager = StaggeredGridLayoutManager(
-                                    2, StaggeredGridLayoutManager.VERTICAL
-                                )
-                                adapter = todoCardAdapter
                             }
-                        }, modifier = Modifier.fillMaxWidth())
+                        }
+                        todosState.isEmpty() -> {
+                            NoDataDisplay(message = stringResource(id = R.string.no_lists_created)) {
+                                Icon(
+                                    imageVector = Icons.Rounded.ListAlt,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(
+                                        dimensionResource(id = R.dimen.no_data_icon_size)
+                                    )
+                                )
+                            }
+                        }
+                        else -> {
+                            AndroidView({ context ->
+                                RecyclerView(context).apply {
+                                    layoutManager = StaggeredGridLayoutManager(
+                                        2, StaggeredGridLayoutManager.VERTICAL
+                                    )
+                                    adapter = todoCardAdapter
+                                }
+                            }, modifier = Modifier.fillMaxWidth())
+                        }
                     }
                 }
                 if (todoViewModel.deletingTodo)

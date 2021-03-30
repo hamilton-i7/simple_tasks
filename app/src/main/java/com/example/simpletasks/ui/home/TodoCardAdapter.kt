@@ -38,10 +38,8 @@ class TodoCardAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TodoCardViewHolder =
         TodoCardViewHolder(ComposeView(parent.context))
 
-    override fun onBindViewHolder(holder: TodoCardViewHolder, position: Int) {
-        val currentTodo = getItem(position)
-        holder.bind(currentTodo)
-    }
+    override fun onBindViewHolder(holder: TodoCardViewHolder, position: Int) =
+        holder.bind(getItem(position))
 
     class DiffCallback : DiffUtil.ItemCallback<Todo>() {
         override fun areItemsTheSame(oldItem: Todo, newItem: Todo): Boolean =
