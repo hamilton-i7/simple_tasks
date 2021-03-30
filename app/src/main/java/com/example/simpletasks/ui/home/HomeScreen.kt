@@ -1,7 +1,11 @@
 package com.example.simpletasks.ui.home
 
+import android.view.View
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ListAlt
@@ -28,7 +32,6 @@ import com.example.simpletasks.data.todo.TodoViewModel
 import com.example.simpletasks.ui.Screen
 import com.example.simpletasks.ui.components.DefaultSnackbar
 import com.example.simpletasks.ui.components.NoDataDisplay
-import com.example.simpletasks.ui.theme.SimpleTasksTheme
 import com.example.simpletasks.util.SnackbarController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -54,81 +57,78 @@ fun HomeScreen(
     todoViewModel.todos.observe(lifecycleOwner) { todos ->
         todoCardAdapter.submitList(todos.sortedByDescending { it.orderPos })
     }
-
-    SimpleTasksTheme {
-        Scaffold(
-            topBar = {
-                HomeTopBar(todoViewModel, state)
-            },
-            floatingActionButton = {
-                HomeFAB {
-                    focusManager.clearFocus()
-                    goToNewTodoScreen(navController)
-                }
-            },
-            scaffoldState = scaffoldState,
-            snackbarHost = {
-                scaffoldState.snackbarHostState
+    Scaffold(
+        topBar = {
+            HomeTopBar(todoViewModel, state)
+        },
+        floatingActionButton = {
+            HomeFAB {
+                focusManager.clearFocus()
+                goToNewTodoScreen(navController)
             }
+        },
+        scaffoldState = scaffoldState,
+        snackbarHost = {
+            scaffoldState.snackbarHostState
+        }
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize()
         ) {
             Box(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.padding(dimensionResource(id = R.dimen.space_between_8))
             ) {
-                Box(
-                    modifier = Modifier.padding(
-                        dimensionResource(id = R.dimen.space_between_8)
-                    )
-                ) {
-                    when {
-                        todosState.isEmpty() && query.isNotEmpty() -> {
-                            NoDataDisplay(message = stringResource(id = R.string.no_lists_found)) {
-                                Icon(
-                                    imageVector = Icons.Rounded.SearchOff,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(
-                                        dimensionResource(id = R.dimen.no_data_icon_size)
-                                    )
+                when {
+                    todosState.isEmpty() && query.isNotEmpty() -> {
+                        NoDataDisplay(message = stringResource(id = R.string.no_lists_found)) {
+                            Icon(
+                                imageVector = Icons.Rounded.SearchOff,
+                                contentDescription = null,
+                                modifier = Modifier.size(
+                                    dimensionResource(id = R.dimen.no_data_icon_size)
                                 )
-                            }
-                        }
-                        todosState.isEmpty() -> {
-                            NoDataDisplay(message = stringResource(id = R.string.no_lists_created)) {
-                                Icon(
-                                    imageVector = Icons.Rounded.ListAlt,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(
-                                        dimensionResource(id = R.dimen.no_data_icon_size)
-                                    )
-                                )
-                            }
-                        }
-                        else -> {
-                            AndroidView({ context ->
-                                RecyclerView(context).apply {
-                                    layoutManager = StaggeredGridLayoutManager(
-                                        2, StaggeredGridLayoutManager.VERTICAL
-                                    )
-                                    adapter = todoCardAdapter
-                                }
-                            }, modifier = Modifier.fillMaxWidth())
+                            )
                         }
                     }
-                }
-                if (todoViewModel.deletingTodo)
-                    ShowSnackbar(scope, scaffoldState, todoViewModel)
-
-                DefaultSnackbar(
-                    snackbarHostState = scaffoldState.snackbarHostState,
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(
-                            end = dimensionResource(id = R.dimen.space_between_70)
+                    todosState.isEmpty() -> {
+                        NoDataDisplay(message = stringResource(id = R.string.no_lists_created)) {
+                            Icon(
+                                imageVector = Icons.Rounded.ListAlt,
+                                contentDescription = null,
+                                modifier = Modifier.size(
+                                    dimensionResource(id = R.dimen.no_data_icon_size)
+                                )
+                            )
+                        }
+                    }
+                    else -> {
+                        AndroidView({ context ->
+                            RecyclerView(context).apply {
+                                layoutManager = StaggeredGridLayoutManager(
+                                    2, StaggeredGridLayoutManager.VERTICAL
+                                )
+                                adapter = todoCardAdapter
+                                overScrollMode = View.OVER_SCROLL_NEVER
+                            }
+                        }, modifier = Modifier.fillMaxSize()
                         )
-                ) {
-                    todoViewModel.onTodoDeleteUndo()
-                    scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
-                    todoViewModel.onDeletingTodo(toDelete = false)
+                    }
                 }
+            }
+            if (todoViewModel.deletingTodo)
+                ShowSnackbar(scope, scaffoldState, todoViewModel)
+
+            DefaultSnackbar(
+                snackbarHostState = scaffoldState.snackbarHostState,
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(
+                        end = dimensionResource(id = R.dimen.space_between_70)
+                    )
+            ) {
+                todoViewModel.onTodoDeleteUndo()
+                scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
+                todoViewModel.onDeletingTodo(toDelete = false)
             }
         }
     }

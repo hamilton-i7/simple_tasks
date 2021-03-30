@@ -52,6 +52,8 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
 
     var orderPos = -1
         private set
+    var todoCardScrollPosition = 0
+        private set
 
     init {
         val todoDao = SimpleTasksDatabase.getDatabase(application, applicationScope).todoDao()
@@ -112,6 +114,10 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
 
     fun onTodoSelect(route: String) {
         selectedRoute = route
+    }
+
+    fun onTodoCardScrollPositionChange(value: Int) {
+        todoCardScrollPosition = value
     }
 
     private fun createTodo(name: String): Todo {

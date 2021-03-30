@@ -3,7 +3,9 @@ package com.example.simpletasks.util
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.simpletasks.ui.todo.UncompletedTaskAdapter
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
+@ExperimentalCoroutinesApi
 class DragManager(
     dragDirs: Int,
     swipeDirs: Int,

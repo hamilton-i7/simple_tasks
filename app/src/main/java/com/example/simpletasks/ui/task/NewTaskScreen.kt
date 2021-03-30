@@ -23,7 +23,6 @@ import com.example.simpletasks.data.task.TaskViewModel
 import com.example.simpletasks.data.todo.TodoViewModel
 import com.example.simpletasks.ui.components.DoneTopBar
 import com.example.simpletasks.ui.components.SimpleTextField
-import com.example.simpletasks.ui.theme.SimpleTasksTheme
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
@@ -41,53 +40,51 @@ fun NewTaskScreen(
     val todo by todoViewModel.readTodoById(todoId).observeAsState()
 
     todo?.let {
-        SimpleTasksTheme {
-            Scaffold(
-                topBar = {
-                    DoneTopBar(
-                        title = stringResource(id = R.string.create_task),
-                        onUpButtonClick = { navController.navigateUp() },
-                        onDoneClick = {
-                            taskViewModel.onTaskCreate(it, name, details)
-                            navController.navigateUp()
-                        },
-                        doneEnabled = name.trim().isNotEmpty()
+        Scaffold(
+            topBar = {
+                DoneTopBar(
+                    title = stringResource(id = R.string.create_task),
+                    onUpButtonClick = { navController.navigateUp() },
+                    onDoneClick = {
+                        taskViewModel.onTaskCreate(it, name, details)
+                        navController.navigateUp()
+                    },
+                    doneEnabled = name.trim().isNotEmpty()
+                )
+            }
+        ) {
+            Surface {
+                Column(
+                    modifier = Modifier.padding(
+                        dimensionResource(id = R.dimen.space_between_16)
                     )
-                }
-            ) {
-                Surface {
-                    Column(
+                ) {
+                    SimpleTextField(
+                        name = name,
+                        onNameChange = setName,
+                        label = stringResource(id = R.string.task_name),
+                        modifier = Modifier.fillMaxWidth()
+                    ) { focusManager.clearFocus() }
+                    Spacer(
                         modifier = Modifier.padding(
-                            dimensionResource(id = R.dimen.space_between_16)
+                            dimensionResource(id = R.dimen.space_between_8)
                         )
-                    ) {
-                        SimpleTextField(
-                            name = name,
-                            onNameChange = setName,
-                            label = stringResource(id = R.string.task_name),
-                            modifier = Modifier.fillMaxWidth()
-                        ) { focusManager.clearFocus() }
-                        Spacer(
-                            modifier = Modifier.padding(
-                                dimensionResource(id = R.dimen.space_between_8)
+                    )
+                    Row {
+                        IconButton(onClick = {
+                            isDetailsTextFieldVisible = !isDetailsTextFieldVisible
+                        }) {
+                            Icon(
+                                imageVector = Icons.Rounded.Notes,
+                                contentDescription = null
                             )
-                        )
-                        Row {
-                            IconButton(onClick = {
-                                isDetailsTextFieldVisible = !isDetailsTextFieldVisible
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Rounded.Notes,
-                                    contentDescription = null
-                                )
-                            }
-                            if (isDetailsTextFieldVisible) {
-                                DetailsTextField(
-                                    details = details,
-                                    onDetailsChange = setDetails,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
+                        }
+                        if (isDetailsTextFieldVisible) {
+                            DetailsTextField(
+                                details = details,
+                                onDetailsChange = setDetails,
+                                modifier = Modifier.fillMaxWidth()
+                            )
                         }
                     }
                 }

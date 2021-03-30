@@ -35,7 +35,6 @@ import com.example.simpletasks.data.todo.TodoViewModel
 import com.example.simpletasks.ui.Screen
 import com.example.simpletasks.ui.components.DefaultSnackbar
 import com.example.simpletasks.ui.components.NoDataDisplay
-import com.example.simpletasks.ui.theme.SimpleTasksTheme
 import com.example.simpletasks.util.DragManager
 import com.example.simpletasks.util.SnackbarController
 import com.example.simpletasks.util.createNewTaskRoute
@@ -101,150 +100,149 @@ fun TodoScreen(
         var isLabelDialogVisible by rememberSaveable { mutableStateOf(false) }
         var isOverflowMenuVisible by rememberSaveable { mutableStateOf(false) }
 
-        SimpleTasksTheme {
-            Scaffold(
-                scaffoldState = scaffoldState,
-                topBar = {
-                    ListTopBar(
-                        todo = currentTodo,
-                        isMenuVisible = isOverflowMenuVisible,
-                        onNavigationIconClick = {
-                            scope.launch { state.open() }
-                        },
-                        onShowOverflowMenu = {
-                            isOverflowMenuVisible = true
-                        },
-                        onDismissRequest = { isOverflowMenuVisible = false },
-                        onListRename = {
-                            val route = createTodoEditRoute(currentTodo.id)
-                            navController.navigate(route)
-                            isOverflowMenuVisible = false
-                        },
-                        onLabelColorChange = {
-                            isLabelDialogVisible = true
-                            isOverflowMenuVisible = false
-                        },
-                        onCompletedTasksDelete = {
-                            isOverflowMenuVisible = false
-                            taskViewModel.onCompletedTasksDelete(currentTodo)
-                        },
-                        onListDelete = {
-                            isOverflowMenuVisible = false
-                            todoViewModel.deleteTodo(currentTodo)
-                            todoViewModel.onDeletingTodo(toDelete = true)
-                            goToHomeScreen(navController, todoViewModel)
-                        }
-                    )
-                },
-                floatingActionButton = {
-                    TodoFAB(todoViewModel.colorResource) {
-                        goToCreateTaskScreen(navController, currentTodo.id)
+        Scaffold(
+            scaffoldState = scaffoldState,
+            topBar = {
+                ListTopBar(
+                    todo = currentTodo,
+                    isMenuVisible = isOverflowMenuVisible,
+                    onNavigationIconClick = {
+                        scope.launch { state.open() }
+                    },
+                    onShowOverflowMenu = {
+                        isOverflowMenuVisible = true
+                    },
+                    onDismissRequest = { isOverflowMenuVisible = false },
+                    onListRename = {
+                        val route = createTodoEditRoute(currentTodo.id)
+                        navController.navigate(route)
+                        isOverflowMenuVisible = false
+                    },
+                    onLabelColorChange = {
+                        isLabelDialogVisible = true
+                        isOverflowMenuVisible = false
+                    },
+                    onCompletedTasksDelete = {
+                        isOverflowMenuVisible = false
+                        taskViewModel.onCompletedTasksDelete(currentTodo)
+                    },
+                    onListDelete = {
+                        isOverflowMenuVisible = false
+                        todoViewModel.deleteTodo(currentTodo)
+                        todoViewModel.onDeletingTodo(toDelete = true)
+                        goToHomeScreen(navController, todoViewModel)
                     }
-                },
-                snackbarHost = {
-                    scaffoldState.snackbarHostState
+                )
+            },
+            floatingActionButton = {
+                TodoFAB(todoViewModel.colorResource) {
+                    goToCreateTaskScreen(navController, currentTodo.id)
                 }
-            ) {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    Column(
-                        modifier = Modifier
-                            .verticalScroll(rememberScrollState())
-                            .padding(
-                                dimensionResource(id = R.dimen.space_between_8)
-                            )
-                    ) {
-                        if (isLabelDialogVisible) {
-                            LabelDialog(
-                                labels = labels,
-                                onDismissRequest = {
-                                    isLabelDialogVisible = false
-                                },
-                                selectedOption = todoViewModel.colorResource,
-                                onOptionsSelected = {
-                                    todoViewModel.onLabelChange(currentTodo, it)
-                                    isLabelDialogVisible = false
-                                }
+            },
+            snackbarHost = {
+                scaffoldState.snackbarHostState
+            }
+        ) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier
+                        .verticalScroll(rememberScrollState())
+                        .padding(
+                            dimensionResource(id = R.dimen.space_between_8)
+                        )
+                ) {
+                    if (isLabelDialogVisible) {
+                        LabelDialog(
+                            labels = labels,
+                            onDismissRequest = {
+                                isLabelDialogVisible = false
+                            },
+                            selectedOption = todoViewModel.colorResource,
+                            onOptionsSelected = {
+                                todoViewModel.onLabelChange(currentTodo, it)
+                                isLabelDialogVisible = false
+                            }
+                        )
+                    }
+
+                    if (currentTodo.tasks.isEmpty()) {
+                        NoDataDisplay(
+                            message = stringResource(id = R.string.no_tasks_created),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.TaskAlt,
+                                contentDescription = null,
+                                modifier = Modifier.size(
+                                    dimensionResource(id = R.dimen.no_data_icon_size)
+                                )
                             )
                         }
-
-                        if (currentTodo.tasks.isEmpty()) {
-                            NoDataDisplay(
-                                message = stringResource(id = R.string.no_tasks_created),
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Rounded.TaskAlt,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(
-                                        dimensionResource(id = R.dimen.no_data_icon_size)
-                                    )
+                    } else {
+                        AndroidView({ context ->
+                            RecyclerView(context).apply {
+                                val dragManager = DragManager(
+                                    dragDirs = ItemTouchHelper.UP or ItemTouchHelper.DOWN,
+                                    swipeDirs = 0
                                 )
+                                val helper = ItemTouchHelper(dragManager)
+                                helper.attachToRecyclerView(this)
+                                layoutManager = LinearLayoutManager(context)
+                                adapter = uncompletedTaskAdapter
+                                overScrollMode = View.OVER_SCROLL_NEVER
                             }
-                        } else {
-                            AndroidView({ context ->
-                                RecyclerView(context).apply {
-                                    val dragManager = DragManager(
-                                        dragDirs = ItemTouchHelper.UP or ItemTouchHelper.DOWN,
-                                        swipeDirs = 0
-                                    )
-                                    val helper = ItemTouchHelper(dragManager)
-                                    helper.attachToRecyclerView(this)
-                                    layoutManager = LinearLayoutManager(context)
-                                    adapter = uncompletedTaskAdapter
-                                    overScrollMode = View.OVER_SCROLL_NEVER
-                                }
-                            }, modifier = Modifier.fillMaxWidth())
+                        }, modifier = Modifier.fillMaxWidth())
 
-                            if (tasks.any { it.completed }) {
-                                if (tasks.any { !it.completed }) {
-                                    Divider(
-                                        modifier = Modifier.padding(
-                                            horizontal = 0.dp,
-                                            vertical = dimensionResource(
-                                                id = R.dimen.space_between_8
-                                            )
+                        if (tasks.any { it.completed }) {
+                            if (tasks.any { !it.completed }) {
+                                Divider(
+                                    modifier = Modifier.padding(
+                                        horizontal = 0.dp,
+                                        vertical = dimensionResource(
+                                            id = R.dimen.space_between_8
                                         )
                                     )
-                                }
-                                CompletedIndicator(
-                                    isExpanded = settings.completedTasksExpanded,
-                                    onExpandChange = {
-                                        settingsViewModel.onExpandChange(settings)
-                                    },
-                                    completedAmount =
-                                    tasks.filter { it.completed }.size
                                 )
+                            }
+                            CompletedIndicator(
+                                isExpanded = settings.completedTasksExpanded,
+                                onExpandChange = {
+                                    settingsViewModel.onExpandChange(settings)
+                                },
+                                completedAmount =
+                                tasks.filter { it.completed }.size
+                            )
 
-                                AnimatedVisibility(settings.completedTasksExpanded) {
-                                    AndroidView({ context ->
-                                        RecyclerView(context).apply {
-                                            layoutManager = LinearLayoutManager(context)
-                                            adapter = completedTaskAdapter
-                                            overScrollMode = View.OVER_SCROLL_NEVER
-                                        }
-                                    }, modifier = Modifier.fillMaxWidth())
-                                }
+                            AnimatedVisibility(settings.completedTasksExpanded) {
+                                AndroidView({ context ->
+                                    RecyclerView(context).apply {
+                                        layoutManager = LinearLayoutManager(context)
+                                        adapter = completedTaskAdapter
+                                        overScrollMode = View.OVER_SCROLL_NEVER
+                                    }
+                                }, modifier = Modifier.fillMaxWidth())
                             }
                         }
                     }
-                    if (taskViewModel.deletingTask)
-                        ShowSnackbar(scope, scaffoldState, taskViewModel)
+                }
+                if (taskViewModel.deletingTask)
+                    ShowSnackbar(scope, scaffoldState, taskViewModel)
 
-                    DefaultSnackbar(
-                        snackbarHostState = scaffoldState.snackbarHostState,
-                        modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(
-                                end = dimensionResource(id = R.dimen.space_between_70)
-                            )
-                    ) {
-                        taskViewModel.onTaskDeleteUndo(currentTodo)
-                        scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
-                        taskViewModel.onDeletingTask(toDelete = false)
-                    }
+                DefaultSnackbar(
+                    snackbarHostState = scaffoldState.snackbarHostState,
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(
+                            end = dimensionResource(id = R.dimen.space_between_70)
+                        )
+                ) {
+                    taskViewModel.onTaskDeleteUndo(currentTodo)
+                    scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
+                    taskViewModel.onDeletingTask(toDelete = false)
                 }
             }
         }
+
     }
 }
 

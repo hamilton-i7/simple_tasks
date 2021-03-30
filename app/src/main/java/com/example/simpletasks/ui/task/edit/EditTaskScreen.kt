@@ -17,7 +17,6 @@ import com.example.simpletasks.data.task.Task
 import com.example.simpletasks.data.task.TaskViewModel
 import com.example.simpletasks.data.todo.TodoViewModel
 import com.example.simpletasks.ui.components.DeleteTopBar
-import com.example.simpletasks.ui.theme.SimpleTasksTheme
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
@@ -45,87 +44,85 @@ fun EditTaskScreen(
         val (name, setName) = rememberSaveable { mutableStateOf(task.name) }
         val (details, setDetails) = rememberSaveable { mutableStateOf(task.details) }
 
-        SimpleTasksTheme {
-            Scaffold(
-                topBar = {
-                    DeleteTopBar(
-                        onUpButtonClick = {
-                            navController.navigateUp()
-                        },
-                        onDelete = {
-                            taskViewModel.onTaskDelete(task, todo!!)
-                            taskViewModel.onDeletingTask(toDelete = true)
-                            navController.navigateUp()
-                        }
-                    )
-                },
-                floatingActionButton = {
-                    MarkButton(taskCompleted = task.completed) {
-                        taskViewModel.onTaskStateChange(task, todo!!)
+        Scaffold(
+            topBar = {
+                DeleteTopBar(
+                    onUpButtonClick = {
+                        navController.navigateUp()
+                    },
+                    onDelete = {
+                        taskViewModel.onTaskDelete(task, todo!!)
+                        taskViewModel.onDeletingTask(toDelete = true)
                         navController.navigateUp()
                     }
+                )
+            },
+            floatingActionButton = {
+                MarkButton(taskCompleted = task.completed) {
+                    taskViewModel.onTaskStateChange(task, todo!!)
+                    navController.navigateUp()
                 }
+            }
+        ) {
+            Column(
+                modifier = Modifier
+                    .verticalScroll(scrollState)
+                    .padding(
+                        dimensionResource(id = R.dimen.space_between_16)
+                    )
             ) {
-                Column(
-                    modifier = Modifier
-                        .verticalScroll(scrollState)
-                        .padding(
-                            dimensionResource(id = R.dimen.space_between_16)
+                Box(contentAlignment = Alignment.BottomStart) {
+                    if (task.completed)
+                        ListButton(text = taskViewModel.buttonName, enabled = false)
+                    else
+                        ListButton(
+                            text = taskViewModel.buttonName,
+                            enabled = true,
+                            expanded = listButtonExpanded,
+                            onClick = { listButtonExpanded = true }
                         )
-                ) {
-                    Box(contentAlignment = Alignment.BottomStart) {
-                        if (task.completed)
-                            ListButton(text = taskViewModel.buttonName, enabled = false)
-                        else
-                            ListButton(
-                                text = taskViewModel.buttonName,
-                                enabled = true,
-                                expanded = listButtonExpanded,
-                                onClick = { listButtonExpanded = true }
-                            )
-                        if (listButtonExpanded) {
-                            TodoDropdownMenu(
-                                expanded = listButtonExpanded,
-                                task = task,
-                                currentTodo = todo!!,
-                                todos = todos.sortedBy { it.name },
-                                taskViewModel = taskViewModel,
-                                onDismiss = { listButtonExpanded = false },
-                            )
-                        }
+                    if (listButtonExpanded) {
+                        TodoDropdownMenu(
+                            expanded = listButtonExpanded,
+                            task = task,
+                            currentTodo = todo!!,
+                            todos = todos.sortedBy { it.name },
+                            taskViewModel = taskViewModel,
+                            onDismiss = { listButtonExpanded = false },
+                        )
                     }
-                    Spacer(
-                        modifier = Modifier.padding(
-                            dimensionResource(id = R.dimen.space_between_10)
-                        )
-                    )
-                    TaskTextField(
-                        name = name,
-                        onNameChange = {
-                            setName(it)
-                            taskViewModel.onTaskEdit(task, todo!!, it, details)
-                        },
-                        readOnly = task.completed,
-                        onDone = { focusManager.clearFocus() },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(dimensionResource(id = R.dimen.space_between_8))
-                    )
-                    Spacer(
-                        modifier = Modifier.padding(
-                            dimensionResource(id = R.dimen.space_between_6)
-                        )
-                    )
-                    DetailsRow(
-                        details = details ?: "",
-                        onDetailsChange = {
-                            setDetails(it)
-                            taskViewModel.onTaskEdit(task, todo!!, name, it)
-                        },
-                        readOnly = task.completed,
-                        modifier = Modifier.fillMaxWidth()
-                    )
                 }
+                Spacer(
+                    modifier = Modifier.padding(
+                        dimensionResource(id = R.dimen.space_between_10)
+                    )
+                )
+                TaskTextField(
+                    name = name,
+                    onNameChange = {
+                        setName(it)
+                        taskViewModel.onTaskEdit(task, todo!!, it, details)
+                    },
+                    readOnly = task.completed,
+                    onDone = { focusManager.clearFocus() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(dimensionResource(id = R.dimen.space_between_8))
+                )
+                Spacer(
+                    modifier = Modifier.padding(
+                        dimensionResource(id = R.dimen.space_between_6)
+                    )
+                )
+                DetailsRow(
+                    details = details ?: "",
+                    onDetailsChange = {
+                        setDetails(it)
+                        taskViewModel.onTaskEdit(task, todo!!, name, it)
+                    },
+                    readOnly = task.completed,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
     }

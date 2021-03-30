@@ -21,7 +21,6 @@ import com.example.simpletasks.R
 import com.example.simpletasks.data.todo.TodoViewModel
 import com.example.simpletasks.ui.components.DoneTopBar
 import com.example.simpletasks.ui.components.SimpleTextField
-import com.example.simpletasks.ui.theme.SimpleTasksTheme
 import com.example.simpletasks.util.createTodoRoute
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
@@ -39,35 +38,33 @@ fun EditTodoScreen(
     todo?.let {
         val (name, setName) = rememberSaveable { mutableStateOf(it.name) }
 
-        SimpleTasksTheme {
-            Scaffold(
-                topBar = {
-                    DoneTopBar(
-                        title = stringResource(id = R.string.change_list_name),
-                        doneEnabled = name.isNotEmpty(),
-                        onDoneClick = {
-                            todoViewModel.onEditTodo(it, name)
-                            goToTodoScreen(navController, todoId)
-                        },
-                        onUpButtonClick = {
-                            navController.navigateUp()
-                        }
-                    )
-                }
-            ) {
-                Surface {
-                    Box(
-                        modifier = Modifier.padding(
-                            dimensionResource(id = R.dimen.space_between_16)
-                        )
-                    ) {
-                        SimpleTextField(
-                            name = name,
-                            onNameChange = setName,
-                            label = stringResource(id = R.string.list_name),
-                            modifier = Modifier.fillMaxWidth()
-                        ) { keyboardController?.hideSoftwareKeyboard() }
+        Scaffold(
+            topBar = {
+                DoneTopBar(
+                    title = stringResource(id = R.string.change_list_name),
+                    doneEnabled = name.isNotEmpty(),
+                    onDoneClick = {
+                        todoViewModel.onEditTodo(it, name)
+                        goToTodoScreen(navController, todoId)
+                    },
+                    onUpButtonClick = {
+                        navController.navigateUp()
                     }
+                )
+            }
+        ) {
+            Surface {
+                Box(
+                    modifier = Modifier.padding(
+                        dimensionResource(id = R.dimen.space_between_16)
+                    )
+                ) {
+                    SimpleTextField(
+                        name = name,
+                        onNameChange = setName,
+                        label = stringResource(id = R.string.list_name),
+                        modifier = Modifier.fillMaxWidth()
+                    ) { keyboardController?.hideSoftwareKeyboard() }
                 }
             }
         }
