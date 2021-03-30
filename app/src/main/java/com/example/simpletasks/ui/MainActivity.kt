@@ -55,7 +55,8 @@ class MainActivity : AppCompatActivity() {
                         NavDrawerContent(todoViewModel, state, navController)
                     },
                     drawerShape = MaterialTheme.shapes.large,
-                    drawerState = state
+                    drawerState = state,
+                    gesturesEnabled = state.isOpen
                 ) {
                     NavHost(navController, startDestination = Screen.Home.route) {
                         composable(Screen.Home.route) { backStackEntry ->
