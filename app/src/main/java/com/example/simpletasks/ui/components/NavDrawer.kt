@@ -97,8 +97,9 @@ fun NavDrawerContent(
                 isSelected = stringResource(id = R.string.add_list) == todoViewModel.selectedRoute,
                 title = stringResource(id = R.string.add_list),
                 onRowSelected = {
-                    todoViewModel.onDialogStatusChange(true)
                     scope.launch { state.close() }
+                    val route = Screen.NewTodo.route
+                    navController.navigate(route)
                 }
             )
         }

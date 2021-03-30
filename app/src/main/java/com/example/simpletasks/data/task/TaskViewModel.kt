@@ -32,8 +32,8 @@ class TaskViewModel(private val todoViewModel: TodoViewModel) : ViewModel() {
 
     fun onTaskCreate(todo: Todo, taskName: String, taskDetails: String) {
         val newTask = Task(
-            name = taskName,
-            details = taskDetails
+            name = taskName.trim(),
+            details = taskDetails.trim()
         )
         val newList = _tasks.value!!.toMutableList().also {
             it.add(it.indexOfLast { task -> !task.completed } + 1, newTask)

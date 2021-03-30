@@ -1,7 +1,6 @@
 package com.example.simpletasks.ui.todo
 
 import android.view.View
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -24,7 +23,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
 import androidx.navigation.compose.navigate
-import androidx.navigation.compose.popUpTo
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -36,10 +34,12 @@ import com.example.simpletasks.data.task.TaskViewModel
 import com.example.simpletasks.data.todo.TodoViewModel
 import com.example.simpletasks.ui.Screen
 import com.example.simpletasks.ui.components.DefaultSnackbar
-import com.example.simpletasks.ui.components.NewListDialog
 import com.example.simpletasks.ui.components.NoDataDisplay
 import com.example.simpletasks.ui.theme.SimpleTasksTheme
-import com.example.simpletasks.util.*
+import com.example.simpletasks.util.DragManager
+import com.example.simpletasks.util.SnackbarController
+import com.example.simpletasks.util.createNewTaskRoute
+import com.example.simpletasks.util.createTodoEditRoute
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -100,8 +100,6 @@ fun TodoScreen(
         val scaffoldState = rememberScaffoldState()
         var isLabelDialogVisible by rememberSaveable { mutableStateOf(false) }
         var isOverflowMenuVisible by rememberSaveable { mutableStateOf(false) }
-        val (newTodoName, setNewTodoName) = rememberSaveable { mutableStateOf("") }
-        var isExpanded by rememberSaveable { mutableStateOf(false) }
 
         SimpleTasksTheme {
             Scaffold(
@@ -155,32 +153,6 @@ fun TodoScreen(
                                 dimensionResource(id = R.dimen.space_between_8)
                             )
                     ) {
-                        if (todoViewModel.isDialogVisible) {
-                            NewListDialog(
-                                todoName = newTodoName,
-                                onNewNameChange = setNewTodoName,
-                                enabled = newTodoName.trim().isNotEmpty(),
-                                labels = labels,
-                                isExpanded = isExpanded,
-                                onExpandChange = { isExpanded = !isExpanded },
-                                onDismissRequest = {
-                                    todoViewModel.onDialogStatusChange(false)
-                                },
-                                selectedOption = todoViewModel.newTodoColor,
-                                onOptionsSelected = todoViewModel::onNewColorChange,
-                                onCancel = {
-                                    todoViewModel.onCancelDialog()
-                                    setNewTodoName("")
-                                    isExpanded = false
-                                },
-                                onDone = {
-                                    todoViewModel.onCreateDone(newTodoName)
-                                    goToTodoScreen(navController, todoViewModel)
-                                    setNewTodoName("")
-                                }
-                            )
-                        }
-
                         if (isLabelDialogVisible) {
                             LabelDialog(
                                 labels = labels,
@@ -291,28 +263,18 @@ private fun goToHomeScreen(
 }
 
 @ExperimentalCoroutinesApi
-private fun goToTodoScreen(
-    navController: NavController,
-    todoViewModel: TodoViewModel
-) {
-    todoViewModel.newTodo?.let {
-        val route = createTodoRoute(it.id)
-        todoViewModel.onTodoSelect(route)
-        navController.navigate(route)
-    }
-}
-
-@ExperimentalCoroutinesApi
 @Composable
 private fun ShowSnackbar(
     scope: CoroutineScope,
     scaffoldState: ScaffoldState,
     taskViewModel: TaskViewModel
 ) {
+    val snackbarController = SnackbarController(scope)
     val message = stringResource(id = R.string.task_deleted)
     val undoStr = stringResource(id = R.string.undo)
-    scope.launch {
-        scaffoldState.snackbarHostState.showSnackbar(
+    snackbarController.getScope().launch {
+        snackbarController.showSnackbar(
+            scaffoldState = scaffoldState,
             message = message,
             actionLabel = undoStr
         )

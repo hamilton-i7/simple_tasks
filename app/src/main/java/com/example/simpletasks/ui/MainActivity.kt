@@ -24,6 +24,7 @@ import com.example.simpletasks.ui.home.HomeScreen
 import com.example.simpletasks.ui.task.NewTaskScreen
 import com.example.simpletasks.ui.task.edit.EditTaskScreen
 import com.example.simpletasks.ui.theme.SimpleTasksTheme
+import com.example.simpletasks.ui.todo.NewTodoScreen
 import com.example.simpletasks.ui.todo.TodoScreen
 import com.example.simpletasks.ui.todo.edit.EditTodoScreen
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -59,7 +60,7 @@ class MainActivity : ComponentActivity() {
                     gesturesEnabled = state.isOpen
                 ) {
                     NavHost(navController, startDestination = Screen.Home.route) {
-                        composable(Screen.Home.route) { backStackEntry ->
+                        composable(Screen.Home.route) {
                             HomeScreen(
                                 navController = navController,
                                 todoViewModel = todoViewModel,
@@ -100,6 +101,9 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                             }
+                        }
+                        composable(Screen.NewTodo.route) {
+                            NewTodoScreen(todoViewModel, navController)
                         }
                         composable(
                             route = Screen.EditTodo.route,

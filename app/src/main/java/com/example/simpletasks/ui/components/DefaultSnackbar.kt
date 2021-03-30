@@ -24,6 +24,8 @@ fun DefaultSnackbar(
                         }
                     }
                 },
+                backgroundColor = MaterialTheme.colors.surface,
+                contentColor = MaterialTheme.colors.onSurface,
                 modifier = Modifier.padding(
                     dimensionResource(id = R.dimen.space_between_16)
                 )

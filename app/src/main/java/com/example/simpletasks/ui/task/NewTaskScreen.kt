@@ -51,7 +51,7 @@ fun NewTaskScreen(
                             taskViewModel.onTaskCreate(it, name, details)
                             navController.navigateUp()
                         },
-                        doneEnabled = name.isNotEmpty()
+                        doneEnabled = name.trim().isNotEmpty()
                     )
                 }
             ) {

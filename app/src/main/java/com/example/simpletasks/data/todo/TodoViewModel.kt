@@ -71,6 +71,18 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun onDeletingTodo(toDelete: Boolean) {
+        deletingTodo = toDelete
+    }
+
+    fun onTodoDeleteUndo() {
+        if (todoToDelete != null) {
+            addTodo(todoToDelete!!)
+            resetDeleteState()
+        }
+        deletingTodo = false
+    }
+
     fun onQueryChange(query: String) {
         _searchQuery.value = query
     }
@@ -108,18 +120,6 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
 
     fun onTodoSelect(route: String) {
         selectedRoute = route
-    }
-
-    fun onDeletingTodo(toDelete: Boolean) {
-        deletingTodo = toDelete
-    }
-
-    fun onTodoDeleteUndo() {
-        if (todoToDelete != null) {
-            addTodo(todoToDelete!!)
-            resetDeleteState()
-        }
-        deletingTodo = false
     }
 
     private fun createTodo(name: String): Todo {

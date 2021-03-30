@@ -6,9 +6,11 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ListAlt
 import androidx.compose.material.icons.rounded.SearchOff
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -22,14 +24,12 @@ import androidx.navigation.compose.navigate
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.simpletasks.R
-import com.example.simpletasks.data.label.LabelSource
 import com.example.simpletasks.data.todo.TodoViewModel
+import com.example.simpletasks.ui.Screen
 import com.example.simpletasks.ui.components.DefaultSnackbar
-import com.example.simpletasks.ui.components.NewListDialog
 import com.example.simpletasks.ui.components.NoDataDisplay
 import com.example.simpletasks.ui.theme.SimpleTasksTheme
 import com.example.simpletasks.util.SnackbarController
-import com.example.simpletasks.util.createTodoRoute
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -44,9 +44,6 @@ fun HomeScreen(
     lifecycleOwner: LifecycleOwner,
     todoViewModel: TodoViewModel
 ) {
-    val labels = LabelSource.readLabels()
-    var isExpanded by rememberSaveable { mutableStateOf(false) }
-    val (todoName, setTodoName) = rememberSaveable { mutableStateOf("") }
     val todoCardAdapter = TodoCardAdapter(navController, todoViewModel)
     val focusManager = LocalFocusManager.current
     val todosState by todoViewModel.todos.observeAsState(initial = emptyList())
@@ -65,8 +62,8 @@ fun HomeScreen(
             },
             floatingActionButton = {
                 HomeFAB {
-                    todoViewModel.onDialogStatusChange(true)
                     focusManager.clearFocus()
+                    goToNewTodoScreen(navController)
                 }
             },
             scaffoldState = scaffoldState,
@@ -115,32 +112,6 @@ fun HomeScreen(
                         }, modifier = Modifier.fillMaxWidth())
                     }
                 }
-
-                if (todoViewModel.isDialogVisible) {
-                    NewListDialog(
-                        todoName = todoName,
-                        onNewNameChange = setTodoName,
-                        enabled = todoName.trim().isNotEmpty(),
-                        labels = labels,
-                        isExpanded = isExpanded,
-                        onExpandChange = { isExpanded = !isExpanded },
-                        onDismissRequest = {
-                            todoViewModel.onDialogStatusChange(false)
-                        },
-                        selectedOption = todoViewModel.newTodoColor,
-                        onOptionsSelected = todoViewModel::onNewColorChange,
-                        onCancel = {
-                            todoViewModel.onCancelDialog()
-                            setTodoName("")
-                            isExpanded = false
-                        },
-                        onDone = {
-                            todoViewModel.onCreateDone(todoName)
-                            goToTodoScreen(navController, todoViewModel)
-                            setTodoName("")
-                        }
-                    )
-                }
                 if (todoViewModel.deletingTodo)
                     ShowSnackbar(scope, scaffoldState, todoViewModel)
 
@@ -161,16 +132,9 @@ fun HomeScreen(
     }
 }
 
-@ExperimentalCoroutinesApi
-private fun goToTodoScreen(
-    navController: NavController,
-    todoViewModel: TodoViewModel
-) {
-    todoViewModel.newTodo?.let {
-        val route = createTodoRoute(it.id)
-        todoViewModel.onTodoSelect(route)
-        navController.navigate(route)
-    }
+private fun goToNewTodoScreen(navController: NavController) {
+    val route = Screen.NewTodo.route
+    navController.navigate(route)
 }
 
 @ExperimentalCoroutinesApi
