@@ -42,4 +42,7 @@
     <string name="no_lists_created">Ninguna lista creada</string>
     <string name="no_lists_found">Ninguna lista encontrada</string>
     <string name="no_tasks_created">Ninguna tarea creada</string>
+    <string name="undo">Deshacer</string>
+    <string name="list_deleted">Lista eliminada</string>
+    <string name="task_deleted">Tarea eliminada</string>
 </resources>

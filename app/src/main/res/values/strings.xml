@@ -47,4 +47,5 @@
     <string name="yellow">Yellow</string>
     <string name="task_deleted">Task deleted</string>
     <string name="undo">Undo</string>
+    <string name="list_deleted">List deleted</string>
 </resources>
