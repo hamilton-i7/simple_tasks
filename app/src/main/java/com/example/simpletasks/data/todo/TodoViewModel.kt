@@ -47,6 +47,11 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
     var selectedRoute by mutableStateOf(Screen.Home.route)
         private set
 
+    var deletingTodo by mutableStateOf(false)
+        private set
+
+    private var todoToDelete: Todo? = null
+    private var deletedPosition = -1
 
     init {
         val todoDao = SimpleTasksDatabase.getDatabase(application, applicationScope).todoDao()
@@ -59,8 +64,11 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
 
     fun readTodoById(id: String): LiveData<Todo> = repo.readTodoById(id).asLiveData()
 
-    fun deleteTodo(todo: Todo) = viewModelScope.launch {
-        repo.deleteTodo(todo)
+    fun deleteTodo(todo: Todo) {
+        todoToDelete = todo
+        viewModelScope.launch {
+            repo.deleteTodo(todo)
+        }
     }
 
     fun onQueryChange(query: String) {
@@ -102,6 +110,18 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
         selectedRoute = route
     }
 
+    fun onDeletingTodo(toDelete: Boolean) {
+        deletingTodo = toDelete
+    }
+
+    fun onTodoDeleteUndo() {
+        if (todoToDelete != null) {
+            addTodo(todoToDelete!!)
+            resetDeleteState()
+        }
+        deletingTodo = false
+    }
+
     private fun createTodo(name: String): Todo {
         val newTodo = Todo(
             name = name,
@@ -116,5 +136,10 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun updateTodo(todo: Todo) = viewModelScope.launch {
         repo.updateTodo(todo)
+    }
+
+    private fun resetDeleteState() {
+        todoToDelete = null
+        deletedPosition = -1
     }
 }

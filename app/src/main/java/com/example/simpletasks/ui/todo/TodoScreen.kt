@@ -1,6 +1,7 @@
 package com.example.simpletasks.ui.todo
 
 import android.view.View
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -23,6 +24,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
 import androidx.navigation.compose.navigate
+import androidx.navigation.compose.popUpTo
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -37,10 +39,8 @@ import com.example.simpletasks.ui.components.DefaultSnackbar
 import com.example.simpletasks.ui.components.NewListDialog
 import com.example.simpletasks.ui.components.NoDataDisplay
 import com.example.simpletasks.ui.theme.SimpleTasksTheme
-import com.example.simpletasks.util.DragManager
-import com.example.simpletasks.util.createNewTaskRoute
-import com.example.simpletasks.util.createTodoEditRoute
-import com.example.simpletasks.util.createTodoRoute
+import com.example.simpletasks.util.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 
@@ -132,8 +132,9 @@ fun TodoScreen(
                         },
                         onListDelete = {
                             isOverflowMenuVisible = false
-                            goToHomeScreen(navController, todoViewModel)
                             todoViewModel.deleteTodo(currentTodo)
+                            todoViewModel.onDeletingTodo(toDelete = true)
+                            goToHomeScreen(navController, todoViewModel)
                         }
                     )
                 },
@@ -254,16 +255,9 @@ fun TodoScreen(
                             }
                         }
                     }
-                    if (taskViewModel.upToDelete) {
-                        val message = stringResource(id = R.string.task_deleted)
-                        val undoStr = stringResource(id = R.string.undo)
-                        scope.launch {
-                            scaffoldState.snackbarHostState.showSnackbar(
-                                message = message,
-                                actionLabel = undoStr
-                            )
-                        }
-                    }
+                    if (taskViewModel.deletingTask)
+                        ShowSnackbar(scope, scaffoldState, taskViewModel)
+
                     DefaultSnackbar(
                         snackbarHostState = scaffoldState.snackbarHostState,
                         modifier = Modifier
@@ -274,7 +268,7 @@ fun TodoScreen(
                     ) {
                         taskViewModel.onTaskDeleteUndo(currentTodo)
                         scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
-                        taskViewModel.onUpToDelete(toDelete = false)
+                        taskViewModel.onDeletingTask(toDelete = false)
                     }
                 }
             }
@@ -305,5 +299,23 @@ private fun goToTodoScreen(
         val route = createTodoRoute(it.id)
         todoViewModel.onTodoSelect(route)
         navController.navigate(route)
+    }
+}
+
+@ExperimentalCoroutinesApi
+@Composable
+private fun ShowSnackbar(
+    scope: CoroutineScope,
+    scaffoldState: ScaffoldState,
+    taskViewModel: TaskViewModel
+) {
+    val message = stringResource(id = R.string.task_deleted)
+    val undoStr = stringResource(id = R.string.undo)
+    scope.launch {
+        scaffoldState.snackbarHostState.showSnackbar(
+            message = message,
+            actionLabel = undoStr
+        )
+        taskViewModel.onDeletingTask(toDelete = false)
     }
 }

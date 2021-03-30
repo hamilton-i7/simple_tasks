@@ -27,7 +27,7 @@ fun EditTaskScreen(
     taskId: String,
     todoViewModel: TodoViewModel,
     taskViewModel: TaskViewModel,
-    navController: NavController
+    navController: NavController,
 ) {
     val scrollState = rememberScrollState()
     val focusManager = LocalFocusManager.current
@@ -54,7 +54,7 @@ fun EditTaskScreen(
                         },
                         onDelete = {
                             taskViewModel.onTaskDelete(task, todo!!)
-                            taskViewModel.onUpToDelete(toDelete = true)
+                            taskViewModel.onDeletingTask(toDelete = true)
                             navController.navigateUp()
                         }
                     )

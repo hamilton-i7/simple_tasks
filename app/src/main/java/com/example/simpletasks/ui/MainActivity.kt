@@ -1,10 +1,10 @@
 package com.example.simpletasks.ui
 
 import android.os.Bundle
-import androidx.activity.OnBackPressedCallback
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.DrawerValue
@@ -31,7 +31,7 @@ import kotlinx.coroutines.launch
 
 @ExperimentalAnimationApi
 @ExperimentalCoroutinesApi
-class MainActivity : AppCompatActivity() {
+class MainActivity : ComponentActivity() {
 
     private val settingsViewModel by viewModels<SettingsViewModel>()
     private val todoViewModel by viewModels<TodoViewModel>()
@@ -66,16 +66,12 @@ class MainActivity : AppCompatActivity() {
                                 state = state,
                                 lifecycleOwner = this@MainActivity
                             )
-                            this@MainActivity.onBackPressedDispatcher.addCallback(backStackEntry,
-                                object : OnBackPressedCallback(true) {
-                                    override fun handleOnBackPressed() {
-                                        if (state.isOpen)
-                                            scope.launch { state.close() }
-                                        else
-                                            this@MainActivity.finish()
-                                    }
-                                }
-                            )
+                            BackHandler {
+                                if (state.isOpen)
+                                    scope.launch { state.close() }
+                                else
+                                    this@MainActivity.finish()
+                            }
                         }
                         composable(
                             route = Screen.Todo.route,
@@ -93,21 +89,16 @@ class MainActivity : AppCompatActivity() {
                                     lifecycleOwner = this@MainActivity,
                                     state = state
                                 )
-
-                                this@MainActivity.onBackPressedDispatcher.addCallback(backStackEntry,
-                                    object : OnBackPressedCallback(true) {
-                                        override fun handleOnBackPressed() {
-                                            if (state.isOpen)
-                                                scope.launch { state.close() }
-                                            else {
-                                                navController.navigate(Screen.Home.route) {
-                                                    popUpTo(Screen.Home.route) { inclusive = true }
-                                                }
-                                                todoViewModel.onTodoSelect(Screen.Home.route)
-                                            }
+                                BackHandler {
+                                    if (state.isOpen)
+                                        scope.launch { state.close() }
+                                    else {
+                                        navController.navigate(Screen.Home.route) {
+                                            popUpTo(Screen.Home.route) { inclusive = true }
                                         }
+                                        todoViewModel.onTodoSelect(Screen.Home.route)
                                     }
-                                )
+                                }
                             }
                         }
                         composable(

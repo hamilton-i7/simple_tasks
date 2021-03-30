@@ -1,19 +1,15 @@
 package com.example.simpletasks.ui.home
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.DrawerState
-import androidx.compose.material.Icon
-import androidx.compose.material.Scaffold
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ListAlt
 import androidx.compose.material.icons.rounded.SearchOff
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
@@ -28,11 +24,15 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.simpletasks.R
 import com.example.simpletasks.data.label.LabelSource
 import com.example.simpletasks.data.todo.TodoViewModel
+import com.example.simpletasks.ui.components.DefaultSnackbar
 import com.example.simpletasks.ui.components.NewListDialog
 import com.example.simpletasks.ui.components.NoDataDisplay
 import com.example.simpletasks.ui.theme.SimpleTasksTheme
+import com.example.simpletasks.util.SnackbarController
 import com.example.simpletasks.util.createTodoRoute
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 
 @ExperimentalComposeUiApi
 @ExperimentalFoundationApi
@@ -50,6 +50,8 @@ fun HomeScreen(
     val todoCardAdapter = TodoCardAdapter(navController, todoViewModel)
     val focusManager = LocalFocusManager.current
     val todosState by todoViewModel.todos.observeAsState(initial = emptyList())
+    val scaffoldState = rememberScaffoldState()
+    val scope = rememberCoroutineScope()
     val query by todoViewModel.searchQuery.collectAsState()
 
     todoViewModel.todos.observe(lifecycleOwner) {
@@ -66,12 +68,18 @@ fun HomeScreen(
                     todoViewModel.onDialogStatusChange(true)
                     focusManager.clearFocus()
                 }
+            },
+            scaffoldState = scaffoldState,
+            snackbarHost = {
+                scaffoldState.snackbarHostState
             }
         ) {
             Box(
-                modifier = Modifier.padding(
-                    dimensionResource(id = R.dimen.space_between_8)
-                )
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(
+                        dimensionResource(id = R.dimen.space_between_8)
+                    )
             ) {
                 when {
                     todosState.isEmpty() && query.isNotEmpty()  -> {
@@ -133,6 +141,21 @@ fun HomeScreen(
                         }
                     )
                 }
+                if (todoViewModel.deletingTodo)
+                    ShowSnackbar(scope, scaffoldState, todoViewModel)
+
+                DefaultSnackbar(
+                    snackbarHostState = scaffoldState.snackbarHostState,
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(
+                            end = dimensionResource(id = R.dimen.space_between_70)
+                        )
+                ) {
+                    todoViewModel.onTodoDeleteUndo()
+                    scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
+                    todoViewModel.onDeletingTodo(toDelete = false)
+                }
             }
         }
     }
@@ -147,5 +170,25 @@ private fun goToTodoScreen(
         val route = createTodoRoute(it.id)
         todoViewModel.onTodoSelect(route)
         navController.navigate(route)
+    }
+}
+
+@ExperimentalCoroutinesApi
+@Composable
+private fun ShowSnackbar(
+    scope: CoroutineScope,
+    scaffoldState: ScaffoldState,
+    todoViewModel: TodoViewModel
+) {
+    val snackbarController = SnackbarController(scope)
+    val message = stringResource(id = R.string.list_deleted)
+    val undoStr = stringResource(id = R.string.undo)
+    snackbarController.getScope().launch {
+        snackbarController.showSnackbar(
+            scaffoldState = scaffoldState,
+            message = message,
+            actionLabel = undoStr
+        )
+        todoViewModel.onDeletingTodo(toDelete = false)
     }
 }
