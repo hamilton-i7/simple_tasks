@@ -55,7 +55,7 @@ fun TodoScreen(
     taskViewModel: TaskViewModel,
     navController: NavController,
     lifecycleOwner: LifecycleOwner,
-    state: DrawerState
+    state: DrawerState,
 ) {
     val settings by settingsViewModel.readSettings().observeAsState(
         initial = Settings()
@@ -242,7 +242,6 @@ fun TodoScreen(
                 }
             }
         }
-
     }
 }
 

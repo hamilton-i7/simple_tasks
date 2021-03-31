@@ -36,6 +36,8 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
     var newTodo: Todo? = null
         private set
 
+    var newTodoName by mutableStateOf("")
+        private set
     var newTodoColor by mutableStateOf(R.color.default_color)
         private set
 
@@ -52,7 +54,8 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
 
     var orderPos = -1
         private set
-    var todoCardScrollPosition = 0
+
+    var isLabelOptionsExpanded by mutableStateOf(false)
         private set
 
     init {
@@ -87,6 +90,10 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
         deletingTodo = false
     }
 
+    fun onNewTodoNameChange(name: String) {
+        newTodoName = name
+    }
+
     fun onQueryChange(query: String) {
         _searchQuery.value = query
     }
@@ -116,8 +123,8 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
         selectedRoute = route
     }
 
-    fun onTodoCardScrollPositionChange(value: Int) {
-        todoCardScrollPosition = value
+    fun onLabelOptionsExpandedChange() {
+        isLabelOptionsExpanded = !isLabelOptionsExpanded
     }
 
     private fun createTodo(name: String): Todo {
