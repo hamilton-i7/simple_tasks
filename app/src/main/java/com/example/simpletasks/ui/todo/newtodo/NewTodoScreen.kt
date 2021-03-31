@@ -10,10 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.dimensionResource
@@ -39,8 +35,6 @@ fun NewTodoScreen(
     navController: NavController
 ) {
     val focusManager = LocalFocusManager.current
-    val (name, setName) = rememberSaveable { mutableStateOf("") }
-    var isExpanded by rememberSaveable { mutableStateOf(false) }
     val labels = LabelSource.readLabels()
 
     todoViewModel.onNewColorChange(R.color.default_color)
@@ -51,10 +45,10 @@ fun NewTodoScreen(
                 title = stringResource(id = R.string.create_list),
                 onUpButtonClick = { navController.navigateUp() },
                 onDoneClick = {
-                    todoViewModel.onCreateDone(name)
+                    todoViewModel.onCreateDone(todoViewModel.newTodoName)
                     goToTodoScreen(navController, todoViewModel)
                 },
-                doneEnabled = name.trim().isNotEmpty()
+                doneEnabled = todoViewModel.newTodoName.trim().isNotEmpty()
             )
         }
     ) {
@@ -65,8 +59,8 @@ fun NewTodoScreen(
                 )
             ) {
                 SimpleTextField(
-                    name = name,
-                    onNameChange = setName,
+                    name = todoViewModel.newTodoName,
+                    onNameChange = todoViewModel::onNewTodoNameChange,
                     label = stringResource(id = R.string.list_name),
                     modifier = Modifier.fillMaxWidth()
                 ) { focusManager.clearFocus() }
@@ -75,8 +69,10 @@ fun NewTodoScreen(
                         dimensionResource(id = R.dimen.space_between_6)
                     )
                 )
-                SelectLabelRow(isExpanded = isExpanded) { isExpanded = !isExpanded }
-                AnimatedVisibility(isExpanded) {
+                SelectLabelRow(isExpanded = todoViewModel.isLabelOptionsExpanded) {
+                    todoViewModel.onLabelOptionsExpandedChange()
+                }
+                AnimatedVisibility(todoViewModel.isLabelOptionsExpanded) {
                     LabelOptions(
                         labels = labels,
                         selectedOption = todoViewModel.newTodoColor,
