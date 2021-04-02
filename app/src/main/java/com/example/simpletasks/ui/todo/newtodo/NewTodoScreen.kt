@@ -10,6 +10,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.dimensionResource
@@ -36,6 +39,7 @@ fun NewTodoScreen(
 ) {
     val focusManager = LocalFocusManager.current
     val labels = LabelSource.readLabels()
+    var isLabelOptionsExpanded by mutableStateOf(false)
 
     todoViewModel.onNewTodoNameChange("")
     todoViewModel.onNewColorChange(R.color.default_color)
@@ -70,10 +74,10 @@ fun NewTodoScreen(
                         dimensionResource(id = R.dimen.space_between_6)
                     )
                 )
-                SelectLabelRow(isExpanded = todoViewModel.isLabelOptionsExpanded) {
-                    todoViewModel.onLabelOptionsExpandedChange()
+                SelectLabelRow(isExpanded = isLabelOptionsExpanded) {
+                    isLabelOptionsExpanded = !isLabelOptionsExpanded
                 }
-                AnimatedVisibility(todoViewModel.isLabelOptionsExpanded) {
+                AnimatedVisibility(isLabelOptionsExpanded) {
                     LabelOptions(
                         labels = labels,
                         selectedOption = todoViewModel.newTodoColor,

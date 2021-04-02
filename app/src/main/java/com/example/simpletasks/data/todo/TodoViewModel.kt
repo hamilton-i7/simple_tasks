@@ -50,9 +50,6 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
     private var todoToDelete: Todo? = null
     private var orderPos: Int? = null
 
-    var isLabelOptionsExpanded by mutableStateOf(false)
-        private set
-
     init {
         val todoDao = SimpleTasksDatabase.getDatabase(application, applicationScope).todoDao()
         repo = TodoRepo(todoDao)
@@ -120,10 +117,6 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
 
     fun onTodoSelect(route: String) {
         selectedRoute = route
-    }
-
-    fun onLabelOptionsExpandedChange() {
-        isLabelOptionsExpanded = !isLabelOptionsExpanded
     }
 
     private fun createTodo(name: String): Todo? {

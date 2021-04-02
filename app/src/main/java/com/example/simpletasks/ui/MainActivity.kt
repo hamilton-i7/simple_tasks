@@ -2,19 +2,18 @@ package com.example.simpletasks.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.material.DrawerValue
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.ModalDrawer
-import androidx.compose.material.rememberDrawerState
+import androidx.compose.material.*
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
+import com.example.simpletasks.R
 import com.example.simpletasks.data.settings.SettingsViewModel
 import com.example.simpletasks.data.task.TaskViewModel
 import com.example.simpletasks.data.task.TaskViewModelFactory
@@ -24,9 +23,9 @@ import com.example.simpletasks.ui.home.HomeScreen
 import com.example.simpletasks.ui.task.NewTaskScreen
 import com.example.simpletasks.ui.task.edit.EditTaskScreen
 import com.example.simpletasks.ui.theme.SimpleTasksTheme
-import com.example.simpletasks.ui.todo.newtodo.NewTodoScreen
 import com.example.simpletasks.ui.todo.TodoScreen
 import com.example.simpletasks.ui.todo.edit.EditTodoScreen
+import com.example.simpletasks.ui.todo.newtodo.NewTodoScreen
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 
@@ -40,39 +39,37 @@ class MainActivity : ComponentActivity() {
         TaskViewModelFactory(todoViewModel)
     }
 
+    private lateinit var navController: NavHostController
+    private lateinit var drawerState: DrawerState
+
     @ExperimentalFoundationApi
     @ExperimentalComposeUiApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
-            val navController = rememberNavController()
+            navController = rememberNavController()
             val scope = rememberCoroutineScope()
-            val state = rememberDrawerState(initialValue = DrawerValue.Closed)
+            drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
             SimpleTasksTheme {
                 ModalDrawer(
                     drawerContent = {
-                        NavDrawerContent(todoViewModel, state, navController)
+                        NavDrawerContent(todoViewModel, drawerState, navController)
                     },
                     drawerShape = MaterialTheme.shapes.large,
-                    drawerState = state,
-                    gesturesEnabled = state.isOpen
+                    drawerState = drawerState,
+                    gesturesEnabled = drawerState.isOpen
                 ) {
                     NavHost(navController, startDestination = Screen.Home.route) {
                         composable(Screen.Home.route) {
                             HomeScreen(
                                 navController = navController,
                                 todoViewModel = todoViewModel,
-                                state = state,
+                                state = drawerState,
                                 lifecycleOwner = this@MainActivity
                             )
-                            BackHandler {
-                                if (state.isOpen)
-                                    scope.launch { state.close() }
-                                else
-                                    this@MainActivity.finish()
-                            }
+                            navController.currentDestination?.id = R.id.home_screen
                         }
                         composable(
                             route = Screen.Todo.route,
@@ -88,18 +85,9 @@ class MainActivity : ComponentActivity() {
                                     taskViewModel = taskViewModel,
                                     navController = navController,
                                     lifecycleOwner = this@MainActivity,
-                                    state = state
+                                    state = drawerState
                                 )
-                                BackHandler {
-                                    if (state.isOpen)
-                                        scope.launch { state.close() }
-                                    else {
-                                        navController.navigate(Screen.Home.route) {
-                                            popUpTo(Screen.Home.route) { inclusive = true }
-                                        }
-                                        todoViewModel.onTodoSelect(Screen.Home.route)
-                                    }
-                                }
+                                navController.currentDestination?.id = R.id.todo_screen
                             }
                         }
                         composable(Screen.NewTodo.route) {
@@ -155,6 +143,28 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
+        }
+    }
+
+    override fun onBackPressed() {
+        when (navController.currentDestination?.id) {
+            R.id.home_screen -> {
+                if (drawerState.isOpen)
+                    lifecycleScope.launch { drawerState.close() }
+                else
+                    this@MainActivity.finish()
+            }
+            R.id.todo_screen -> {
+                if (drawerState.isOpen)
+                    lifecycleScope.launch { drawerState.close() }
+                else {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Home.route) { inclusive = true }
+                    }
+                    todoViewModel.onTodoSelect(Screen.Home.route)
+                }
+            }
+            else -> super.onBackPressed()
         }
     }
 }

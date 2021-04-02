@@ -99,7 +99,9 @@ fun NavDrawerContent(
                 onRowSelected = {
                     scope.launch { state.close() }
                     val route = Screen.NewTodo.route
-                    navController.navigate(route)
+                    navController.navigate(route) {
+                        popUpTo(route) { inclusive = true }
+                    }
                 }
             )
         }

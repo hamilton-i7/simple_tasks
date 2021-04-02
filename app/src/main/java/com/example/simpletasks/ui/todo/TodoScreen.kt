@@ -12,7 +12,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.TaskAlt
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -97,8 +96,8 @@ fun TodoScreen(
             completedTaskAdapter.submitList(completedTasks)
         }
         val scaffoldState = rememberScaffoldState()
-        var isLabelDialogVisible by rememberSaveable { mutableStateOf(false) }
-        var isOverflowMenuVisible by rememberSaveable { mutableStateOf(false) }
+        var isOverflowMenuVisible by mutableStateOf(false)
+        var isLabelMenuVisible by mutableStateOf(false)
 
         Scaffold(
             scaffoldState = scaffoldState,
@@ -114,13 +113,13 @@ fun TodoScreen(
                     },
                     onDismissRequest = { isOverflowMenuVisible = false },
                     onListRename = {
+                        isOverflowMenuVisible = false
                         val route = createTodoEditRoute(currentTodo.id)
                         navController.navigate(route)
-                        isOverflowMenuVisible = false
                     },
                     onLabelColorChange = {
-                        isLabelDialogVisible = true
                         isOverflowMenuVisible = false
+                        isLabelMenuVisible = true
                     },
                     onCompletedTasksDelete = {
                         isOverflowMenuVisible = false
@@ -151,16 +150,16 @@ fun TodoScreen(
                             dimensionResource(id = R.dimen.space_between_8)
                         )
                 ) {
-                    if (isLabelDialogVisible) {
+                    if (isLabelMenuVisible) {
                         LabelDialog(
                             labels = labels,
                             onDismissRequest = {
-                                isLabelDialogVisible = false
+                                isLabelMenuVisible = false
                             },
                             selectedOption = todoViewModel.colorResource,
                             onOptionsSelected = {
+                                isLabelMenuVisible = false
                                 todoViewModel.onLabelChange(currentTodo, it)
-                                isLabelDialogVisible = false
                             }
                         )
                     }
