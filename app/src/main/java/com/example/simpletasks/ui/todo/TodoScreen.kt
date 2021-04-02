@@ -1,8 +1,7 @@
 package com.example.simpletasks.ui.todo
 
 import android.view.View
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.*
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -212,7 +211,11 @@ fun TodoScreen(
                                 tasks.filter { it.completed }.size
                             )
 
-                            AnimatedVisibility(settings.completedTasksExpanded) {
+                            AnimatedVisibility(
+                                visible = settings.completedTasksExpanded,
+                                enter = fadeIn() + slideInVertically(),
+                                exit = fadeOut() + slideOutVertically()
+                            ) {
                                 AndroidView({ context ->
                                     RecyclerView(context).apply {
                                         layoutManager = LinearLayoutManager(context)

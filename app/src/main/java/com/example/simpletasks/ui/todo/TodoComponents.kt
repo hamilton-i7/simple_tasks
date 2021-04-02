@@ -1,6 +1,7 @@
 package com.example.simpletasks.ui.todo
 
 import androidx.annotation.ColorRes
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -8,12 +9,17 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Circle
-import androidx.compose.material.icons.rounded.*
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.ExpandMore
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -123,11 +129,13 @@ fun UncompletedTaskRow(
                 contentDescription = stringResource(id = R.string.check_task)
             )
         }
-        Column(modifier = Modifier.clickable(
-            interactionSource = remember { MutableInteractionSource() },
-            indication = null,
-            onClick = onNameClick
-        )) {
+        Column(
+            modifier = Modifier.clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onNameClick
+            )
+        ) {
             Text(
                 text = name,
                 maxLines = 1,
@@ -162,11 +170,13 @@ fun CompletedTaskRow(
                 tint = colorResource(id = iconColor)
             )
         }
-        Column(modifier = Modifier.clickable(
+        Column(
+            modifier = Modifier.clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
                 onClick = onNameClick
-            )) {
+            )
+        ) {
             Text(
                 text = name,
                 maxLines = 1,
@@ -227,19 +237,17 @@ fun CompletedIndicator(
                 text = stringResource(R.string.completed, completedAmount),
                 style = MaterialTheme.typography.body2
             )
-            if (isExpanded) {
-                Icon(
-                    imageVector = Icons.Rounded.ExpandLess,
-                    contentDescription = stringResource(id = R.string.hide_labels),
-                    modifier = Modifier.padding(12.dp)
-                )
-            } else {
-                Icon(
-                    imageVector = Icons.Rounded.ExpandMore,
-                    contentDescription = stringResource(id = R.string.show_labels),
-                    modifier = Modifier.padding(12.dp)
-                )
-            }
+            val degrees: Float by animateFloatAsState(if (isExpanded) 180f else 0f)
+            Icon(
+                imageVector = Icons.Rounded.ExpandMore,
+                contentDescription = if (isExpanded)
+                    stringResource(id = R.string.hide_labels)
+                else
+                    stringResource(id = R.string.show_labels),
+                modifier = Modifier
+                    .padding(12.dp)
+                    .rotate(degrees)
+            )
         }
     }
 }
