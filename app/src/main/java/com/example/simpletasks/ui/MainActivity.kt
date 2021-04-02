@@ -24,7 +24,7 @@ import com.example.simpletasks.ui.home.HomeScreen
 import com.example.simpletasks.ui.task.NewTaskScreen
 import com.example.simpletasks.ui.task.edit.EditTaskScreen
 import com.example.simpletasks.ui.theme.SimpleTasksTheme
-import com.example.simpletasks.ui.todo.NewTodoScreen
+import com.example.simpletasks.ui.todo.newtodo.NewTodoScreen
 import com.example.simpletasks.ui.todo.TodoScreen
 import com.example.simpletasks.ui.todo.edit.EditTodoScreen
 import kotlinx.coroutines.ExperimentalCoroutinesApi

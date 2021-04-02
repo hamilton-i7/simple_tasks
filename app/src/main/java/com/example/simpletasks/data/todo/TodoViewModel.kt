@@ -16,10 +16,7 @@ import com.example.simpletasks.ui.Screen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 @ExperimentalCoroutinesApi
@@ -51,9 +48,7 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
         private set
 
     private var todoToDelete: Todo? = null
-
-    var orderPos = -1
-        private set
+    private var orderPos: Int? = null
 
     var isLabelOptionsExpanded by mutableStateOf(false)
         private set
@@ -63,6 +58,10 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
         repo = TodoRepo(todoDao)
         val todosFlow = _searchQuery.flatMapLatest { repo.readTodosByQuery(it.trim()) }
         todos = todosFlow.asLiveData()
+
+        viewModelScope.launch {
+            orderPos = readAllTodos().stateIn(this).value.lastIndex
+        }
     }
 
     fun readAllTodos(): Flow<List<Todo>> = repo.readAllTodos()
@@ -71,7 +70,7 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
 
     fun deleteTodo(todo: Todo) {
         todoToDelete = todo
-        orderPos -= 1
+        orderPos = orderPos?.minus(1)
         viewModelScope.launch {
             repo.deleteTodo(todo)
         }
@@ -85,7 +84,7 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
         todoToDelete?.let {
             addTodo(it)
             resetDeleteState()
-            orderPos += 1
+            orderPos = orderPos?.plus(1)
         }
         deletingTodo = false
     }
@@ -127,14 +126,18 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
         isLabelOptionsExpanded = !isLabelOptionsExpanded
     }
 
-    private fun createTodo(name: String): Todo {
-        orderPos += 1
-        val newTodo = Todo(
-            name = name,
-            colorResource = newTodoColor,
-            orderPos = orderPos
-        )
-        addTodo(newTodo)
+    private fun createTodo(name: String): Todo? {
+        orderPos = orderPos?.plus(1)
+        val newTodo = orderPos?.let {
+            Todo(
+                name = name,
+                colorResource = newTodoColor,
+                orderPos = it
+            )
+        }
+        if (newTodo != null) {
+            addTodo(newTodo)
+        }
         return newTodo
     }
 
