@@ -1,5 +1,6 @@
 package com.example.simpletasks.ui.task.edit
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,12 +11,13 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Notes
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.dimensionResource
@@ -54,6 +56,8 @@ fun ListButton(
         enabled = enabled
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
+            val degrees by animateFloatAsState(if (expanded) 180f else 0f)
+
             Text(text = text)
             Spacer(
                 modifier = Modifier.padding(
@@ -61,11 +65,9 @@ fun ListButton(
                 )
             )
             Icon(
-                imageVector = if (expanded)
-                    Icons.Rounded.ExpandLess
-                else
-                    Icons.Rounded.ExpandMore,
-                contentDescription = null
+                imageVector = Icons.Rounded.ExpandMore,
+                contentDescription = null,
+                modifier = Modifier.rotate(degrees)
             )
         }
     }
