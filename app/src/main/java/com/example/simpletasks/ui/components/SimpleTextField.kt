@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 
 @Composable
 fun SimpleTextField(
@@ -22,7 +23,10 @@ fun SimpleTextField(
         value = name,
         onValueChange = onNameChange,
         label = { Text(text = label) },
-        keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+        keyboardOptions = KeyboardOptions(
+            imeAction = ImeAction.Done,
+            capitalization = KeyboardCapitalization.Sentences
+        ),
         keyboardActions = KeyboardActions(
             onDone = { onDone() }
         ),

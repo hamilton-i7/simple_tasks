@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.example.simpletasks.R
@@ -91,7 +92,10 @@ fun TaskTextField(
                 MaterialTheme.typography.h5.copy(
                     color = MaterialTheme.colors.onSurface
                 ),
-            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Done,
+                capitalization = KeyboardCapitalization.Sentences
+            ),
             keyboardActions = KeyboardActions(
                 onDone = { onDone() }
             ),
@@ -141,8 +145,9 @@ fun DetailsRow(
                     MaterialTheme.typography.body1.copy(
                         color = MaterialTheme.colors.onSurface
                     ),
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    imeAction = ImeAction.None
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.None,
+                    capitalization = KeyboardCapitalization.Sentences
                 ),
                 colors = TextFieldDefaults.textFieldColors(
                     backgroundColor = Color.Transparent,
