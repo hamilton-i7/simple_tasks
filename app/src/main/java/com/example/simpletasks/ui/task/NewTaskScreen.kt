@@ -1,5 +1,6 @@
 package com.example.simpletasks.ui.task
 
+import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -25,6 +26,7 @@ import com.example.simpletasks.ui.components.DoneTopBar
 import com.example.simpletasks.ui.components.SimpleTextField
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
+@ExperimentalAnimationApi
 @ExperimentalCoroutinesApi
 @Composable
 fun NewTaskScreen(
@@ -79,7 +81,11 @@ fun NewTaskScreen(
                                 contentDescription = null
                             )
                         }
-                        if (isDetailsTextFieldVisible) {
+                        AnimatedVisibility (
+                            visible = isDetailsTextFieldVisible,
+                            enter = fadeIn() + expandHorizontally(),
+                            exit = fadeOut() + shrinkHorizontally()
+                        ) {
                             DetailsTextField(
                                 details = details,
                                 onDetailsChange = setDetails,
