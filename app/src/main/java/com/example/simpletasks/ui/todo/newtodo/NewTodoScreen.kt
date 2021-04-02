@@ -1,4 +1,4 @@
-package com.example.simpletasks.ui.todo
+package com.example.simpletasks.ui.todo.newtodo
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -37,6 +37,7 @@ fun NewTodoScreen(
     val focusManager = LocalFocusManager.current
     val labels = LabelSource.readLabels()
 
+    todoViewModel.onNewTodoNameChange("")
     todoViewModel.onNewColorChange(R.color.default_color)
 
     Scaffold(
