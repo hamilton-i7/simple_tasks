@@ -9,7 +9,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.*
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
@@ -26,6 +25,7 @@ import com.example.simpletasks.ui.theme.SimpleTasksTheme
 import com.example.simpletasks.ui.todo.TodoScreen
 import com.example.simpletasks.ui.todo.edit.EditTodoScreen
 import com.example.simpletasks.ui.todo.newtodo.NewTodoScreen
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 
@@ -41,6 +41,7 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var navController: NavHostController
     private lateinit var drawerState: DrawerState
+    private lateinit var coroutineScope: CoroutineScope
 
     @ExperimentalFoundationApi
     @ExperimentalComposeUiApi
@@ -49,7 +50,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             navController = rememberNavController()
-            val scope = rememberCoroutineScope()
+            coroutineScope = rememberCoroutineScope()
             drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
             SimpleTasksTheme {
@@ -150,13 +151,13 @@ class MainActivity : ComponentActivity() {
         when (navController.currentDestination?.id) {
             R.id.home_screen -> {
                 if (drawerState.isOpen)
-                    lifecycleScope.launch { drawerState.close() }
+                    coroutineScope.launch { drawerState.close() }
                 else
                     this@MainActivity.finish()
             }
             R.id.todo_screen -> {
                 if (drawerState.isOpen)
-                    lifecycleScope.launch { drawerState.close() }
+                    coroutineScope.launch { drawerState.close() }
                 else {
                     navController.navigate(Screen.Home.route) {
                         popUpTo(Screen.Home.route) { inclusive = true }
