@@ -21,15 +21,15 @@ fun DetailsTextField(
     TextField(
         value = details,
         onValueChange = onDetailsChange,
-        placeholder = {
-            Text(text = stringResource(id = R.string.add_details))
+        label = {
+            Text(text = stringResource(id = R.string.details))
         },
         keyboardOptions = KeyboardOptions(
             imeAction = ImeAction.None,
             capitalization = KeyboardCapitalization.Sentences
         ),
         colors = TextFieldDefaults.textFieldColors(
-            backgroundColor = Color.Transparent
+            backgroundColor = Color.Transparent,
         ),
         modifier = modifier
     )

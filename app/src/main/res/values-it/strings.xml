@@ -45,4 +45,5 @@
     <string name="task_deleted">Attività cancellata</string>
     <string name="list_deleted">Lista cancellata</string>
     <string name="undo">Annulla</string>
+    <string name="details">Dettagli</string>
 </resources>

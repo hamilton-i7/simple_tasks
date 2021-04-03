@@ -45,4 +45,5 @@
     <string name="undo">Deshacer</string>
     <string name="list_deleted">Lista eliminada</string>
     <string name="task_deleted">Tarea eliminada</string>
+    <string name="details">Detalles</string>
 </resources>

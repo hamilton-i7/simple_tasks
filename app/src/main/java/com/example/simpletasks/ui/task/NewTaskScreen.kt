@@ -57,7 +57,9 @@ fun NewTaskScreen(
         ) {
             Surface {
                 Column(
-                    modifier = Modifier.padding(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(
                         dimensionResource(id = R.dimen.space_between_16)
                     )
                 ) {
@@ -84,7 +86,8 @@ fun NewTaskScreen(
                         AnimatedVisibility (
                             visible = isDetailsTextFieldVisible,
                             enter = fadeIn() + expandHorizontally(),
-                            exit = fadeOut() + shrinkHorizontally()
+                            exit = fadeOut() + shrinkHorizontally(),
+                            modifier = Modifier.weight(1f)
                         ) {
                             DetailsTextField(
                                 details = details,
