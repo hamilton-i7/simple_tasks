@@ -13,5 +13,6 @@ object LabelSource {
         Label(R.string.purple, R.color.purple),
         Label(R.string.pink, R.color.pink),
         Label(R.string.brown, R.color.brown),
+        Label(R.string.orange, R.color.orange)
     )
 }
