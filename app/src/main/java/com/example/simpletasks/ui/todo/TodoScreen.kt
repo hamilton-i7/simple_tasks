@@ -238,7 +238,7 @@ fun TodoScreen(
                             end = dimensionResource(id = R.dimen.space_between_70)
                         )
                 ) {
-                    taskViewModel.onTaskDeleteUndo(currentTodo)
+                    taskViewModel.onTaskDeleteUndo()
                     scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
                     taskViewModel.onDeletingTask(toDelete = false)
                 }

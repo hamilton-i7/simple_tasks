@@ -171,9 +171,6 @@ fun TodoDropdownMenu(
     taskViewModel: TaskViewModel,
     onDismiss: () -> Unit,
 ) {
-    var hasTask: Boolean
-    var todoWithTask: Todo? = null
-
     DropdownMenu(
         expanded = expanded,
         onDismissRequest = onDismiss,
@@ -187,19 +184,11 @@ fun TodoDropdownMenu(
                 .padding(bottom = dimensionResource(id = R.dimen.space_between_8))
         )
 
-        for (todo in todos) {
-            hasTask = todo.tasks.contains(task)
-            if (hasTask) {
-                todoWithTask = todo
-                break
-            }
-        }
-
         todos.forEach { todo ->
             DropdownMenuItem(
                 onClick = {
                     taskViewModel.onButtonNameChange(todo.name)
-                    taskViewModel.onTaskSwitch(task, todoWithTask, todo)
+                    taskViewModel.onTaskSwitch(task, todo)
                     onDismiss()
                 },
                 modifier = Modifier.background(

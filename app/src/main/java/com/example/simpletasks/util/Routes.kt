@@ -11,4 +11,4 @@ fun createTodoEditRoute(todoId: String) = "$EDIT_TODO_ROUTE_PREFIX/$todoId"
 
 fun createNewTaskRoute(todoId: String) = "$NEW_TASK_ROUTE_PREFIX/$todoId"
 
-fun createTaskEditRoute(todoId: String, taskId: String) = "$EDIT_TASK_ROUTE_PREFIX/$todoId/$taskId"
+fun createTaskEditRoute(taskId: String) = "$EDIT_TASK_ROUTE_PREFIX/$taskId"

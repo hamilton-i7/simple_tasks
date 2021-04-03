@@ -114,12 +114,8 @@ class MainActivity : ComponentActivity() {
                                 navArgument(TASK_ARG) { type = NavType.StringType }
                             )
                         ) { backStackEntry ->
-                            if (
-                                backStackEntry.arguments!!.getString(TODO_ARG) != null &&
-                                backStackEntry.arguments!!.getString(TASK_ARG) != null
-                            ) {
+                            if (backStackEntry.arguments!!.getString(TASK_ARG) != null) {
                                 EditTaskScreen(
-                                    todoId = backStackEntry.arguments!!.getString(TODO_ARG)!!,
                                     taskId = backStackEntry.arguments!!.getString(TASK_ARG)!!,
                                     todoViewModel = todoViewModel,
                                     taskViewModel = taskViewModel,

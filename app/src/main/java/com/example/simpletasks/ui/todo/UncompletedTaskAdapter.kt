@@ -79,7 +79,7 @@ class UncompletedTaskAdapter(
     }
 
     private fun goToEditTaskScreen(taskId: String) {
-        val route = createTaskEditRoute(todo.id, taskId)
+        val route = createTaskEditRoute(taskId)
         navController.navigate(route)
     }
 

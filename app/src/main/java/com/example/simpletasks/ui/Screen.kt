@@ -14,5 +14,5 @@ sealed class Screen(val route: String) {
     object NewTodo : Screen(NEW_TODO)
     object EditTodo: Screen("$EDIT_TODO_ROUTE_PREFIX/{$TODO_ARG}")
     object NewTask: Screen("$NEW_TASK_ROUTE_PREFIX/{$TODO_ARG}")
-    object EditTask: Screen("$EDIT_TASK_ROUTE_PREFIX/{$TODO_ARG}/{$TASK_ARG}")
+    object EditTask: Screen("$EDIT_TASK_ROUTE_PREFIX/{$TASK_ARG}")
 }

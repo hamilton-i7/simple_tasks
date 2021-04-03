@@ -5,7 +5,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,7 +21,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 @ExperimentalCoroutinesApi
 @Composable
 fun EditTaskScreen(
-    todoId: String,
     taskId: String,
     todoViewModel: TodoViewModel,
     taskViewModel: TaskViewModel,
@@ -32,15 +30,23 @@ fun EditTaskScreen(
     val focusManager = LocalFocusManager.current
     var listButtonExpanded by rememberSaveable { mutableStateOf(false) }
     val todos by todoViewModel.readAllTodos().collectAsState(initial = emptyList())
-    val todo by todoViewModel.readTodoById(todoId).observeAsState()
     var task: Task? = null
+    var hasTask: Boolean
 
-    for (todoList in todos) {
-        task = todoList.tasks.find { it.id == taskId }
+    for (todo in todos) {
+        task = todo.tasks.find { it.id == taskId }
         if (task != null) break
     }
 
-    if (todo != null && task != null) {
+    for (todo in todos) {
+        hasTask = todo.tasks.contains(task)
+        if (hasTask) {
+            taskViewModel.onTodoWithTaskChange(todo)
+            break
+        }
+    }
+
+    if (task != null) {
         val (name, setName) = rememberSaveable { mutableStateOf(task.name) }
         val (details, setDetails) = rememberSaveable { mutableStateOf(task.details) }
 
@@ -51,7 +57,7 @@ fun EditTaskScreen(
                         navController.navigateUp()
                     },
                     onDelete = {
-                        taskViewModel.onTaskDelete(task, todo!!)
+                        taskViewModel.onTaskDelete(task)
                         taskViewModel.onDeletingTask(toDelete = true)
                         navController.navigateUp()
                     }
@@ -59,7 +65,7 @@ fun EditTaskScreen(
             },
             floatingActionButton = {
                 MarkButton(taskCompleted = task.completed) {
-                    taskViewModel.onTaskStateChange(task, todo!!)
+                    taskViewModel.onTaskStateChange(task)
                     navController.navigateUp()
                 }
             }
@@ -100,7 +106,7 @@ fun EditTaskScreen(
                     name = name,
                     onNameChange = {
                         setName(it)
-                        taskViewModel.onTaskEdit(task, todo!!, it, details)
+                        taskViewModel.onTaskEdit(task, taskViewModel.todoWithTask!!, it, details)
                     },
                     readOnly = task.completed,
                     onDone = { focusManager.clearFocus() },
@@ -117,7 +123,7 @@ fun EditTaskScreen(
                     details = details ?: "",
                     onDetailsChange = {
                         setDetails(it)
-                        taskViewModel.onTaskEdit(task, todo!!, name, it)
+                        taskViewModel.onTaskEdit(task, taskViewModel.todoWithTask!!, name, it)
                     },
                     readOnly = task.completed,
                     modifier = Modifier.fillMaxWidth()
