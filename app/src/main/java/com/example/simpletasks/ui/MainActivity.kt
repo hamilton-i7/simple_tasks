@@ -12,7 +12,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
-import com.example.simpletasks.R
 import com.example.simpletasks.data.settings.SettingsViewModel
 import com.example.simpletasks.data.task.TaskViewModel
 import com.example.simpletasks.data.task.TaskViewModelFactory
@@ -70,7 +69,7 @@ class MainActivity : ComponentActivity() {
                                 state = drawerState,
                                 lifecycleOwner = this@MainActivity
                             )
-                            navController.currentDestination?.id = R.id.home_screen
+                            navController.currentDestination?.label = Screen.Home.route
                         }
                         composable(
                             route = Screen.Todo.route,
@@ -88,7 +87,7 @@ class MainActivity : ComponentActivity() {
                                     lifecycleOwner = this@MainActivity,
                                     state = drawerState
                                 )
-                                navController.currentDestination?.id = R.id.todo_screen
+                                navController.currentDestination?.label = Screen.Todo.route
                             }
                         }
                         composable(Screen.NewTodo.route) {
@@ -148,14 +147,14 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onBackPressed() {
-        when (navController.currentDestination?.id) {
-            R.id.home_screen -> {
+        when (navController.currentDestination?.label) {
+            Screen.Home.route -> {
                 if (drawerState.isOpen)
                     coroutineScope.launch { drawerState.close() }
                 else
                     this@MainActivity.finish()
             }
-            R.id.todo_screen -> {
+            Screen.Todo.route -> {
                 if (drawerState.isOpen)
                     coroutineScope.launch { drawerState.close() }
                 else {
