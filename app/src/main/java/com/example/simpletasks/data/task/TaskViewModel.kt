@@ -100,16 +100,19 @@ class TaskViewModel(private val todoViewModel: TodoViewModel) : ViewModel() {
         todoViewModel.onEditTodo(todo, newList)
     }
 
-    fun onTaskSwitch(task: Task, from: Todo, to: Todo) {
-        val newList1 = from.tasks.toMutableList().also { it.remove(task) }
-        val newList2 = to.tasks.toMutableList().also {
-            it.add(
-                index = it.indexOfLast { task -> !task.completed } + 1,
-                element = task
-            )
+    fun onTaskSwitch(task: Task, from: Todo?, to: Todo) {
+        if (from != null && from != to) {
+            val newList1 = from.tasks.toMutableList().also { it.remove(task) }
+            val newList2 = to.tasks.toMutableList().also {
+                it.add(
+                    index = it.indexOfLast { task -> !task.completed } + 1,
+                    element = task
+                )
+            }
+
+            todoViewModel.onEditTodo(from, newList1)
+            todoViewModel.onEditTodo(to, newList2)
         }
-        todoViewModel.onEditTodo(from, newList1)
-        todoViewModel.onEditTodo(to, newList2)
     }
 
     fun onButtonNameChange(name: String) {

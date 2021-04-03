@@ -85,7 +85,6 @@ fun EditTaskScreen(
                         TodoDropdownMenu(
                             expanded = listButtonExpanded,
                             task = task,
-                            currentTodo = todo!!,
                             todos = todos.sortedBy { it.name },
                             taskViewModel = taskViewModel,
                             onDismiss = { listButtonExpanded = false },

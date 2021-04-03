@@ -271,12 +271,15 @@ private fun ShowSnackbar(
     val snackbarController = SnackbarController(scope)
     val message = stringResource(id = R.string.task_deleted)
     val undoStr = stringResource(id = R.string.undo)
-    snackbarController.getScope().launch {
-        snackbarController.showSnackbar(
-            scaffoldState = scaffoldState,
-            message = message,
-            actionLabel = undoStr
-        )
-        taskViewModel.onDeletingTask(toDelete = false)
+
+    LaunchedEffect(Unit) {
+        snackbarController.getScope().launch {
+            snackbarController.showSnackbar(
+                scaffoldState = scaffoldState,
+                message = message,
+                actionLabel = undoStr
+            )
+            taskViewModel.onDeletingTask(toDelete = false)
+        }
     }
 }
